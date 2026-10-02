@@ -6,5 +6,12 @@
       "@audiorapy/domain": ["./packages/domain/src/index.ts"]
     }
   },
-  "include": ["packages/*/src", "apps/*/src", "test", "scripts", "*.config.ts"]
+  "include": [
+    "packages/*/src",
+    "apps/*/src",
+    "apps/web/vite.config.ts",
+    "test",
+    "scripts",
+    "*.config.ts"
+  ]
 }

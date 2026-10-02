@@ -18,6 +18,7 @@ npm run verify        # typecheck, lint, format, unit + fuzz + invariant tests, 
 npm run test:unit     # each test folder also runs on its own
 npm run test:fuzz
 npm run test:invariant
+npm run test:e2e      # Playwright, see below
 ```
 
 Run the API locally (console channel: replies are kept in memory instead of sent to WhatsApp):
@@ -38,6 +39,19 @@ npm run smoke:api     # starts the real process and checks webhook guards + book
 | `POST /api/reminders/tick` | Runs the reminder cron once (it also runs every minute) |
 | `POST /dev/simulate` | Development only, console channel only: feed a caregiver message through the real pipeline |
 
+Run the therapist dashboard (decrypts in the browser; works without the API or Ollama):
+
+```bash
+npm run dev:web       # http://localhost:5173
+npm run test:e2e      # Playwright: builds the dashboard, starts the real API, runs mobile + desktop
+```
+
+| Today (scheduling plane, phones masked) | SOAP note (local Gemma draft, figures computed by code) | Progress by cue level (synthetic data) |
+|---|---|---|
+| ![Today](docs/screenshots/today-desktop.png) | ![SOAP](docs/screenshots/soap-desktop.png) | ![Progress](docs/screenshots/progress-mobile.png) |
+
+The screenshots use synthetic data and a mocked Ollama reply; no real patient appears anywhere in this repo.
+
 Requires Node 22+. Copy `.env.example` to `.env` only when wiring real providers; everything runs
 without it.
 
@@ -47,7 +61,7 @@ without it.
 |---|---|
 | `packages/domain` | Pure TypeScript domain: ports, typed `PortResult`, no third-party SDKs |
 | `apps/api` | WhatsApp webhook and scheduling API (Fastify): Meta and console channels, Gemma-on-Ollama intent with rules fallback, reminder cron |
-| `apps/web` | Therapist dashboard that decrypts clinical records in the browser |
+| `apps/web` | Therapist dashboard (Vite + React): vault with passphrase + 24-word recovery phrase, today's agenda, progress by cue level, session mode, SOAP drafts from local Ollama, encrypted backup/restore. Strict CSP in the build |
 | `test/` | `unit/`, `fuzz/`, `invariant/` (Vitest + fast-check) and `e2e/` (Playwright) |
 
 ## Docs

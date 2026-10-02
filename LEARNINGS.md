@@ -32,7 +32,11 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
 
 ## 2. ¿Qué costó más de lo esperado, y por qué?
 
-- `2026-10-02` —
+- `2026-10-02` — `pkill -f "vite preview"` dentro de un comando que contiene ese mismo texto mata
+  la propia shell (exit 144). Detener servidores por PID (`pgrep -af` y `kill <pid>`), nunca por
+  patrón que aparezca en la línea de comandos actual.
+- `2026-10-02` — Un servidor de una corrida anterior seguía en el puerto 3000: el nuevo no arrancó y
+  las pruebas manuales hablaron con el estado viejo. Confirmar puertos libres antes y después.
 
 ## 3. ¿Qué haría distinto?
 

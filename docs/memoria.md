@@ -29,8 +29,15 @@
 | 2026-10-02 | `/api/agenda` enmascara el teléfono (`••••2233`) | El dashboard distingue familias; no necesita leer números | Teléfono completo |
 | 2026-10-02 | `/dev/simulate` solo existe con canal consola y fuera de producción | Demo y e2e sin Meta, sin abrir una puerta en producción | Simulador siempre activo |
 
+| 2026-10-02 | La bóveda cifrada vive en `localStorage` **más** respaldo descargable; restaurar en un navegador limpio es un test e2e | Safari puede borrar el almacenamiento; perder la llave o el archivo es perder una historia que se conserva 15 años | Solo almacenamiento del navegador |
+| 2026-10-02 | El dashboard solo llama a Ollama en `localhost`/`127.0.0.1` (`isLoopback`), y la CSP del build solo permite conectar a sí mismo, loopback y `VITE_API_ORIGIN` | Dos capas: el código rechaza un modelo remoto y el navegador bloquea cualquier otro destino | Confiar solo en la configuración |
+| 2026-10-02 | "Aprobar" queda deshabilitado mientras S, A o P contengan `[completar]` | La IA apoya, no decide: la terapeuta completa lo que el código quitó | Aprobar con marcadores |
+| 2026-10-02 | El token del dashboard en `sessionStorage`; direcciones en `localStorage` | El token se va al cerrar la pestaña | Todo en `localStorage` |
+| 2026-10-02 | Modo sesión también en web | La app Expo (B6) no cabe verificada hoy; el dashboard ya puede registrar ensayos con nivel de apoyo | Esperar a Expo |
+
 ## Bitácora
 
 - **2026-10-02** — B1: scaffold, contrato, CI. `npm run verify` verde en local (Node 22.22).
 - **2026-10-02** — B2: dominio completo. 17 archivos de test. Dos mutaciones a mano (cancelar por texto; consentir por texto) **no** ponían rojo el primer invariante porque las secuencias aleatorias casi nunca llegaban a `booked`; se reescribió para partir de estados e intenciones arbitrarias y ahora ambas mutaciones fallan.
 - **2026-10-02** — B3: API. Primer e2e falló porque el primer cupo quedaba a 24 h exactas y el recordatorio "día anterior" ya era pasado: comportamiento correcto, supuesto del test equivocado. Mutación: quitar el dedupe pone rojo el invariante A2.
+- **2026-10-02** — B4: dashboard. Recorrido completo con `playwright-cli` (Chromium 141, emulación móvil 360 px y escritorio 1100 px). Un e2e falló porque `allTextContents()` no espera: leía la lista de palabras antes de que terminara Argon2id; se espera `toHaveCount(24)`.
