@@ -4,7 +4,10 @@ import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import { startApi, waitForHealth } from './lib/api-process.ts';
 
-const python = resolve(process.env.RISK_PYTHON ?? 'services/risk/.venv/bin/python');
+// A path (relative to the repo root) is resolved because the sidecar runs in services/risk; a bare
+// command such as `python` is left for PATH lookup.
+const pythonSetting = process.env.RISK_PYTHON ?? 'services/risk/.venv/bin/python';
+const python = pythonSetting.includes('/') ? resolve(pythonSetting) : pythonSetting;
 const RISK_PORT = 8097;
 const sidecar = spawn(
   python,
