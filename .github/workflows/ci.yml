@@ -35,6 +35,8 @@ jobs:
       - name: Invariant tests
         run: npm run test:invariant
       - run: npm run build
+      - name: Intent eval (rules baseline must not regress)
+        run: npm run eval:intent -- --min-accuracy 0.9
       - name: Smoke test the real API process
         run: npm run smoke:api
       - name: Audit production dependencies

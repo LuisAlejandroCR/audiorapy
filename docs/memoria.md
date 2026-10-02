@@ -32,6 +32,8 @@
 | 2026-10-02 | El token del dashboard en `sessionStorage`; direcciones en `localStorage` | El token se va al cerrar la pestaña | Todo en `localStorage` |
 | 2026-10-02 | Modo sesión también en web | La app Expo (B6) no cabe verificada hoy; el dashboard ya puede registrar ensayos con nivel de apoyo | Esperar a Expo |
 | 2026-10-02 | Paleta **azul y blanco** (pedido del autor): acento `#1d5fd1`, fondo `#f4f8fd`; modo oscuro azul marino. El nivel de apoyo "mínimo" pasa de azul a turquesa `#0e9aa7` para no confundirse con el acento | Todos los pares de texto ≥ 5,8:1 (WCAG AA); puntos del gráfico ≥ 3:1 | Verde original |
+| 2026-10-02 | Set de evaluación de intención: 40 mensajes **sintéticos** etiquetados a mano; las reglas **no** se ajustan a sus fallos | Si las reglas se afinan contra el set, deja de medir lo que aporta Gemma | Corregir las 3 fallas en las reglas |
+| 2026-10-02 | CI exige ≥ 90 % de las reglas en el set (`--min-accuracy 0.9`) | Las reglas son el respaldo cuando la IA está apagada: una regresión ahí rompe la reserva | Sin compuerta |
 
 ## Bitácora
 
@@ -39,3 +41,4 @@
 - **2026-10-02** — B2: dominio completo. 17 archivos de test. Dos mutaciones a mano (cancelar por texto; consentir por texto) **no** ponían rojo el primer invariante porque las secuencias aleatorias casi nunca llegaban a `booked`; se reescribió para partir de estados e intenciones arbitrarias y ahora ambas mutaciones fallan.
 - **2026-10-02** — B3: API. Primer e2e falló porque el primer cupo quedaba a 24 h exactas y el recordatorio "día anterior" ya era pasado: comportamiento correcto, supuesto del test equivocado. Mutación: quitar el dedupe pone rojo el invariante A2.
 - **2026-10-02** — B4: dashboard. Recorrido completo con `playwright-cli` (Chromium 141, emulación móvil 360 px y escritorio 1100 px). Un e2e falló porque `allTextContents()` no espera: leía la lista de palabras antes de que terminara Argon2id; se espera `toHaveCount(24)`.
+- **2026-10-02** — B8: arnés `npm run eval:intent`. Línea base de reglas 37/40 (93 %), preferencias 5/5. Fallan tres frases idiomáticas; quedan como señal para medir a Gemma.

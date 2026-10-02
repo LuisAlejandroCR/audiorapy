@@ -36,7 +36,7 @@
 | B5 | Postgres (Supabase) detrás del port de repositorio | — | ⏳ roadmap |
 | B6 | Expo dev build: modo sesión ✓/✗ + apoyo + deshacer, SQLCipher, outbox | — | ⏳ roadmap (el modo sesión ya existe en web como puente) |
 | B7 | Sidecar TabPFN-2 + CSV sintético + baseline logístico | — | ⏳ roadmap |
-| B8 | Mini-eval de 40 mensajes: reglas vs reglas + Gemma | — | ⏳ requiere Ollama real |
+| B8 | Mini-eval de 40 mensajes: reglas vs reglas + Gemma | `feat/intent-eval` | ✅ arnés + set + compuerta en CI; reglas 37/40. Columna Gemma ⏳ requiere Ollama real |
 | B9 | Despliegue (Render) y prueba "matar al proveedor" grabada | — | ⏳ |
 
 ## Fuera de alcance del fin de semana

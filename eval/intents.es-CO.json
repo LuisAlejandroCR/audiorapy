@@ -1,0 +1,63 @@
+{
+  "name": "intents.es-CO",
+  "synthetic": true,
+  "note": "Invented caregiver replies in Colombian Spanish, labeled by hand. No real person wrote any of them.",
+  "items": [
+    { "text": "Hola", "kind": "greeting" },
+    { "text": "Buenas tardes, doctora", "kind": "greeting" },
+    { "text": "Holi, buenos días", "kind": "greeting" },
+    { "text": "Buenas noches, quería agendar para mi hijo", "kind": "greeting" },
+    { "text": "Sí", "kind": "affirm" },
+    { "text": "sii confirmo", "kind": "affirm" },
+    { "text": "Listo, ahí estaremos", "kind": "affirm" },
+    { "text": "Dale, perfecto", "kind": "affirm" },
+    { "text": "De una, gracias", "kind": "affirm" },
+    { "text": "Claro que sí, a esa hora nos queda bien", "kind": "affirm" },
+    { "text": "Ok", "kind": "affirm" },
+    { "text": "Confirmado 👍", "kind": "affirm" },
+    { "text": "No", "kind": "deny" },
+    { "text": "No gracias", "kind": "deny" },
+    { "text": "Negativo", "kind": "deny" },
+    { "text": "Quiero cancelar la cita", "kind": "cancel" },
+    { "text": "Ya no vamos a poder seguir con las terapias", "kind": "cancel" },
+    { "text": "Por favor anule la visita del jueves", "kind": "cancel" },
+    { "text": "Cancelemos, gracias", "kind": "cancel" },
+    { "text": "Ya no vamos, se nos complicó todo", "kind": "cancel" },
+    { "text": "No puedo ese día", "kind": "reschedule" },
+    { "text": "¿Podemos cambiar la hora?", "kind": "reschedule" },
+    { "text": "Otro día por favor", "kind": "reschedule" },
+    {
+      "text": "Mejor el miércoles en la tarde",
+      "kind": "reschedule",
+      "preference": { "weekday": 3, "partOfDay": "afternoon" }
+    },
+    {
+      "text": "El viernes por la mañana nos queda mejor",
+      "kind": "reschedule",
+      "preference": { "weekday": 5, "partOfDay": "morning" }
+    },
+    { "text": "¿Se puede el lunes?", "kind": "reschedule", "preference": { "weekday": 1 } },
+    { "text": "Mi niño amaneció enfermo, toca moverla", "kind": "reschedule" },
+    { "text": "Uy esa semana estamos de viaje, ¿la corremos para la otra?", "kind": "reschedule" },
+    {
+      "text": "No podemos mañana, ¿hay algo el sábado temprano?",
+      "kind": "reschedule",
+      "preference": { "weekday": 6, "partOfDay": "morning" }
+    },
+    {
+      "text": "Reprogramemos para después del almuerzo",
+      "kind": "reschedule",
+      "preference": { "partOfDay": "afternoon" }
+    },
+    { "text": "¿Cuánto cuesta la visita?", "kind": "question" },
+    { "text": "¿Debo tener algo listo para la sesión?", "kind": "question" },
+    { "text": "¿La terapeuta trae los materiales?", "kind": "question" },
+    { "text": "Cómo se paga, por Nequi?", "kind": "question" },
+    { "text": "¿Atiende en Chía?", "kind": "question" },
+    { "text": "Quisiera saber si reciben la EPS", "kind": "question" },
+    { "text": "asdf qwer", "kind": "unknown" },
+    { "text": "😂😂", "kind": "unknown" },
+    { "text": "Le mando la foto del carnet", "kind": "unknown" },
+    { "text": "El niño ya dice la erre mejor", "kind": "unknown" }
+  ]
+}

@@ -75,6 +75,24 @@ without it.
 | [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md) | Rules for coding agents working in this repo (Spanish) |
 | [docs/research/](docs/research/) | The seven sourced research notes behind the report, including the official challenge page as primary source |
 
+## Intent eval
+
+40 invented caregiver replies in Colombian Spanish, labeled by hand ([eval/intents.es-CO.json](eval/intents.es-CO.json)).
+The rules classifier is scored on every CI run and may not drop below 90 %.
+
+```bash
+npm run eval:intent                    # rules only
+npm run eval:intent -- --ollama        # rules and Gemma 4 on your local Ollama (OLLAMA_MODEL, OLLAMA_BASE_URL)
+```
+
+| Classifier | Accuracy | Weekday / time-of-day preference | Measured |
+|---|---|---|---|
+| Rules (deterministic fallback) | 37/40 (93 %) | 5/5 | 2026-10-02, CI and local |
+| Rules + Gemma 4 E4B | ⏳ pending | ⏳ | needs a run on the therapist's laptop |
+
+The three messages the rules miss are idiomatic ("toca moverla", "¿la corremos para la otra?", "Quisiera saber
+si reciben la EPS"); they are left unfixed on purpose so the set keeps measuring what the model adds.
+
 ## Model input manifest
 
 What each AI component sees — nothing else is sent to it.
