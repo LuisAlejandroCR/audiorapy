@@ -1,3 +1,6 @@
+<!-- README.md: public English entry point for audiorapy — what it is, how to run it, what is measured
+     and what is pending. Spanish docs live in docs/; the DEV post draft in submission/. -->
+
 # audiorapy
 
 A privacy-first assistant for a home-visit speech-language therapist (fonoaudióloga) in Colombia:
@@ -8,7 +11,9 @@ about children never leave her devices.
 Built for the [DEV Hacktoberfest Weekend Challenge: Build for a Friend](https://dev.to/challenges/hacktoberfest-weekend-2026-10-01)
 (window: 2026-10-02 02:00 UTC → 2026-10-05 06:59 UTC).
 
-> Status: building. Weekend MVP in progress — see [docs/plan.md](docs/plan.md) for what is done and what is pending.
+> Status: the weekend slice works end to end locally and in CI (booking by buttons, reminders, encrypted
+> dashboard, local Gemma drafts, no-show risk sidecar, Postgres). Not yet exercised against the real
+> WhatsApp Cloud API, a real Ollama run, or a real Render deploy — see [docs/verificacion.md](docs/verificacion.md).
 
 ## Quick start
 
@@ -82,9 +87,13 @@ without it.
 | Path | What lives there |
 |---|---|
 | `packages/domain` | Pure TypeScript domain: ports, typed `PortResult`, no third-party SDKs |
-| `apps/api` | WhatsApp webhook and scheduling API (Fastify): Meta and console channels, Gemma-on-Ollama intent with rules fallback, reminder cron |
+| `apps/api` | WhatsApp webhook and scheduling API (Fastify): Meta and console channels, Gemma-on-Ollama intent with rules fallback, no-show risk adapter, reminder cron, memory or Postgres store with retention purge |
 | `apps/web` | Therapist dashboard (Vite + React): vault with passphrase + 24-word recovery phrase, today's agenda, progress by cue level, session mode, SOAP drafts from local Ollama, encrypted backup/restore. Strict CSP in the build |
-| `test/` | `unit/`, `fuzz/`, `invariant/` (Vitest + fast-check) and `e2e/` (Playwright) |
+| `services/risk` | No-show risk sidecar (Python, FastAPI): logistic baseline, optional TabPFN-2; its pytest + Hypothesis tests live in `services/risk/tests` |
+| `test/` | `unit/`, `fuzz/`, `invariant/` (Vitest + fast-check), `integration/` (real Postgres) and `e2e/` (Playwright) |
+| `scripts/` | `smoke:api`, `smoke:risk`, `demo:degraded`, `eval:intent` — each starts real processes |
+| `eval/` | The 40 labeled caregiver messages for the intent eval |
+| `submission/` | Draft of the DEV post |
 
 ## Docs
 

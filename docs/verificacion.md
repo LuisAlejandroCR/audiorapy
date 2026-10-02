@@ -62,7 +62,10 @@
 
 ## Pendientes conocidos
 
-- CI en GitHub Actions: ⏳ se verifica en el primer PR.
+- CI en GitHub Actions: ✅ los cuatro jobs (`verify`, `e2e`, `postgres`, `risk`) en verde en el PR #14
+  (2026-10-02). El workflow `tabpfn-eval` es manual y no ha corrido ⏳.
+- El repo es privado: el embed `{% github %}` del post y las capturas enlazadas necesitan que sea público ⏳.
+- B6 (app Expo) sigue en roadmap; el modo sesión existe en el dashboard web.
 
 ## Navegador real con `playwright-cli` (2026-10-02)
 
