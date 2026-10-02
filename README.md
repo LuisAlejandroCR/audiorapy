@@ -95,6 +95,7 @@ without it.
 | [docs/memoria.md](docs/memoria.md) | Architecture decisions and why (Spanish) |
 | [docs/verificacion.md](docs/verificacion.md) | Dated evidence of what was verified and what is pending (Spanish) |
 | [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md) | Rules for coding agents working in this repo (Spanish) |
+| [submission/dev-post.md](submission/dev-post.md) | Draft of the DEV submission post; `[[AUTHOR: …]]` marks what only the author can fill in |
 | [docs/research/](docs/research/) | The seven sourced research notes behind the report, including the official challenge page as primary source |
 
 ## Deploy (Render)
@@ -118,6 +119,7 @@ unreachable, and checks what must keep working (it also runs in CI):
 |---|---|
 | Ollama down | Booking by buttons; free text still understood by the rules; `/health/providers` shows the model as unavailable |
 | WhatsApp (Meta) unreachable | Webhook keeps answering 200; failed sends are counted, not thrown; the therapist still sees escalations in the agenda |
+| Risk sidecar down | Booking by buttons; reminders planned with the heuristic; `/health/providers` shows the sidecar as unavailable |
 | No-show risk off | Booking with the fixed reminder cadence |
 | Ollama down + risk off | Booking by buttons, agenda |
 | Database down at startup | Nothing pretends to work: exit code 1 with a clear reason, password never printed |
@@ -180,9 +182,11 @@ stays `draft` until the therapist approves it.
 
 ## Prior work
 
-Code ported from the author's earlier project [asegura](https://github.com/LuisAlejandroCR/asegura)
-(WhatsApp channel adapter, webhook signature verification, conversation state machine) will be
-credited here file by file, with the source commit and what changed.
+The project and this repository were started inside the challenge window. No code was copied from
+earlier projects: the ports-and-adapters layout and the WhatsApp channel design follow the author's
+earlier project [asegura](https://github.com/LuisAlejandroCR/asegura), re-implemented here from scratch
+(Fastify instead of NestJS). `AGENTS.md` and `LEARNINGS.md` are adapted from the author's
+[procedures](https://github.com/LuisAlejandroCR/procedures) templates.
 
 ## Post-deadline commits
 

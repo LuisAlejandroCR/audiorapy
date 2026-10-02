@@ -51,6 +51,7 @@
 | 2026-10-02 | Paleta **azul y blanco** (pedido del autor): acento `#1d5fd1`, fondo `#f4f8fd`; modo oscuro azul marino. El nivel de apoyo "mínimo" pasa de azul a turquesa `#0e9aa7` para no confundirse con el acento | Todos los pares de texto ≥ 5,8:1 (WCAG AA); puntos del gráfico ≥ 3:1 | Verde original |
 | 2026-10-02 | Set de evaluación de intención: 40 mensajes **sintéticos** etiquetados a mano; las reglas **no** se ajustan a sus fallos | Si las reglas se afinan contra el set, deja de medir lo que aporta Gemma | Corregir las 3 fallas en las reglas |
 | 2026-10-02 | CI exige ≥ 90 % de las reglas en el set (`--min-accuracy 0.9`) | Las reglas son el respaldo cuando la IA está apagada: una regresión ahí rompe la reserva | Sin compuerta |
+| 2026-10-02 | Borrador del post de DEV en `submission/dev-post.md` (inglés), con marcas `[[AUTHOR: …]]` para lo que solo el autor puede aportar; un test lo ata al README | La redacción es el criterio que más pesa; un número o una cita inventados en el post serían peores que un hueco visible | Escribir el post el domingo desde cero; inventar detalles de la terapeuta |
 
 ## Bitácora
 
@@ -64,3 +65,4 @@
 - **2026-10-02** — B7: sidecar de riesgo. El invariante de límites (cuerpo de la API ⊂ esquema del sidecar) encontró un bug real: con 500 visitas previas y sin número de sesión, `session_number` salía en 501 y el sidecar habría respondido 422. Corregido. El fuzz de Python marcó dos aserciones demasiado estrictas (infinito no es JSON; 400 es válido), no fallos del servicio. Un proceso de la API huérfano de una corrida fallida respondió en el puerto de la siguiente: la misma lección de `LEARNINGS.md`.
 - **2026-10-02** — Retención: `purge(now)` en los dos stores, `markProcessed` recibe la hora. Mutaciones: borrar también recordatorios pendientes (memoria) → falla la invariante de retención; ignorar el estado en Postgres → falla la invariante diferencial 2/2.
 - **2026-10-02** — Corrección: los commits de los PR #1–#11 llevaron cuerpo y `Co-Authored-By`, contra la regla de `procedures/templates/AGENTS.md`, que se había perdido al adaptar el contrato. Restaurada en `AGENTS.md`; desde aquí, una línea y sin trailers. La historia ya mergeada no se reescribe.
+- **2026-10-02** — Al preparar el post se vio que la sección "Prior work" del README prometía acreditar código portado de Asegura, pero no se portó nada (la API se escribió desde cero en Fastify). Se corrigió para decir la verdad. Los detalles de la vida de la terapeuta en el post quedan marcados para que el autor los confirme.
