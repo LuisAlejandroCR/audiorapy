@@ -1,0 +1,38 @@
+# ci.yml: the verify gate (typecheck, lint, format, unit/fuzz/invariant tests, build) on every PR and push to main.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Fuzz tests
+        run: npm run test:fuzz
+      - name: Invariant tests
+        run: npm run test:invariant
+      - run: npm run build
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

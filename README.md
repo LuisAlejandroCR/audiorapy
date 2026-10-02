@@ -8,13 +8,39 @@ about children never leave her devices.
 Built for the [DEV Hacktoberfest Weekend Challenge: Build for a Friend](https://dev.to/challenges/hacktoberfest-weekend-2026-10-01)
 (window: 2026-10-02 02:00 UTC → 2026-10-05 06:59 UTC).
 
-> Status: research and architecture. No application code yet.
+> Status: building. Weekend MVP in progress — see [docs/plan.md](docs/plan.md) for what is done and what is pending.
+
+## Quick start
+
+```bash
+npm ci
+npm run verify        # typecheck, lint, format, unit + fuzz + invariant tests, build
+npm run test:unit     # each test folder also runs on its own
+npm run test:fuzz
+npm run test:invariant
+```
+
+Requires Node 22+. Copy `.env.example` to `.env` only when wiring real providers; everything runs
+without it.
+
+## Layout
+
+| Path | What lives there |
+|---|---|
+| `packages/domain` | Pure TypeScript domain: ports, typed `PortResult`, no third-party SDKs |
+| `apps/api` | WhatsApp webhook and scheduling API |
+| `apps/web` | Therapist dashboard that decrypts clinical records in the browser |
+| `test/` | `unit/`, `fuzz/`, `invariant/` (Vitest + fast-check) and `e2e/` (Playwright) |
 
 ## Docs
 
 | File | What it answers |
 |---|---|
 | [docs/research-report.md](docs/research-report.md) | The full report (Spanish): weekend MVP vs roadmap, architecture, clinical data model and dashboards, zero-knowledge encryption under Colombian law, open-source AI core, sponsor categories with fallbacks, reuse from prior work, weekend plan |
+| [docs/plan.md](docs/plan.md) | User story, acceptance criteria and build blocks with status (Spanish) |
+| [docs/memoria.md](docs/memoria.md) | Architecture decisions and why (Spanish) |
+| [docs/verificacion.md](docs/verificacion.md) | Dated evidence of what was verified and what is pending (Spanish) |
+| [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md) | Rules for coding agents working in this repo (Spanish) |
 | [docs/research/](docs/research/) | The seven sourced research notes behind the report, including the official challenge page as primary source |
 
 ## Prior work
@@ -26,3 +52,7 @@ credited here file by file, with the source commit and what changed.
 ## Post-deadline commits
 
 None yet. Any commit after 2026-10-05 06:59 UTC will be listed here.
+
+## License
+
+[MIT](LICENSE)

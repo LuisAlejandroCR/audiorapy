@@ -1,0 +1,7 @@
+docs/
+*.md
+package-lock.json
+dist/
+playwright-report/
+test-results/
+.playwright-cli/
