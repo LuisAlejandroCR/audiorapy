@@ -20,6 +20,24 @@ npm run test:fuzz
 npm run test:invariant
 ```
 
+Run the API locally (console channel: replies are kept in memory instead of sent to WhatsApp):
+
+```bash
+DASHBOARD_TOKEN=dev npm run dev:api
+curl -s -X POST localhost:3000/dev/simulate -H 'content-type: application/json' \
+  -d '{"from":"573001112233","text":"Hola"}'
+npm run smoke:api     # starts the real process and checks webhook guards + booking over HTTP
+```
+
+| Endpoint | What it does |
+|---|---|
+| `GET /webhook` | Meta subscription handshake; 403 on a wrong verify token, 503 when none is configured |
+| `POST /webhook` | Signed Meta deliveries: HMAC-SHA256 over the raw bytes, 401 when it does not match, dedupe by message id |
+| `GET /health/providers` | Which channel, intent classifier, risk model and scheduler are active, and the last model result |
+| `GET /api/agenda` | Appointments and therapist alerts (bearer `DASHBOARD_TOKEN`; phone numbers masked) |
+| `POST /api/reminders/tick` | Runs the reminder cron once (it also runs every minute) |
+| `POST /dev/simulate` | Development only, console channel only: feed a caregiver message through the real pipeline |
+
 Requires Node 22+. Copy `.env.example` to `.env` only when wiring real providers; everything runs
 without it.
 
@@ -28,7 +46,7 @@ without it.
 | Path | What lives there |
 |---|---|
 | `packages/domain` | Pure TypeScript domain: ports, typed `PortResult`, no third-party SDKs |
-| `apps/api` | WhatsApp webhook and scheduling API |
+| `apps/api` | WhatsApp webhook and scheduling API (Fastify): Meta and console channels, Gemma-on-Ollama intent with rules fallback, reminder cron |
 | `apps/web` | Therapist dashboard that decrypts clinical records in the browser |
 | `test/` | `unit/`, `fuzz/`, `invariant/` (Vitest + fast-check) and `e2e/` (Playwright) |
 

@@ -22,7 +22,15 @@
 | 2026-10-02 | Argon2id con parámetros OWASP (19 MiB, t=2) guardados en la cabecera de la bóveda | Se pueden subir sin migrar registros: solo se re-envuelve la DEK | Parámetros fijos en código |
 | 2026-10-02 | El borrador SOAP del modelo pierde toda oración que tenga un dígito (`[completar]`) | "El modelo nunca escribe cifras": las cifras salen de `TrialData` | Validar cifras contra los datos |
 
+| 2026-10-02 | El webhook responde 200 y procesa en cola (`Inbox.enqueue`); dedupe por `message.id` antes de cualquier efecto | Meta reintenta lo que no ve confirmado; clasificar con Gemma puede tardar hasta 8 s | Procesar en línea |
+| 2026-10-02 | Sin `META_APP_SECRET` el webhook responde **503**, no 401 | Una guarda que falla cerrado sin secreto se ve igual que una integración muerta; 503 lo hace visible (`whatsapp_cloud_api.md`) | 401 genérico |
+| 2026-10-02 | Un 400 de Meta a un mensaje interactivo se reintenta una vez como texto numerado | Un 400 significa que el cuidador no recibe nada | Fallar el envío |
+| 2026-10-02 | Circuit breaker en Ollama: 3 fallos → 60 s sin llamar | Un Ollama caído no debe sumar 8 s a cada mensaje | Reintentar siempre |
+| 2026-10-02 | `/api/agenda` enmascara el teléfono (`••••2233`) | El dashboard distingue familias; no necesita leer números | Teléfono completo |
+| 2026-10-02 | `/dev/simulate` solo existe con canal consola y fuera de producción | Demo y e2e sin Meta, sin abrir una puerta en producción | Simulador siempre activo |
+
 ## Bitácora
 
 - **2026-10-02** — B1: scaffold, contrato, CI. `npm run verify` verde en local (Node 22.22).
 - **2026-10-02** — B2: dominio completo. 17 archivos de test. Dos mutaciones a mano (cancelar por texto; consentir por texto) **no** ponían rojo el primer invariante porque las secuencias aleatorias casi nunca llegaban a `booked`; se reescribió para partir de estados e intenciones arbitrarias y ahora ambas mutaciones fallan.
+- **2026-10-02** — B3: API. Primer e2e falló porque el primer cupo quedaba a 24 h exactas y el recordatorio "día anterior" ya era pasado: comportamiento correcto, supuesto del test equivocado. Mutación: quitar el dedupe pone rojo el invariante A2.

@@ -34,5 +34,7 @@ jobs:
       - name: Invariant tests
         run: npm run test:invariant
       - run: npm run build
+      - name: Smoke test the real API process
+        run: npm run smoke:api
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high

@@ -1,0 +1,17 @@
+{
+  "name": "@audiorapy/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@audiorapy/domain": "^0.1.0",
+    "@fastify/cors": "^11.3.0",
+    "fastify": "^5.12.5",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.5"
+  }
+}
