@@ -24,6 +24,7 @@
 | 2026-10-02 | `python -m risk.evaluate` | Logística 0,675 ROC-AUC (holdout 180, sintético, 22 % inasistencia); TabPFN-2 "unavailable: tabpfn is not installed" | Python 3.11.15 |
 | 2026-10-02 | `npm run smoke:risk` ×2 | PASS 6/6: sidecar real + API real, la reserva se puntúa por el sidecar (`sidecar:logistic`) | Linux |
 | 2026-10-02 | `npm run demo:degraded` | PASS 26/26 (nuevo escenario: sidecar de riesgo caído → heurística) | Linux |
+| 2026-10-02 | Retención: contrato en memoria, PGlite y Postgres 16.14 real | PASS (integración 10/10); smoke con Postgres 12/12; la API registra `maintenance.purged` con conteos al arrancar | Linux, Node 22.22.0 |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -36,6 +37,8 @@
 | 2026-10-02 | `postgres-store.ts`: el dedupe hace `DO UPDATE` en vez de `DO NOTHING` | contrato `dedupes message ids` y `…concurrent deliveries…` |
 | 2026-10-02 | `rules-intent.ts`: el respaldo devuelve `unknown` cuando Ollama falla | `demo:degraded` → "free text still understood by the rules" |
 | 2026-10-02 | `risk/app.py`: el sidecar lanza error con `zone == 9` | `test_score_bounded_consistent_deterministic` (Hypothesis, 4 min encogiendo) |
+| 2026-10-02 | `memory-store.ts`: la purga borra también recordatorios pendientes | invariante de retención |
+| 2026-10-02 | `postgres-store.ts`: la purga ignora el estado del recordatorio | invariante diferencial memoria vs Postgres (2/2) |
 | 2026-10-02 | `postgres-store.ts`: cancelar no salta los recordatorios pendientes | invariante diferencial memoria vs Postgres (3/3 tras sesgar el generador) |
 
 ## Límites externos (ejercicio contra la cosa real)

@@ -25,7 +25,8 @@ type Op =
     }
   | { op: 'alert'; c: number; a: number | null }
   | { op: 'resolve'; i: number }
-  | { op: 'conv'; c: number; s: number };
+  | { op: 'conv'; c: number; s: number }
+  | { op: 'purge'; days: number };
 
 const opArb: fc.Arbitrary<Op> = fc.oneof(
   fc.record({ op: fc.constant('mark' as const), id: fc.constantFrom('m1', 'm2', 'm3') }),
@@ -54,6 +55,7 @@ const opArb: fc.Arbitrary<Op> = fc.oneof(
   }),
   fc.record({ op: fc.constant('resolve' as const), i: fc.nat(3) }),
   fc.record({ op: fc.constant('conv' as const), c: fc.nat(2), s: fc.nat(2) }),
+  fc.record({ op: fc.constant('purge' as const), days: fc.integer({ min: 0, max: 60 }) }),
 );
 
 async function run(store: SchedulingStore, ops: Op[]) {
@@ -62,7 +64,9 @@ async function run(store: SchedulingStore, ops: Op[]) {
   const answers: unknown[] = [];
   const name = (id: string | null) => (id === null ? null : `#${appts.indexOf(id)}`);
   for (const o of ops) {
-    if (o.op === 'mark') answers.push(await store.markProcessed(o.id));
+    if (o.op === 'mark') answers.push(await store.markProcessed(o.id, NOW));
+    if (o.op === 'purge')
+      answers.push(await store.purge(new Date(NOW.getTime() + o.days * 86_400_000)));
     if (o.op === 'create')
       appts.push(
         (

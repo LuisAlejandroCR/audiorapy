@@ -16,8 +16,10 @@ import {
   type AlertReason,
   type Appointment,
   type ReminderJob,
+  type PurgeResult,
   type Schedule,
   type SchedulingStore,
+  purgeCutoffs,
 } from './store.ts';
 
 type Row = Record<string, unknown>;
@@ -80,10 +82,10 @@ export class PostgresStore implements SchedulingStore {
     return new PostgresStore(sql);
   }
 
-  async markProcessed(messageId: string): Promise<boolean> {
+  async markProcessed(messageId: string, at: Date = new Date()): Promise<boolean> {
     const r = await this.sql.query(
-      'INSERT INTO processed_messages (id) VALUES ($1) ON CONFLICT (id) DO NOTHING RETURNING id',
-      [messageId],
+      'INSERT INTO processed_messages (id, processed_at) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING RETURNING id',
+      [messageId, at.toISOString()],
     );
     return r.rows.length === 1;
   }
@@ -254,6 +256,19 @@ export class PostgresStore implements SchedulingStore {
       id,
     ]);
     return r.rows.length === 1;
+  }
+
+  async purge(now: Date): Promise<PurgeResult> {
+    const { processedBefore, jobsDueBefore } = purgeCutoffs(now);
+    const processed = await this.sql.query(
+      'DELETE FROM processed_messages WHERE processed_at < $1 RETURNING id',
+      [processedBefore.toISOString()],
+    );
+    const jobs = await this.sql.query(
+      "DELETE FROM reminder_jobs WHERE state IN ('sent', 'skipped') AND due_at < $1 RETURNING id",
+      [jobsDueBefore.toISOString()],
+    );
+    return { processedMessages: processed.rows.length, reminderJobs: jobs.rows.length };
   }
 
   async close(): Promise<void> {

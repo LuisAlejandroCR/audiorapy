@@ -65,6 +65,10 @@ DATABASE_URL=... npm run smoke:api          # also restarts the process and chec
 The database holds only the messaging plane — appointment time and status, consent evidence, reminder
 jobs, alerts, processed message ids. Clinical records never reach it.
 
+Retention: every 6 hours (and at startup) the API deletes processed message ids older than 14 days and
+finished reminder jobs (sent or skipped) due more than 30 days ago. Appointments, consent evidence and
+alerts are never deleted by this job.
+
 Requires Node 22+. Copy `.env.example` to `.env` only when wiring real providers; everything runs
 without it.
 

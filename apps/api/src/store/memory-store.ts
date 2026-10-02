@@ -14,8 +14,10 @@ import {
   type AlertReason,
   type Appointment,
   type ReminderJob,
+  type PurgeResult,
   type Schedule,
   type SchedulingStore,
+  purgeCutoffs,
 } from './store.ts';
 
 export * from './store.ts';
@@ -30,13 +32,13 @@ export class MemoryStore implements SchedulingStore {
   private readonly consents: ConsentRecord[] = [];
   private readonly jobs = new Map<string, ReminderJob>();
   private readonly alerts: Alert[] = [];
-  private readonly processed = new Set<string>();
+  private readonly processed = new Map<string, number>();
 
-  async markProcessed(messageId: string): Promise<boolean> {
+  async markProcessed(messageId: string, at: Date = new Date()): Promise<boolean> {
     if (this.processed.has(messageId)) return false;
-    this.processed.add(messageId);
+    this.processed.set(messageId, at.getTime());
     if (this.processed.size > PROCESSED_CAP)
-      this.processed.delete(this.processed.values().next().value!);
+      this.processed.delete(this.processed.keys().next().value!);
     return true;
   }
 
@@ -167,6 +169,25 @@ export class MemoryStore implements SchedulingStore {
     if (!alert) return false;
     alert.resolved = true;
     return true;
+  }
+
+  async purge(now: Date): Promise<PurgeResult> {
+    const { processedBefore, jobsDueBefore } = purgeCutoffs(now);
+    let processedMessages = 0;
+    for (const [id, at] of this.processed) {
+      if (at < processedBefore.getTime()) {
+        this.processed.delete(id);
+        processedMessages++;
+      }
+    }
+    let reminderJobs = 0;
+    for (const [id, job] of this.jobs) {
+      if (job.state !== 'pending' && Date.parse(job.dueAt) < jobsDueBefore.getTime()) {
+        this.jobs.delete(id);
+        reminderJobs++;
+      }
+    }
+    return { processedMessages, reminderJobs };
   }
 
   async close(): Promise<void> {}
