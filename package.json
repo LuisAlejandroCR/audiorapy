@@ -24,7 +24,8 @@
     "start:api": "npm run start -w @audiorapy/api",
     "smoke:api": "tsx scripts/smoke-api.ts",
     "test:e2e": "playwright test",
-    "dev:web": "npm run dev -w @audiorapy/web"
+    "dev:web": "npm run dev -w @audiorapy/web",
+    "eval:intent": "tsx scripts/eval-intent.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

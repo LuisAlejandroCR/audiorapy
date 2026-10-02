@@ -14,6 +14,8 @@
 | 2026-10-02 | `npm run verify` (B4) | PASS — 157 tests: unit 119, fuzz 17, invariant 21; build web 385 kB JS (124 kB gzip) | Linux, Node 22.22.0 |
 | 2026-10-02 | `npm run test:e2e` ×2 | PASS 20/20 las dos corridas (10 tests × móvil Pixel 7 y escritorio) | Chromium 141 (`PW_CHROMIUM_PATH`), Playwright 1.63 |
 | 2026-10-02 | Paleta azul y blanco: `npm run verify` + `npm run test:e2e` | PASS — 157 tests; e2e 20/20; contraste texto ≥ 5,8:1 en claro y oscuro; `playwright-cli` a 360 px `{ overflow: false, h1: 1, small: 0 }`, 0 errores de consola | Chromium 141 |
+| 2026-10-02 | `npm run eval:intent` (reglas) | 37/40 (93 %), preferencia 5/5, p95 1 ms. Fallas: "Mi niño amaneció enfermo, toca moverla" → `unknown`; "¿la corremos para la otra?" → `question`; "Quisiera saber si reciben la EPS" → `unknown` | Linux, Node 22.22.0 |
+| 2026-10-02 | `eval:intent` códigos de salida | 0 con `--min-accuracy 0.9`; 1 con `0.95`; 2 con `--ollama` sin Ollama | Linux, Node 22.22.0 |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -30,7 +32,7 @@
 |---|---|---|
 | Meta WhatsApp Cloud API (envío y webhook) | ⏳ pendiente | Requiere la app y el número de prueba del autor. Probado solo contra un doble de la Graph API v25.0. Falta: `debug_token` = `SYSTEM_USER`, "Hola" real, mensaje con tildes real |
 | Plantilla *utility* del recordatorio | ⏳ pendiente | Fuera de la ventana de 24 h un interactivo no basta; hay que registrar y aprobar la plantilla en Meta |
-| Ollama + `gemma4:e4b` | ⏳ pendiente | No hay Ollama en la sesión en la nube. Probado contra un doble de `/api/chat` con `format` = JSON Schema. Falta: latencia real y mini-eval (B8) |
+| Ollama + `gemma4:e4b` | ⏳ pendiente | No hay Ollama en la sesión en la nube. Probado contra un doble de `/api/chat` con `format` = JSON Schema. Falta: correr `npm run eval:intent -- --ollama` en la laptop de la terapeuta (precisión y latencia reales) |
 | Dashboard en navegador real | ✅ 2026-10-02 | Ver la sección `playwright-cli` abajo |
 
 ## Pendientes conocidos
