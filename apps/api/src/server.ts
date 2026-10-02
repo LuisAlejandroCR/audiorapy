@@ -5,7 +5,14 @@ import { buildChannel, buildClassifier, buildStore } from './providers.ts';
 import { tickReminders } from './service/reminders.ts';
 
 const config = loadConfig();
-const store = await buildStore(config);
+// The database is the source of truth: if it is configured but unreachable, stop with a clear
+// message instead of silently falling back to memory and losing bookings.
+const store = await buildStore(config).catch((error: unknown) => {
+  process.stderr.write(
+    `${JSON.stringify({ level: 50, event: 'startup.store_unreachable', error: error instanceof Error ? error.message : 'unknown' })}\n`,
+  );
+  process.exit(1);
+});
 const channel = buildChannel(config);
 const app = await buildApp({ config, store, channel, classifier: buildClassifier(config) });
 

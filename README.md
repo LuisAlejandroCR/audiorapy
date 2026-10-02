@@ -88,6 +88,32 @@ without it.
 | [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md) | Rules for coding agents working in this repo (Spanish) |
 | [docs/research/](docs/research/) | The seven sourced research notes behind the report, including the official challenge page as primary source |
 
+## Deploy (Render)
+
+[`render.yaml`](render.yaml) is a Render Blueprint: the API as a Node web service, the dashboard as a static
+site and Render Postgres for the schedule. Secrets are entered in the Render dashboard (`sync: false`);
+`DASHBOARD_TOKEN` is generated. After the first deploy, set `DASHBOARD_ORIGIN` on the API and
+`VITE_API_ORIGIN` on the dashboard to each other's URL. The blueprint has not been through a real Render
+deploy yet.
+
+If the database is configured but unreachable at startup, the API exits with
+`startup.store_unreachable` instead of silently falling back to memory.
+
+## What still works when a provider is down
+
+`npm run demo:degraded` starts the real API once per scenario with one external service configured but
+unreachable, and checks what must keep working (it also runs in CI):
+
+| Scenario | What keeps working |
+|---|---|
+| Ollama down | Booking by buttons; free text still understood by the rules; `/health/providers` shows the model as unavailable |
+| WhatsApp (Meta) unreachable | Webhook keeps answering 200; failed sends are counted, not thrown; the therapist still sees escalations in the agenda |
+| No-show risk off | Booking with the fixed reminder cadence |
+| Ollama down + risk off | Booking by buttons, agenda |
+| Database down at startup | Nothing pretends to work: exit code 1 with a clear reason, password never printed |
+
+The dashboard's own degraded states (no API, no Ollama) are covered by the Playwright suite.
+
 ## Intent eval
 
 40 invented caregiver replies in Colombian Spanish, labeled by hand ([eval/intents.es-CO.json](eval/intents.es-CO.json)).

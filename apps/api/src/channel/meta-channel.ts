@@ -13,6 +13,8 @@ export interface MetaChannelOptions {
   accessToken: string;
   phoneNumberId: string;
   graphVersion: string;
+  /** Defaults to https://graph.facebook.com; overridden only to test an unreachable Meta. */
+  graphBaseUrl?: string;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
 }
@@ -52,7 +54,8 @@ export class MetaChannel implements ChannelPort {
   }
 
   private async post(payload: Record<string, unknown>): Promise<PortResult<{ id: string }>> {
-    const url = `https://graph.facebook.com/${this.opts.graphVersion}/${encodeURIComponent(this.opts.phoneNumberId)}/messages`;
+    const base = (this.opts.graphBaseUrl ?? 'https://graph.facebook.com').replace(/\/$/, '');
+    const url = `${base}/${this.opts.graphVersion}/${encodeURIComponent(this.opts.phoneNumberId)}/messages`;
     const doFetch = this.opts.fetchImpl ?? fetch;
     const r = await guard(
       this.name,

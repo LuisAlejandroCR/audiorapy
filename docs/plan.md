@@ -37,7 +37,7 @@
 | B6 | Expo dev build: modo sesión ✓/✗ + apoyo + deshacer, SQLCipher, outbox | — | ⏳ roadmap (el modo sesión ya existe en web como puente) |
 | B7 | Sidecar TabPFN-2 + CSV sintético + baseline logístico | — | ⏳ roadmap |
 | B8 | Mini-eval de 40 mensajes: reglas vs reglas + Gemma | `feat/intent-eval` | ✅ arnés + set + compuerta en CI; reglas 37/40. Columna Gemma ⏳ requiere Ollama real |
-| B9 | Despliegue (Render) y prueba "matar al proveedor" grabada | — | ⏳ |
+| B9 | Despliegue (Render) y prueba "matar al proveedor" grabada | `feat/deploy-degraded` | ✅ `render.yaml` + test de consistencia; `npm run demo:degraded` 22/22 en CI. Deploy real y video ⏳ |
 
 ## Fuera de alcance del fin de semana
 

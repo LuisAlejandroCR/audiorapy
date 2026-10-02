@@ -1,0 +1,74 @@
+# render.yaml: Render Blueprint — the API (Node web service), the therapist dashboard (static site) and
+# Render Postgres for the scheduling store. Secrets are never written here: `sync: false` values are
+# entered in the Render dashboard; DASHBOARD_TOKEN is generated. Not yet validated by a Render deploy.
+
+databases:
+  - name: audiorapy-db
+    databaseName: audiorapy
+    user: audiorapy
+    postgresMajorVersion: '16'
+    # Reachable only from services on Render's private network.
+    ipAllowList: []
+
+services:
+  - type: web
+    name: audiorapy-api
+    runtime: node
+    plan: starter # the free plan sleeps after 15 min idle and makes Meta retry webhooks
+    buildCommand: npm ci
+    startCommand: npm run start:api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: audiorapy-db
+          property: connectionString
+      - key: DASHBOARD_TOKEN
+        generateValue: true
+      - key: DASHBOARD_ORIGIN
+        sync: false # the dashboard's URL, e.g. https://audiorapy-web.onrender.com
+      - key: META_ACCESS_TOKEN
+        sync: false
+      - key: META_PHONE_NUMBER_ID
+        sync: false
+      - key: META_APP_SECRET
+        sync: false
+      - key: META_VERIFY_TOKEN
+        sync: false
+      - key: AI_INTENT_PROVIDER
+        value: rules # switch to `ollama` only with OLLAMA_BASE_URL behind an authenticated tunnel
+      - key: OLLAMA_BASE_URL
+        sync: false
+      - key: RISK_PROVIDER
+        value: heuristic
+      - key: PRACTICE_NAME
+        sync: false
+      - key: PRIVACY_URL
+        sync: false
+
+  - type: web
+    name: audiorapy-web
+    runtime: static
+    buildCommand: npm ci && npm run build -w @audiorapy/web
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_ORIGIN
+        sync: false # the API's URL, e.g. https://audiorapy-api.onrender.com — added to the page's CSP
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
