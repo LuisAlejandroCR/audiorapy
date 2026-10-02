@@ -26,6 +26,10 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
 - `2026-10-02` — La plantilla de contrato asume que `docs/` vive gitignored; en una sesión en la nube
   eso significa perderlo al reciclar el contenedor. Commitearlo fue la decisión práctica.
 
+- `2026-10-02` — Un invariante sobre secuencias de eventos desde el estado inicial puede quedar verde
+  sobre código roto: el generador casi nunca llega al estado profundo donde vive el bug. Partir de
+  **estados arbitrarios** (un paso) además de secuencias, y probarlo con una mutación a mano.
+
 ## 2. ¿Qué costó más de lo esperado, y por qué?
 
 - `2026-10-02` —
