@@ -153,3 +153,21 @@ describe('conversation', () => {
     expect(r.state).toEqual({ step: 'booked', startsAt: A });
   });
 });
+
+describe('afterSlotTaken', () => {
+  it('says the slot was taken and re-offers what is free', async () => {
+    const { afterSlotTaken } = await import('@audiorapy/domain');
+    const r = afterSlotTaken(ctx(undefined, [slot(B)]));
+    expect(r.outbound.map((m) => m.key)).toEqual(['slot_taken', 'slot_list']);
+    expect(r.state).toEqual({ step: 'choosing_slot', offered: [B] });
+    expect(r.effects).toEqual([]);
+  });
+
+  it('when rescheduling and nothing is free, keeps the old visit and escalates', async () => {
+    const { afterSlotTaken } = await import('@audiorapy/domain');
+    const r = afterSlotTaken(ctx(), A);
+    expect(r.state).toEqual({ step: 'booked', startsAt: A });
+    expect(r.outbound.map((m) => m.key)).toEqual(['slot_taken', 'no_slots']);
+    expect(r.effects).toEqual([{ type: 'escalate', reason: 'no_slots' }]);
+  });
+});

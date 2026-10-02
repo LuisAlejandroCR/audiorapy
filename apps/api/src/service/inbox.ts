@@ -5,6 +5,7 @@ import {
   planReminders,
   recordConsent,
   step,
+  afterSlotTaken,
   toLocalParts,
   type CatalogueContext,
   type Effect,
@@ -71,17 +72,28 @@ export class Inbox {
         ? await classifier.classify(message.inbound.text)
         : { intent: { kind: 'unknown' as const }, source: 'button' };
 
-    const offer = findSlots({
-      now,
-      ...store.schedule,
-      busy: await store.busyIntervals(),
-      limit: 3,
-      ...(classified.intent.preference ? { preference: classified.intent.preference } : {}),
-    });
+    const offerNow = async () =>
+      findSlots({
+        now,
+        ...store.schedule,
+        busy: await store.busyIntervals(),
+        limit: 3,
+        ...(classified.intent.preference ? { preference: classified.intent.preference } : {}),
+      });
+    const offer = await offerNow();
 
-    const result = step(state, message.inbound, { intent: classified.intent, offer, catalogue });
-    for (const effect of result.effects)
-      await this.apply(effect, message.from, message.inbound, now);
+    let result = step(state, message.inbound, { intent: classified.intent, offer, catalogue });
+    for (const effect of result.effects) {
+      const outcome = await this.apply(effect, message.from, message.inbound, now);
+      if (outcome === 'slot_taken' && effect.type === 'book') {
+        // Someone else took the slot between the offer and the tap: say so and offer what is free now.
+        const ctx = { intent: classified.intent, offer: await offerNow(), catalogue };
+        result = afterSlotTaken(ctx, effect.replaces);
+        for (const e of result.effects) await this.apply(e, message.from, message.inbound, now);
+        this.log('inbox.slot_taken', { id: message.id });
+        break;
+      }
+    }
     await store.setConversation(message.from, result.state);
 
     let sent = 0;
@@ -111,7 +123,12 @@ export class Inbox {
     };
   }
 
-  private async apply(effect: Effect, contact: string, inbound: Inbound, now: Date) {
+  private async apply(
+    effect: Effect,
+    contact: string,
+    inbound: Inbound,
+    now: Date,
+  ): Promise<'slot_taken' | void> {
     const { store } = this.deps;
     switch (effect.type) {
       case 'record_consent':
@@ -129,17 +146,17 @@ export class Inbox {
         );
         return;
       case 'book': {
-        if (effect.replaces) {
-          const old = await store.findActive(contact, effect.replaces);
-          if (old) await store.updateStatus(old.id, 'cancelled_by_caregiver', now);
-        }
+        const old = effect.replaces ? await store.findActive(contact, effect.replaces) : null;
         const durationMs = store.schedule.durationMinutes * 60_000;
-        const appt = await store.createAppointment(
+        const booked = await store.book({
           contact,
-          effect.startsAt,
-          new Date(Date.parse(effect.startsAt) + durationMs).toISOString(),
+          startsAt: effect.startsAt,
+          endsAt: new Date(Date.parse(effect.startsAt) + durationMs).toISOString(),
           now,
-        );
+          ...(old ? { replaces: old.id } : {}),
+        });
+        if (!booked.ok) return 'slot_taken';
+        const appt = booked.appointment;
         const band = this.deps.risk
           ? await this.riskBand(this.deps.risk, contact, appt.startsAt, now)
           : null;

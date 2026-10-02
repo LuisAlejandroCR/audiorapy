@@ -125,6 +125,42 @@ describe('end to end through the webhook', () => {
   });
 });
 
+describe('double booking', () => {
+  it('two families tap the same slot: the second hears it was taken and gets fresh options', async () => {
+    const { app, channel, store } = await testApp();
+    const send = async (m: unknown) => {
+      await app.inject(signedPost(metaBody([m])));
+      await app.inbox.idle();
+    };
+    for (const [i, phone] of ['57301', '57302'].entries()) {
+      await send(textMsg(`h${i}`, phone, 'Hola'));
+      await send(buttonMsg(`c${i}`, phone, 'consent:yes'));
+    }
+    const listFor = (phone: string) => {
+      const m = channel.sentTo(phone).at(-1);
+      return m?.type === 'list' ? m.rows.map((r) => r.id) : [];
+    };
+    const sameSlot = listFor('57301')[1]!;
+    expect(listFor('57302')).toContain(sameSlot);
+
+    await send(buttonMsg('b1', '57301', sameSlot));
+    await send(buttonMsg('b2', '57302', sameSlot));
+
+    expect(channel.sentTo('57301').at(-1)?.key).toBe('booked');
+    const second = channel
+      .sentTo('57302')
+      .slice(-2)
+      .map((m) => m.key);
+    expect(second).toEqual(['slot_taken', 'slot_list']);
+    expect(listFor('57302')).not.toContain(sameSlot);
+    expect((await store.getConversation('57302')).step).toBe('choosing_slot');
+    const atSlot = (await store.listAppointments()).filter(
+      (a) => `slot:${a.startsAt}` === sameSlot,
+    );
+    expect(atSlot.map((a) => a.contact)).toEqual(['57301']);
+  });
+});
+
 describe('dashboard api', () => {
   it('requires the bearer token and masks phone numbers', async () => {
     const { app, store } = await testApp();

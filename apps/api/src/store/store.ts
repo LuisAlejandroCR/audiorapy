@@ -83,6 +83,26 @@ export function purgeCutoffs(now: Date) {
   };
 }
 
+/** Raised when a new appointment would overlap an active one (scheduled or confirmed). */
+export class SlotTakenError extends Error {
+  constructor() {
+    super('slot taken');
+    this.name = 'SlotTakenError';
+  }
+}
+
+export interface BookInput {
+  contact: string;
+  startsAt: string;
+  endsAt: string;
+  now: Date;
+  /** Appointment being rescheduled: cancelled in the same atomic step, kept if the booking fails. */
+  replaces?: string;
+}
+
+export type BookResult =
+  { ok: true; appointment: Appointment } | { ok: false; reason: 'slot_taken' };
+
 export const ACTIVE_STATUSES: readonly AppointmentStatus[] = ['scheduled', 'confirmed'];
 
 export interface SchedulingStore {
@@ -94,13 +114,19 @@ export interface SchedulingStore {
   setConversation(contact: string, state: ConversationState): Promise<void>;
   addConsent(record: ConsentRecord): Promise<void>;
   listConsents(): Promise<ConsentRecord[]>;
+  /** Throws SlotTakenError when it would overlap an active appointment. */
   createAppointment(
     contact: string,
     startsAt: string,
     endsAt: string,
     now: Date,
   ): Promise<Appointment>;
-  /** Leaving an active status skips that appointment's pending reminder jobs. */
+  /** Atomic booking: never two overlapping active appointments, even under concurrent requests. */
+  book(input: BookInput): Promise<BookResult>;
+  /**
+   * Leaving an active status skips that appointment's pending reminder jobs. Returning to an active
+   * status throws SlotTakenError if the slot was taken meanwhile.
+   */
   updateStatus(id: string, status: AppointmentStatus, now: Date): Promise<Appointment | null>;
   getAppointment(id: string): Promise<Appointment | null>;
   findActive(contact: string, startsAt: string): Promise<Appointment | null>;

@@ -2,7 +2,7 @@
 // real Postgres. Synthetic contacts only.
 import { describe, expect, it } from 'vitest';
 import { recordConsent } from '@audiorapy/domain';
-import type { SchedulingStore } from '../apps/api/src/store/store.ts';
+import { SlotTakenError, type SchedulingStore } from '../apps/api/src/store/store.ts';
 
 const NOW = new Date('2026-10-02T12:00:00.000Z');
 const A = '2026-10-05T13:00:00.000Z';
@@ -160,6 +160,88 @@ export function storeContract(
         expect(await s.getAppointment(appt.id)).not.toBeNull();
         expect(await s.listAlerts()).toHaveLength(1);
         expect(await s.purge(now)).toEqual({ processedMessages: 0, reminderJobs: 0 });
+      }),
+    );
+
+    it(
+      'never two overlapping active appointments; back-to-back and cancelled slots are fine',
+      withStore(async (s) => {
+        const at = (h: number, m = 0) => new Date(Date.UTC(2026, 9, 5, h, m)).toISOString();
+        const first = await s.createAppointment('57300', at(13), at(13, 45), NOW);
+        await expect(
+          s.createAppointment('57311', at(13, 30), at(14, 15), NOW),
+        ).rejects.toBeInstanceOf(SlotTakenError);
+        expect(
+          await s.book({ contact: '57311', startsAt: at(13, 30), endsAt: at(14, 15), now: NOW }),
+        ).toEqual({ ok: false, reason: 'slot_taken' });
+        const next = await s.book({
+          contact: '57311',
+          startsAt: at(13, 45),
+          endsAt: at(14, 30),
+          now: NOW,
+        });
+        expect(next.ok).toBe(true);
+        await s.updateStatus(first.id, 'cancelled_by_caregiver', NOW);
+        expect(
+          (await s.book({ contact: '57322', startsAt: at(13), endsAt: at(13, 45), now: NOW })).ok,
+        ).toBe(true);
+        await expect(s.updateStatus(first.id, 'scheduled', NOW)).rejects.toBeInstanceOf(
+          SlotTakenError,
+        );
+      }),
+    );
+
+    it(
+      'rescheduling is atomic: into an overlapping own slot works, a lost race keeps the old visit',
+      withStore(async (s) => {
+        const at = (h: number, m = 0) => new Date(Date.UTC(2026, 9, 6, h, m)).toISOString();
+        const mine = await s.createAppointment('57300', at(13), at(13, 45), NOW);
+        await s.addJob(mine.id, 'day_before', '2026-10-05T13:00:00.000Z');
+        const moved = await s.book({
+          contact: '57300',
+          startsAt: at(13, 30),
+          endsAt: at(14, 15),
+          now: NOW,
+          replaces: mine.id,
+        });
+        expect(moved.ok).toBe(true);
+        expect((await s.getAppointment(mine.id))?.status).toBe('cancelled_by_caregiver');
+
+        const other = await s.createAppointment('57311', at(16), at(16, 45), NOW);
+        const keep = moved.ok ? moved.appointment : mine;
+        await s.addJob(keep.id, 'day_before', '2026-10-05T13:30:00.000Z');
+        expect(
+          await s.book({
+            contact: '57300',
+            startsAt: at(16, 15),
+            endsAt: at(17),
+            now: NOW,
+            replaces: keep.id,
+          }),
+        ).toEqual({ ok: false, reason: 'slot_taken' });
+        expect((await s.getAppointment(keep.id))?.status).toBe('scheduled');
+        expect((await s.listJobs()).find((j) => j.appointmentId === keep.id)?.state).toBe(
+          'pending',
+        );
+        expect((await s.getAppointment(other.id))?.status).toBe('scheduled');
+      }),
+    );
+
+    it(
+      'concurrent bookings of the same slot: exactly one wins',
+      withStore(async (s) => {
+        const start = '2026-10-07T13:00:00.000Z';
+        const end = '2026-10-07T13:45:00.000Z';
+        const results = await Promise.all(
+          Array.from({ length: 8 }, (_, i) =>
+            s.book({ contact: `5730${i}`, startsAt: start, endsAt: end, now: NOW }),
+          ),
+        );
+        expect(results.filter((r) => r.ok)).toHaveLength(1);
+        expect(results.filter((r) => !r.ok).every((r) => !r.ok && r.reason === 'slot_taken')).toBe(
+          true,
+        );
+        expect(await s.busyIntervals()).toEqual([{ startsAt: start, endsAt: end }]);
       }),
     );
 

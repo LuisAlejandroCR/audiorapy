@@ -37,6 +37,15 @@ export const SCHEMA = [
      updated_at timestamptz NOT NULL
    )`,
   `CREATE INDEX IF NOT EXISTS appointments_contact_starts ON appointments (contact, starts_at)`,
+  // One therapist, one visit at a time: active appointments may not overlap (half-open ranges, so
+  // back-to-back visits are fine). Added only if missing; fails at startup if existing rows overlap.
+  `DO $$ BEGIN
+     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_no_overlap') THEN
+       ALTER TABLE appointments ADD CONSTRAINT appointments_no_overlap
+         EXCLUDE USING gist (tstzrange(starts_at, ends_at) WITH &&)
+         WHERE (status IN ('scheduled', 'confirmed'));
+     END IF;
+   END $$`,
   `CREATE TABLE IF NOT EXISTS reminder_jobs (
      id text PRIMARY KEY,
      appointment_id uuid NOT NULL REFERENCES appointments (id),
