@@ -51,17 +51,18 @@ Viven en `.env` (gitignored); nombres en [`.env.example`](.env.example). Nunca i
 | `META_ACCESS_TOKEN`, `META_PHONE_NUMBER_ID`, `META_APP_SECRET`, `META_VERIFY_TOKEN` | ⏳ pendiente (requiere la app de Meta del autor) |
 | `AI_INTENT_PROVIDER`, `OLLAMA_BASE_URL`, `OLLAMA_MODEL` | ⏳ pendiente de probar contra Ollama real |
 | `RISK_PROVIDER` | ✅ `heuristic` funciona sin servicio externo |
+| `DATABASE_URL` | ✅ opcional: vacío = memoria; probado con Postgres 16 local y PGlite; job `postgres` en CI. Render Postgres real ⏳ |
 
 ## Stack
 
 | Capa | Tecnología |
 |---|---|
 | Dominio | `packages/domain` — TypeScript puro, Zod, `@noble/ciphers`/`@noble/hashes` |
-| API / webhook | `apps/api` — Fastify sobre Node 22 |
+| API / webhook | `apps/api` — Fastify sobre Node 22; agenda en Postgres (`DATABASE_URL`) o en memoria |
 | Dashboard | `apps/web` — Vite + React, descifra en el navegador |
 | Móvil | `apps/mobile` — Expo dev build (⏳ pendiente) |
 | IA | Gemma 4 en Ollama (local) con fallback a reglas |
-| Tests | Vitest + fast-check (unit/fuzz/invariant), Playwright (e2e), `playwright-cli` (verificación manual) |
+| Tests | Vitest + fast-check (unit/fuzz/invariant/integration), PGlite, Playwright (e2e), `playwright-cli` (verificación manual) |
 | CI | GitHub Actions — `.github/workflows/ci.yml` |
 
 ## Idioma

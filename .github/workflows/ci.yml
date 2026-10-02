@@ -1,5 +1,5 @@
 # ci.yml: the verify gate (typecheck, lint, format, unit/fuzz/invariant tests, build, API smoke) and the
-# Playwright end-to-end suite, on every PR and push to main.
+# Playwright end-to-end suite and the Postgres integration job, on every PR and push to main.
 name: ci
 
 on:
@@ -66,3 +66,32 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: verify
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: audiorapy
+          POSTGRES_PASSWORD: audiorapy
+          POSTGRES_DB: audiorapy_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U audiorapy" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://audiorapy:audiorapy@127.0.0.1:5432/audiorapy_test
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Store contract against a real Postgres 16
+        run: npm run test:integration
+      - name: Smoke test with Postgres (bookings survive a restart)
+        run: npm run smoke:api

@@ -75,8 +75,12 @@ describe('inbox invariants', () => {
           expect(many.channel.outbox.map((o) => o.message)).toEqual(
             once.channel.outbox.map((o) => o.message),
           );
-          expect(many.store.listAppointments().length).toBe(once.store.listAppointments().length);
-          expect(many.store.listConsents().length).toBe(once.store.listConsents().length);
+          expect((await many.store.listAppointments()).length).toBe(
+            (await once.store.listAppointments()).length,
+          );
+          expect((await many.store.listConsents()).length).toBe(
+            (await once.store.listConsents()).length,
+          );
         },
       ),
       { numRuns: 300 },

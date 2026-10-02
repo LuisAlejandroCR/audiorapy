@@ -80,7 +80,7 @@ describe('webhook POST', () => {
     await app.inject(signedPost(body));
     await app.inbox.idle();
     expect(channel.sentTo('57300')).toHaveLength(1);
-    expect(store.getConversation('57300').step).toBe('awaiting_consent');
+    expect((await store.getConversation('57300')).step).toBe('awaiting_consent');
   });
 
   it('answers 400 to malformed JSON and 200 to an empty, signed probe', async () => {
@@ -114,8 +114,8 @@ describe('end to end through the webhook', () => {
     const chosenSlot = list?.type === 'list' ? list.rows[1]!.id : '';
     await send(buttonMsg('d', '57300', chosenSlot));
     expect(channel.sentTo('57300').at(-1)?.key).toBe('booked');
-    expect(store.listAppointments()).toHaveLength(1);
-    expect(store.listJobs().map((j) => j.kind)).toContain('day_before');
+    expect(await store.listAppointments()).toHaveLength(1);
+    expect((await store.listJobs()).map((j) => j.kind)).toContain('day_before');
     const health = (await app.inject({ url: '/health/providers' })).json();
     expect(health.intent).toMatchObject({
       configured: 'rules',
@@ -128,7 +128,7 @@ describe('end to end through the webhook', () => {
 describe('dashboard api', () => {
   it('requires the bearer token and masks phone numbers', async () => {
     const { app, store } = await testApp();
-    store.createAppointment(
+    await store.createAppointment(
       '573001112233',
       '2026-10-05T13:00:00.000Z',
       '2026-10-05T13:45:00.000Z',

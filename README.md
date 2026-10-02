@@ -18,6 +18,7 @@ npm run verify        # typecheck, lint, format, unit + fuzz + invariant tests, 
 npm run test:unit     # each test folder also runs on its own
 npm run test:fuzz
 npm run test:invariant
+npm run test:integration  # needs DATABASE_URL (a real Postgres)
 npm run test:e2e      # Playwright, see below
 ```
 
@@ -51,6 +52,18 @@ npm run test:e2e      # Playwright: builds the dashboard, starts the real API, r
 | ![Today](docs/screenshots/today-desktop.png) | ![SOAP](docs/screenshots/soap-desktop.png) | ![Progress](docs/screenshots/progress-mobile.png) |
 
 The screenshots use synthetic data and a mocked Ollama reply; no real patient appears anywhere in this repo.
+
+Persistence: without `DATABASE_URL` the API keeps the schedule in memory. Point it at Postgres (Render Postgres
+in production; any Postgres 14+ works) and the schema is created at startup:
+
+```bash
+DATABASE_URL=postgres://user:pass@host:5432/db npm run dev:api
+DATABASE_URL=... npm run test:integration   # store contract against that server
+DATABASE_URL=... npm run smoke:api          # also restarts the process and checks nothing was lost
+```
+
+The database holds only the messaging plane — appointment time and status, consent evidence, reminder
+jobs, alerts, processed message ids. Clinical records never reach it.
 
 Requires Node 22+. Copy `.env.example` to `.env` only when wiring real providers; everything runs
 without it.
