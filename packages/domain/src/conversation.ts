@@ -15,6 +15,7 @@ import {
   keptAck,
   noSlots,
   slotList,
+  slotTaken,
   type CatalogueContext,
   type Outbound,
 } from './messages.ts';
@@ -129,6 +130,15 @@ function offerSlots(ctx: StepContext, replaces?: string): StepResult {
     outbound: [list],
     effects: [],
   };
+}
+
+/**
+ * The booking chosen in the previous step lost a race for its slot: say so and re-offer what is free.
+ * `replaces` is the visit being rescheduled, which stays booked.
+ */
+export function afterSlotTaken(ctx: StepContext, replaces?: string): StepResult {
+  const offered = offerSlots(ctx, replaces);
+  return { ...offered, outbound: [slotTaken(), ...offered.outbound] };
 }
 
 function onChoosingSlot(

@@ -25,6 +25,8 @@
 | 2026-10-02 | `npm run smoke:risk` ×2 | PASS 6/6: sidecar real + API real, la reserva se puntúa por el sidecar (`sidecar:logistic`) | Linux |
 | 2026-10-02 | `npm run demo:degraded` | PASS 26/26 (nuevo escenario: sidecar de riesgo caído → heurística) | Linux |
 | 2026-10-02 | Retención: contrato en memoria, PGlite y Postgres 16.14 real | PASS (integración 10/10); smoke con Postgres 12/12; la API registra `maintenance.purged` con conteos al arrancar | Linux, Node 22.22.0 |
+| 2026-10-02 | Sin doble reserva: contrato en memoria, PGlite y Postgres 16.14 real ×3 | PASS 13/13 en Postgres real, incluidas 8 reservas concurrentes del mismo cupo con pool de 10 conexiones (gana exactamente una); smoke 12/12; la restricción `appointments_no_overlap` existe en la base | Linux, Node 22.22.0 |
+| 2026-10-02 | Invariante diferencial memoria vs Postgres ×8 | PASS 8/8 tras dos correcciones: reactivar una cita sobre un cupo ya tomado divergía (ahora `SlotTakenError` en ambos) y el orden de empates por id aleatorio hacía el test intermitente | Linux |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -39,6 +41,9 @@
 | 2026-10-02 | `risk/app.py`: el sidecar lanza error con `zone == 9` | `test_score_bounded_consistent_deterministic` (Hypothesis, 4 min encogiendo) |
 | 2026-10-02 | `memory-store.ts`: la purga borra también recordatorios pendientes | invariante de retención |
 | 2026-10-02 | `postgres-store.ts`: la purga ignora el estado del recordatorio | invariante diferencial memoria vs Postgres (2/2) |
+| 2026-10-02 | `schema.ts`: sin la restricción de exclusión | contrato (3 casos fallan, incluido el de concurrencia) |
+| 2026-10-02 | `memory-store.ts`: `book()` no revisa solapes | contrato + invariante diferencial (4 fallan) |
+| 2026-10-02 | `inbox.ts`: ignorar el cupo perdido | `two families tap the same slot…` |
 | 2026-10-02 | `postgres-store.ts`: cancelar no salta los recordatorios pendientes | invariante diferencial memoria vs Postgres (3/3 tras sesgar el generador) |
 
 ## Límites externos (ejercicio contra la cosa real)

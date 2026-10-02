@@ -20,6 +20,7 @@ export type MessageKey =
   | 'cancelled_ack'
   | 'kept_ack'
   | 'escalated_ack'
+  | 'slot_taken'
   | 'help';
 
 export interface Button {
@@ -95,6 +96,15 @@ export function slotList(slots: Slot[], preferenceHonored: boolean): Outbound {
       : 'No encontré cupos con esa preferencia. Estos son los más próximos:',
     buttonLabel: 'Ver cupos',
     rows,
+  };
+}
+
+/** Sent when the chosen slot was booked by someone else a moment earlier. */
+export function slotTaken(): Outbound {
+  return {
+    type: 'text',
+    key: 'slot_taken',
+    body: 'Ese cupo se acaba de ocupar. Te comparto los que siguen libres.',
   };
 }
 

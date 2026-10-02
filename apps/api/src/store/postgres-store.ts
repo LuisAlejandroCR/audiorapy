@@ -15,6 +15,9 @@ import {
   type Alert,
   type AlertReason,
   type Appointment,
+  type BookInput,
+  type BookResult,
+  SlotTakenError,
   type ReminderJob,
   type PurgeResult,
   type Schedule,
@@ -24,11 +27,21 @@ import {
 
 type Row = Record<string, unknown>;
 
+type Query = (text: string, params?: unknown[]) => Promise<{ rows: Row[] }>;
+
 export interface SqlClient {
-  query(text: string, params?: unknown[]): Promise<{ rows: Row[] }>;
+  query: Query;
   end?(): Promise<void>;
   close?(): Promise<void>;
+  /** pg Pool: a dedicated connection for a transaction. */
+  connect?(): Promise<{ query: Query; release(): void }>;
+  /** PGlite: runs the callback inside a transaction. */
+  transaction?<T>(fn: (tx: { query: Query }) => Promise<T>): Promise<T>;
 }
+
+const EXCLUSION_VIOLATION = '23P01';
+const isOverlap = (error: unknown) =>
+  (error as { code?: string } | null)?.code === EXCLUSION_VIOLATION;
 
 const iso = (v: unknown): string => new Date(v as string | Date).toISOString();
 const isoOrNull = (v: unknown): string | null => (v === null || v === undefined ? null : iso(v));
@@ -146,12 +159,65 @@ export class PostgresStore implements SchedulingStore {
     endsAt: string,
     now: Date,
   ): Promise<Appointment> {
-    const r = await this.sql.query(
-      `INSERT INTO appointments (id, contact, starts_at, ends_at, status, created_at, updated_at)
+    const r = await this.sql
+      .query(
+        `INSERT INTO appointments (id, contact, starts_at, ends_at, status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, 'scheduled', $5, $5) RETURNING ${APPT_COLUMNS}`,
-      [randomUUID(), contact, startsAt, endsAt, now.toISOString()],
-    );
+        [randomUUID(), contact, startsAt, endsAt, now.toISOString()],
+      )
+      .catch((error: unknown) => {
+        throw isOverlap(error) ? new SlotTakenError() : error;
+      });
     return toAppointment(r.rows[0]!);
+  }
+
+  async book({ contact, startsAt, endsAt, now, replaces }: BookInput): Promise<BookResult> {
+    try {
+      return await this.inTransaction(async (q) => {
+        if (replaces && UUID.test(replaces)) {
+          const cancelled = await q(
+            `UPDATE appointments SET status = 'cancelled_by_caregiver', updated_at = $2
+             WHERE id = $1 AND status = ANY($3::text[]) RETURNING id`,
+            [replaces, now.toISOString(), [...ACTIVE_STATUSES]],
+          );
+          if (cancelled.rows.length > 0) {
+            await q(
+              `UPDATE reminder_jobs SET state = 'skipped' WHERE appointment_id = $1 AND state = 'pending'`,
+              [replaces],
+            );
+          }
+        }
+        const r = await q(
+          `INSERT INTO appointments (id, contact, starts_at, ends_at, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, 'scheduled', $5, $5) RETURNING ${APPT_COLUMNS}`,
+          [randomUUID(), contact, startsAt, endsAt, now.toISOString()],
+        );
+        return { ok: true as const, appointment: toAppointment(r.rows[0]!) };
+      });
+    } catch (error) {
+      if (isOverlap(error)) return { ok: false, reason: 'slot_taken' };
+      throw error;
+    }
+  }
+
+  /** Runs fn in one transaction on PGlite or a pg Pool; rolls back on any error. */
+  private async inTransaction<T>(fn: (q: Query) => Promise<T>): Promise<T> {
+    if (this.sql.transaction) return this.sql.transaction((tx) => fn(tx.query.bind(tx)));
+    if (this.sql.connect) {
+      const client = await this.sql.connect();
+      try {
+        await client.query('BEGIN');
+        const result = await fn(client.query.bind(client));
+        await client.query('COMMIT');
+        return result;
+      } catch (error) {
+        await client.query('ROLLBACK').catch(() => undefined);
+        throw error;
+      } finally {
+        client.release();
+      }
+    }
+    return fn(this.sql.query.bind(this.sql));
   }
 
   async updateStatus(
@@ -160,10 +226,14 @@ export class PostgresStore implements SchedulingStore {
     now: Date,
   ): Promise<Appointment | null> {
     if (!UUID.test(id)) return null;
-    const r = await this.sql.query(
-      `UPDATE appointments SET status = $2, updated_at = $3 WHERE id = $1 RETURNING ${APPT_COLUMNS}`,
-      [id, status, now.toISOString()],
-    );
+    const r = await this.sql
+      .query(
+        `UPDATE appointments SET status = $2, updated_at = $3 WHERE id = $1 RETURNING ${APPT_COLUMNS}`,
+        [id, status, now.toISOString()],
+      )
+      .catch((error: unknown) => {
+        throw isOverlap(error) ? new SlotTakenError() : error;
+      });
     if (r.rows.length === 0) return null;
     if (!ACTIVE_STATUSES.includes(status)) {
       await this.sql.query(

@@ -13,6 +13,9 @@ import {
   type Alert,
   type AlertReason,
   type Appointment,
+  type BookInput,
+  type BookResult,
+  SlotTakenError,
   type ReminderJob,
   type PurgeResult,
   type Schedule,
@@ -64,6 +67,7 @@ export class MemoryStore implements SchedulingStore {
     endsAt: string,
     now: Date,
   ): Promise<Appointment> {
+    if (this.overlapsActive(startsAt, endsAt)) throw new SlotTakenError();
     const appt: Appointment = {
       id: randomUUID(),
       contact,
@@ -77,6 +81,25 @@ export class MemoryStore implements SchedulingStore {
     return { ...appt };
   }
 
+  async book({ contact, startsAt, endsAt, now, replaces }: BookInput): Promise<BookResult> {
+    if (this.overlapsActive(startsAt, endsAt, replaces)) return { ok: false, reason: 'slot_taken' };
+    const old = replaces ? this.appointments.get(replaces) : undefined;
+    if (old && ACTIVE_STATUSES.includes(old.status))
+      await this.updateStatus(old.id, 'cancelled_by_caregiver', now);
+    return { ok: true, appointment: await this.createAppointment(contact, startsAt, endsAt, now) };
+  }
+
+  /** Same rule as the Postgres exclusion constraint: half-open ranges, active statuses only. */
+  private overlapsActive(startsAt: string, endsAt: string, ignoreId?: string): boolean {
+    const start = Date.parse(startsAt);
+    const end = Date.parse(endsAt);
+    for (const a of this.appointments.values()) {
+      if (a.id === ignoreId || !ACTIVE_STATUSES.includes(a.status)) continue;
+      if (start < Date.parse(a.endsAt) && end > Date.parse(a.startsAt)) return true;
+    }
+    return false;
+  }
+
   async updateStatus(
     id: string,
     status: AppointmentStatus,
@@ -84,6 +107,9 @@ export class MemoryStore implements SchedulingStore {
   ): Promise<Appointment | null> {
     const appt = this.appointments.get(id);
     if (!appt) return null;
+    const reactivating = ACTIVE_STATUSES.includes(status) && !ACTIVE_STATUSES.includes(appt.status);
+    if (reactivating && this.overlapsActive(appt.startsAt, appt.endsAt, id))
+      throw new SlotTakenError();
     appt.status = status;
     appt.updatedAt = now.toISOString();
     if (!ACTIVE_STATUSES.includes(status)) {
