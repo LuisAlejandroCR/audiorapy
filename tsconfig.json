@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "paths": {
+      "@audiorapy/domain": ["./packages/domain/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src", "apps/*/src", "test", "*.config.ts"]
+}
