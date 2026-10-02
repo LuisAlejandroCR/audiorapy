@@ -53,8 +53,8 @@ npm run test:e2e      # Playwright: builds the dashboard, starts the real API, r
 
 The screenshots use synthetic data and a mocked Ollama reply; no real patient appears anywhere in this repo.
 
-Persistence: without `DATABASE_URL` the API keeps the schedule in memory. Point it at Postgres (Supabase
-in production) and the schema is created at startup:
+Persistence: without `DATABASE_URL` the API keeps the schedule in memory. Point it at Postgres (Render Postgres
+in production; any Postgres 14+ works) and the schema is created at startup:
 
 ```bash
 DATABASE_URL=postgres://user:pass@host:5432/db npm run dev:api

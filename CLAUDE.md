@@ -51,7 +51,7 @@ Viven en `.env` (gitignored); nombres en [`.env.example`](.env.example). Nunca i
 | `META_ACCESS_TOKEN`, `META_PHONE_NUMBER_ID`, `META_APP_SECRET`, `META_VERIFY_TOKEN` | ⏳ pendiente (requiere la app de Meta del autor) |
 | `AI_INTENT_PROVIDER`, `OLLAMA_BASE_URL`, `OLLAMA_MODEL` | ⏳ pendiente de probar contra Ollama real |
 | `RISK_PROVIDER` | ✅ `heuristic` funciona sin servicio externo |
-| `DATABASE_URL` | ✅ opcional: vacío = memoria; probado con Postgres 16 local y PGlite; job `postgres` en CI. Supabase real ⏳ |
+| `DATABASE_URL` | ✅ opcional: vacío = memoria; probado con Postgres 16 local y PGlite; job `postgres` en CI. Render Postgres real ⏳ |
 
 ## Stack
 

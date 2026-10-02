@@ -1,4 +1,4 @@
-// postgres-store.ts: the scheduling store on Postgres (Supabase in production, PGlite in tests).
+// postgres-store.ts: the scheduling store on Postgres (Render Postgres in production, PGlite in tests).
 // Talks to any client with pg's `query(text, params)` shape; every statement is parameterized.
 import { randomUUID } from 'node:crypto';
 import type {
