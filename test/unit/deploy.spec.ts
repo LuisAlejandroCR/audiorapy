@@ -22,6 +22,10 @@ interface Service {
   staticPublishPath?: string;
   envVars: EnvVar[];
 }
+interface EnvVarFromService {
+  key: string;
+  fromService?: { type: string; name: string; property: string };
+}
 
 const read = (p: string) => readFileSync(new URL(`../../${p}`, import.meta.url), 'utf8');
 const blueprint = parse(read('render.yaml')) as {
@@ -32,6 +36,9 @@ const rootScripts = (JSON.parse(read('package.json')) as { scripts: Record<strin
   .scripts;
 const api = blueprint.services.find((s) => s.name === 'audiorapy-api')!;
 const web = blueprint.services.find((s) => s.name === 'audiorapy-web')!;
+const risk = blueprint.services.find((s) => s.name === 'audiorapy-risk') as Service & {
+  rootDir: string;
+};
 const SECRETS = [
   'META_ACCESS_TOKEN',
   'META_APP_SECRET',
@@ -66,6 +73,23 @@ describe('render.yaml', () => {
       name: 'audiorapy-db',
       property: 'connectionString',
     });
+  });
+
+  it('the risk sidecar is a private service the API reaches by its private host:port', () => {
+    expect(risk.type).toBe('pserv');
+    expect(risk.runtime).toBe('python');
+    expect(risk.rootDir).toBe('services/risk');
+    expect(read('services/risk/pyproject.toml')).toContain('name = "audiorapy-risk"');
+    expect(risk.startCommand).toContain('risk.app:build_app');
+    expect(risk.startCommand).toContain('--port $PORT');
+    expect(read('services/risk/risk/app.py')).toContain('def build_app(');
+    const url = (api.envVars as EnvVarFromService[]).find((v) => v.key === 'RISK_URL');
+    expect(url?.fromService).toEqual({
+      type: 'pserv',
+      name: 'audiorapy-risk',
+      property: 'hostport',
+    });
+    expect(api.envVars.find((v) => v.key === 'RISK_PROVIDER')?.value).toBe('sidecar');
   });
 
   it('commands and paths point at things that exist', () => {

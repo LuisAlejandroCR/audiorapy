@@ -27,6 +27,7 @@
 | 2026-10-02 | Retención: contrato en memoria, PGlite y Postgres 16.14 real | PASS (integración 10/10); smoke con Postgres 12/12; la API registra `maintenance.purged` con conteos al arrancar | Linux, Node 22.22.0 |
 | 2026-10-02 | Sin doble reserva: contrato en memoria, PGlite y Postgres 16.14 real ×3 | PASS 13/13 en Postgres real, incluidas 8 reservas concurrentes del mismo cupo con pool de 10 conexiones (gana exactamente una); smoke 12/12; la restricción `appointments_no_overlap` existe en la base | Linux, Node 22.22.0 |
 | 2026-10-02 | Invariante diferencial memoria vs Postgres ×8 | PASS 8/8 tras dos correcciones: reactivar una cita sobre un cupo ya tomado divergía (ahora `SlotTakenError` en ambos) y el orden de empates por id aleatorio hacía el test intermitente | Linux |
+| 2026-10-02 | Arranque tipo Render del sidecar: `pip install .` en venv limpio + `uvicorn … --port $PORT`; API con `RISK_URL=127.0.0.1:10091` (sin esquema) | Sidecar listo en ~2 s; la reserva se puntuó por `sidecar:logistic`. En la primera corrida la API llamó antes de que el sidecar arrancara: reservó igual con la heurística (fallback correcto) | Python 3.11.15, Linux |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -51,7 +52,7 @@
 | Límite | Estado | Nota |
 |---|---|---|
 | Meta WhatsApp Cloud API (envío y webhook) | ⏳ pendiente | Requiere la app y el número de prueba del autor. Probado solo contra un doble de la Graph API v25.0. Falta: `debug_token` = `SYSTEM_USER`, "Hola" real, mensaje con tildes real |
-| Deploy en Render (`render.yaml`) | ⏳ pendiente | render.com bloqueado por la red de la sesión; el blueprint no se validó contra Render. Falta: crear el Blueprint, fijar `DASHBOARD_ORIGIN` y `VITE_API_ORIGIN` |
+| Deploy en Render (`render.yaml`) | ⏳ pendiente | render.com bloqueado por la red de la sesión; el blueprint no se validó contra Render (incluidos `type: pserv`, `fromService … hostport` y `PYTHON_VERSION` del sidecar). Falta: crear el Blueprint, fijar `DASHBOARD_ORIGIN` y `VITE_API_ORIGIN` |
 | TabPFN-2 (pesos V2) | ⏳ pendiente | Hugging Face bloqueado en la sesión. Correr el workflow `tabpfn-eval` (Actions → Run workflow) y copiar la tabla al README |
 | Plantilla *utility* del recordatorio | ⏳ pendiente | Fuera de la ventana de 24 h un interactivo no basta; hay que registrar y aprobar la plantilla en Meta |
 | Ollama + `gemma4:e4b` | ⏳ pendiente | No hay Ollama en la sesión en la nube. Probado contra un doble de `/api/chat` con `format` = JSON Schema. Falta: correr `npm run eval:intent -- --ollama` en la laptop de la terapeuta (precisión y latencia reales) |

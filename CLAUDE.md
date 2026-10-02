@@ -65,7 +65,7 @@ Viven en `.env` (gitignored); nombres en [`.env.example`](.env.example). Nunca i
 | IA | Gemma 4 en Ollama (local) con fallback a reglas; riesgo de inasistencia en `services/risk` (Python, TabPFN-2 o baseline logístico) con fallback heurístico |
 | Tests | Vitest + fast-check (unit/fuzz/invariant/integration), PGlite, Playwright (e2e), `playwright-cli` (verificación manual) |
 | CI | GitHub Actions — `.github/workflows/ci.yml` |
-| Deploy | Render — `render.yaml` (API, dashboard estático, Render Postgres); ⏳ sin desplegar |
+| Deploy | Render — `render.yaml` (API, dashboard estático, Render Postgres, sidecar de riesgo privado); ⏳ sin desplegar |
 
 ## Idioma
 

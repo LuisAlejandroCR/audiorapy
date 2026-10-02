@@ -100,7 +100,8 @@ without it.
 ## Deploy (Render)
 
 [`render.yaml`](render.yaml) is a Render Blueprint: the API as a Node web service, the dashboard as a static
-site and Render Postgres for the schedule. Secrets are entered in the Render dashboard (`sync: false`);
+site, Render Postgres for the schedule and the no-show risk sidecar as a private service (logistic baseline;
+the API reaches it over Render's private network and falls back to the heuristic whenever it does not answer). Secrets are entered in the Render dashboard (`sync: false`);
 `DASHBOARD_TOKEN` is generated. After the first deploy, set `DASHBOARD_ORIGIN` on the API and
 `VITE_API_ORIGIN` on the dashboard to each other's URL. The blueprint has not been through a real Render
 deploy yet.

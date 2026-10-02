@@ -22,7 +22,13 @@ const EnvSchema = z.object({
   OLLAMA_TIMEOUT_MS: z.coerce.number().int().min(100).max(60_000).default(8000),
   DATABASE_URL: optional,
   RISK_PROVIDER: z.enum(['sidecar', 'heuristic', 'off']).default('heuristic'),
-  RISK_URL: z.string().url().default('http://127.0.0.1:8090'),
+  // Render's private network hands over `host:port` without a scheme; it is plain HTTP inside it.
+  RISK_URL: z
+    .string()
+    .trim()
+    .transform((v) => (/^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : `http://${v}`))
+    .pipe(z.string().url())
+    .default('http://127.0.0.1:8090'),
   RISK_TIMEOUT_MS: z.coerce.number().int().min(100).max(30_000).default(3000),
   DASHBOARD_TOKEN: optional,
   DASHBOARD_ORIGIN: optional,

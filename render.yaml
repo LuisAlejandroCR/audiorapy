@@ -44,11 +44,32 @@ services:
       - key: OLLAMA_BASE_URL
         sync: false
       - key: RISK_PROVIDER
-        value: heuristic
+        value: sidecar # falls back to the heuristic whenever the sidecar does not answer within 3 s
+      - key: RISK_URL
+        fromService:
+          type: pserv
+          name: audiorapy-risk
+          property: hostport
       - key: PRACTICE_NAME
         sync: false
       - key: PRIVACY_URL
         sync: false
+
+  # No-show risk sidecar (services/risk): private service, reachable only from the API. Trains on
+  # synthetic data at startup and serves the logistic baseline; TabPFN-2 needs `pip install '.[tabpfn]'`
+  # and RISK_MODEL=tabpfn-v2, which pulls PyTorch and is left off here.
+  - type: pserv
+    name: audiorapy-risk
+    runtime: python
+    plan: starter
+    rootDir: services/risk
+    buildCommand: pip install .
+    startCommand: uvicorn --factory risk.app:build_app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: RISK_MODEL
+        value: logistic
+      - key: PYTHON_VERSION
+        value: 3.11.9
 
   - type: web
     name: audiorapy-web
