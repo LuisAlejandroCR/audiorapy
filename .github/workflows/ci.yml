@@ -1,4 +1,5 @@
-# ci.yml: the verify gate (typecheck, lint, format, unit/fuzz/invariant tests, build) on every PR and push to main.
+# ci.yml: the verify gate (typecheck, lint, format, unit/fuzz/invariant tests, build, API smoke) and the
+# Playwright end-to-end suite, on every PR and push to main.
 name: ci
 
 on:
@@ -38,3 +39,28 @@ jobs:
         run: npm run smoke:api
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end tests (built dashboard + real API process)
+        run: npm run test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

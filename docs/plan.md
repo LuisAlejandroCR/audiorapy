@@ -32,9 +32,9 @@
 | B1 | Monorepo, contrato de agente, docs, `npm run verify`, CI | `chore/scaffold-ci` | ✅ verificado local; CI ⏳ |
 | B2 | Dominio: ports, clasificador por reglas, `SlotFinder`, máquina de conversación, recordatorios, sobre cifrado, SOAP "O", riesgo heurístico | `feat/domain-core` | ✅ verificado local (A3, A5, A6, A7, A8 cubiertos por invariantes); CI ⏳ |
 | B3 | API: webhook Meta (HMAC, dedupe), canal Meta/consola, clasificador Ollama con fallback, scheduler en memoria, `/health/providers` | `feat/api-webhook` | ✅ verificado local con dobles y proceso real (`smoke:api`); Meta y Ollama reales ⏳ |
-| B4 | Dashboard web: desbloqueo, Hoy, progreso por nivel de apoyo, borrador SOAP, e2e Playwright | `feat/web-dashboard` | ⏳ |
+| B4 | Dashboard web: desbloqueo, Hoy, progreso por nivel de apoyo, modo sesión, borrador SOAP, respaldo/restauración, e2e Playwright | `feat/web-dashboard` | ✅ verificado en navegador real (`playwright-cli` + 20 e2e); Ollama real ⏳ |
 | B5 | Postgres (Supabase) detrás del port de repositorio | — | ⏳ roadmap |
-| B6 | Expo dev build: modo sesión ✓/✗ + apoyo + deshacer, SQLCipher, outbox | — | ⏳ roadmap |
+| B6 | Expo dev build: modo sesión ✓/✗ + apoyo + deshacer, SQLCipher, outbox | — | ⏳ roadmap (el modo sesión ya existe en web como puente) |
 | B7 | Sidecar TabPFN-2 + CSV sintético + baseline logístico | — | ⏳ roadmap |
 | B8 | Mini-eval de 40 mensajes: reglas vs reglas + Gemma | — | ⏳ requiere Ollama real |
 | B9 | Despliegue (Render) y prueba "matar al proveedor" grabada | — | ⏳ |
