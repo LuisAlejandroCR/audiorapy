@@ -62,13 +62,34 @@ export const DEFAULT_SCHEDULE: Schedule = {
   holidays: [],
 };
 
+/**
+ * Retention for operational records. Processed message ids only need to outlive the provider's
+ * redelivery window; finished reminder jobs only matter for a few weeks. Appointments, consent
+ * evidence and alerts are never purged here.
+ */
+export const RETENTION = { processedMessagesDays: 14, finishedJobsDays: 30 } as const;
+
+export interface PurgeResult {
+  processedMessages: number;
+  reminderJobs: number;
+}
+
+const DAY_MS = 86_400_000;
+
+export function purgeCutoffs(now: Date) {
+  return {
+    processedBefore: new Date(now.getTime() - RETENTION.processedMessagesDays * DAY_MS),
+    jobsDueBefore: new Date(now.getTime() - RETENTION.finishedJobsDays * DAY_MS),
+  };
+}
+
 export const ACTIVE_STATUSES: readonly AppointmentStatus[] = ['scheduled', 'confirmed'];
 
 export interface SchedulingStore {
   readonly name: string;
   schedule: Schedule;
   /** Records a message id; false when it was already processed (a redelivery). Atomic. */
-  markProcessed(messageId: string): Promise<boolean>;
+  markProcessed(messageId: string, at?: Date): Promise<boolean>;
   getConversation(contact: string): Promise<ConversationState>;
   setConversation(contact: string, state: ConversationState): Promise<void>;
   addConsent(record: ConsentRecord): Promise<void>;
@@ -98,5 +119,7 @@ export interface SchedulingStore {
   ): Promise<Alert>;
   listAlerts(): Promise<Alert[]>;
   resolveAlert(id: string): Promise<boolean>;
+  /** Deletes expired processed ids and finished (sent/skipped) reminder jobs; see RETENTION. */
+  purge(now: Date): Promise<PurgeResult>;
   close(): Promise<void>;
 }

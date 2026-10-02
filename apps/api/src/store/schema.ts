@@ -45,6 +45,7 @@ export const SCHEMA = [
      state text NOT NULL CHECK (state IN ('pending','sent','skipped'))
    )`,
   `CREATE INDEX IF NOT EXISTS reminder_jobs_pending_due ON reminder_jobs (due_at) WHERE state = 'pending'`,
+  `CREATE INDEX IF NOT EXISTS processed_messages_at ON processed_messages (processed_at)`,
   `CREATE TABLE IF NOT EXISTS alerts (
      seq bigserial PRIMARY KEY,
      id uuid NOT NULL UNIQUE,

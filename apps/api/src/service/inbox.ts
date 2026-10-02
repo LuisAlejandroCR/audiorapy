@@ -59,11 +59,11 @@ export class Inbox {
 
   async handle(message: NormalizedMessage): Promise<InboxResult> {
     const { store, channel, classifier, catalogue } = this.deps;
-    if (!(await store.markProcessed(message.id))) {
+    const now = this.now();
+    if (!(await store.markProcessed(message.id, now))) {
       this.log('inbox.duplicate', { id: message.id });
       return { duplicate: true, effects: [], sent: 0, failedSends: 0 };
     }
-    const now = this.now();
     const state = await store.getConversation(message.from);
 
     const classified =

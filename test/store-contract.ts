@@ -139,6 +139,31 @@ export function storeContract(
     );
 
     it(
+      'purge drops expired message ids and finished old jobs, nothing else',
+      withStore(async (s) => {
+        const day = 86_400_000;
+        const now = new Date('2026-12-01T12:00:00.000Z');
+        await s.markProcessed('old', new Date(now.getTime() - 20 * day));
+        await s.markProcessed('recent', new Date(now.getTime() - 2 * day));
+        const appt = await s.createAppointment('57300', A, A_END, NOW);
+        await s.addJob(appt.id, 'early', '2026-10-01T00:00:00.000Z');
+        await s.addJob(appt.id, 'day_before', '2026-10-04T13:00:00.000Z');
+        await s.addJob(appt.id, 'no_reply_check', '2026-10-05T01:00:00.000Z');
+        await s.setJobState(`${appt.id}:early`, 'sent');
+        await s.setJobState(`${appt.id}:day_before`, 'skipped');
+        await s.addAlert('57300', appt.id, 'no_reply', NOW);
+
+        expect(await s.purge(now)).toEqual({ processedMessages: 1, reminderJobs: 2 });
+        expect(await s.markProcessed('old', now)).toBe(true);
+        expect(await s.markProcessed('recent', now)).toBe(false);
+        expect((await s.listJobs()).map((j) => j.kind)).toEqual(['no_reply_check']);
+        expect(await s.getAppointment(appt.id)).not.toBeNull();
+        expect(await s.listAlerts()).toHaveLength(1);
+        expect(await s.purge(now)).toEqual({ processedMessages: 0, reminderJobs: 0 });
+      }),
+    );
+
+    it(
       'alerts keep insertion order and can be resolved',
       withStore(async (s) => {
         const appt = await s.createAppointment('57300', A, A_END, NOW);
