@@ -25,6 +25,7 @@ Cosas que tienen que ser ciertas:
 | Criterio | IA open-source en el núcleo; calidad del post en inglés pesa más que todo |
 | Usuaria | La hermana del autor ("the friend") |
 | Fuente de decisiones | [`docs/research-report.md`](docs/research-report.md) |
+| Post | Borrador en [`submission/dev-post.md`](submission/dev-post.md); las marcas `[[AUTHOR: …]]` las llena el autor |
 
 ## Arranque de sesión
 
@@ -63,7 +64,7 @@ Viven en `.env` (gitignored); nombres en [`.env.example`](.env.example). Nunca i
 | Dashboard | `apps/web` — Vite + React, descifra en el navegador |
 | Móvil | `apps/mobile` — Expo dev build (⏳ pendiente) |
 | IA | Gemma 4 en Ollama (local) con fallback a reglas; riesgo de inasistencia en `services/risk` (Python, TabPFN-2 o baseline logístico) con fallback heurístico |
-| Tests | Vitest + fast-check (unit/fuzz/invariant/integration), PGlite, Playwright (e2e), `playwright-cli` (verificación manual) |
+| Tests | Vitest + fast-check (unit/fuzz/invariant/integration), PGlite, Playwright (e2e), `playwright-cli` (verificación manual); pytest + Hypothesis en `services/risk` |
 | CI | GitHub Actions — `.github/workflows/ci.yml` |
 | Deploy | Render — `render.yaml` (API, dashboard estático, Render Postgres, sidecar de riesgo privado); ⏳ sin desplegar |
 

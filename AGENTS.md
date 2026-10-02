@@ -43,10 +43,12 @@ Antes de codear, escribir los criterios de aceptación del bloque en `docs/plan.
 test/unit/       <name>.spec.ts            un comportamiento, entradas fijas
 test/fuzz/       <name>.fuzz.spec.ts       entradas arbitrarias o malformadas (fast-check)
 test/invariant/  <name>.invariant.spec.ts  propiedades que se cumplen para toda entrada (fast-check)
+test/integration/ <name>.integration.spec.ts  contra un servicio real (Postgres vía DATABASE_URL)
 test/e2e/        <name>.e2e.ts             Playwright contra la app real
 ```
 
-* Los tests viven en `test/`, nunca junto al código fuente.
+* Los tests viven en `test/`, nunca junto al código fuente. Excepción: el sidecar de Python
+  (`services/risk/tests`, pytest + Hypothesis), que es su propio paquete.
 * Todo módulo nuevo: **unit**. Si parsea algo de fuera del proceso: **fuzz**. Si hay una promesa a la
   usuaria o una garantía de privacidad: **invariant**.
 * Nunca debilitar un test para que pase. Nunca recortar `numRuns` para que quepa en el timeout.
