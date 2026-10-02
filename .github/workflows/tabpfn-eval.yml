@@ -1,0 +1,28 @@
+# tabpfn-eval.yml: run by hand (Actions → tabpfn-eval → Run workflow) to compare TabPFN-2 with the logistic
+# baseline on the synthetic attendance data. Installs PyTorch (CPU) and downloads the Apache-2.0 V2 weights
+# from Hugging Face, so it is slow and not part of the PR checks.
+name: tabpfn-eval
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install the sidecar with TabPFN (CPU PyTorch)
+        working-directory: services/risk
+        run: |
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install '.[tabpfn]'
+      - name: Evaluate logistic vs TabPFN-2 (ROC-AUC on a holdout)
+        working-directory: services/risk
+        run: python -m risk.evaluate --models logistic,tabpfn-v2 | tee "$GITHUB_STEP_SUMMARY"

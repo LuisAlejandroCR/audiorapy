@@ -7,6 +7,7 @@ import { sign, verifySignature } from '../../../apps/api/src/meta/signature.ts';
 import { Inbox } from '../../../apps/api/src/service/inbox.ts';
 import { ConsoleChannel } from '../../../apps/api/src/channel/console-channel.ts';
 import { FallbackIntentClassifier } from '../../../apps/api/src/ai/rules-intent.ts';
+import { FallbackRisk } from '../../../apps/api/src/ai/risk.ts';
 import { MemoryStore } from '../../../apps/api/src/store/memory-store.ts';
 import { BUTTON_IDS, type Inbound } from '@audiorapy/domain';
 import { catalogue, THURSDAY_8AM } from '../../helpers.ts';
@@ -20,7 +21,7 @@ function inbox() {
     channel,
     classifier: new FallbackIntentClassifier(null),
     catalogue,
-    riskEnabled: true,
+    risk: new FallbackRisk(null),
     now: () => THURSDAY_8AM,
     log: (event, fields) => logs.push(JSON.stringify({ event, ...fields })),
   });

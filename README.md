@@ -114,6 +114,29 @@ unreachable, and checks what must keep working (it also runs in CI):
 
 The dashboard's own degraded states (no API, no Ollama) are covered by the Playwright suite.
 
+## No-show risk (TabPFN-2)
+
+[`services/risk`](services/risk) is a small Python sidecar that scores each new visit's no-show risk; the
+score only decides how many reminders to send (one more at T−72 h for medium or high risk). It sees
+eight numeric attendance features — lead time, weekday, hour, zone, session number, prior visits, prior
+no-shows, whether the last reminder was answered — and never a name, phone number or clinical data.
+
+```bash
+cd services/risk && python -m pip install '.[dev]'
+python -m risk.evaluate                                   # ROC-AUC on a synthetic holdout
+RISK_MODEL=logistic uvicorn --factory risk.app:build_app --port 8090
+RISK_PROVIDER=sidecar npm run dev:api                     # the API scores through it, heuristic if it is down
+```
+
+| Model | ROC-AUC (synthetic holdout, 180 rows) | Measured |
+|---|---|---|
+| Logistic regression (baseline) | 0.675 | 2026-10-02, CI and local |
+| TabPFN-2 (`ModelVersion.V2`, Apache-2.0 weights) | ⏳ pending | run the `tabpfn-eval` workflow from the Actions tab |
+
+Both models are trained on **synthetic** data (600 invented appointments); the numbers say nothing about
+real families until it is retrained on real attendance. `tabpfn` 9.x defaults to non-commercial weights,
+so the code always asks for V2 explicitly; `tabpfn-client` (which sends data to Prior Labs) is not used.
+
 ## Intent eval
 
 40 invented caregiver replies in Colombian Spanish, labeled by hand ([eval/intents.es-CO.json](eval/intents.es-CO.json)).

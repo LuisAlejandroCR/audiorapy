@@ -10,3 +10,9 @@ test-results/
 .codegraph/
 *.log
 .DS_Store
+.venv/
+__pycache__/
+.pytest_cache/
+.hypothesis/
+build/
+*.egg-info/

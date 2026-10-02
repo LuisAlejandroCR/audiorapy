@@ -27,7 +27,8 @@
     "dev:web": "npm run dev -w @audiorapy/web",
     "eval:intent": "tsx scripts/eval-intent.ts",
     "test:integration": "vitest run --project integration",
-    "demo:degraded": "tsx scripts/degraded.ts"
+    "demo:degraded": "tsx scripts/degraded.ts",
+    "smoke:risk": "tsx scripts/smoke-risk.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",

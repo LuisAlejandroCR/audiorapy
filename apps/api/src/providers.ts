@@ -5,6 +5,7 @@ import { OllamaIntentClassifier } from './ai/ollama-intent.ts';
 import { FallbackIntentClassifier } from './ai/rules-intent.ts';
 import { ConsoleChannel } from './channel/console-channel.ts';
 import { MetaChannel } from './channel/meta-channel.ts';
+import { FallbackRisk, SidecarRiskAdapter } from './ai/risk.ts';
 import { MemoryStore } from './store/memory-store.ts';
 import { PostgresStore } from './store/postgres-store.ts';
 import type { SchedulingStore } from './store/store.ts';
@@ -44,4 +45,15 @@ export async function buildStore(config: Config): Promise<SchedulingStore> {
     connectionTimeoutMillis: 5000,
   });
   return PostgresStore.open(pool);
+}
+
+/** null = risk off (fixed reminder cadence); otherwise the sidecar or the heuristic, always with fallback. */
+export function buildRisk(config: Config): FallbackRisk | null {
+  if (config.RISK_PROVIDER === 'off') return null;
+  if (config.RISK_PROVIDER === 'sidecar') {
+    return new FallbackRisk(
+      new SidecarRiskAdapter({ baseUrl: config.RISK_URL, timeoutMs: config.RISK_TIMEOUT_MS }),
+    );
+  }
+  return new FallbackRisk(null);
 }

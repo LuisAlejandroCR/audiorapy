@@ -20,6 +20,10 @@
 | 2026-10-02 | `DATABASE_URL=… npm run smoke:api` ×2 | PASS 12/12 las dos corridas: reserva y conversación sobreviven al reinicio del proceso; `/health/providers` dice `postgres` | Postgres 16.14 |
 | 2026-10-02 | `npm run demo:degraded` | PASS 22/22: sin claves, Ollama caído, Meta inalcanzable, riesgo apagado, Ollama + riesgo apagados, base caída al arrancar | Linux, Node 22.22.0 |
 | 2026-10-02 | API con `NODE_ENV=production` | `/health` 200, `/dev/simulate` 404, `POST /webhook` sin secreto 503 | Linux, Node 22.22.0 |
+| 2026-10-02 | `pytest` en `services/risk` ×2 (y en un venv limpio) | PASS 12/12: unit, fuzz (Hypothesis, 600 cuerpos) e invariante (400 entradas válidas) | Python 3.11.15 |
+| 2026-10-02 | `python -m risk.evaluate` | Logística 0,675 ROC-AUC (holdout 180, sintético, 22 % inasistencia); TabPFN-2 "unavailable: tabpfn is not installed" | Python 3.11.15 |
+| 2026-10-02 | `npm run smoke:risk` ×2 | PASS 6/6: sidecar real + API real, la reserva se puntúa por el sidecar (`sidecar:logistic`) | Linux |
+| 2026-10-02 | `npm run demo:degraded` | PASS 26/26 (nuevo escenario: sidecar de riesgo caído → heurística) | Linux |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -31,6 +35,7 @@
 | 2026-10-02 | `inbox.ts`: se desactiva el dedupe por `message.id` | `A2: redelivering any message…` |
 | 2026-10-02 | `postgres-store.ts`: el dedupe hace `DO UPDATE` en vez de `DO NOTHING` | contrato `dedupes message ids` y `…concurrent deliveries…` |
 | 2026-10-02 | `rules-intent.ts`: el respaldo devuelve `unknown` cuando Ollama falla | `demo:degraded` → "free text still understood by the rules" |
+| 2026-10-02 | `risk/app.py`: el sidecar lanza error con `zone == 9` | `test_score_bounded_consistent_deterministic` (Hypothesis, 4 min encogiendo) |
 | 2026-10-02 | `postgres-store.ts`: cancelar no salta los recordatorios pendientes | invariante diferencial memoria vs Postgres (3/3 tras sesgar el generador) |
 
 ## Límites externos (ejercicio contra la cosa real)
@@ -39,6 +44,7 @@
 |---|---|---|
 | Meta WhatsApp Cloud API (envío y webhook) | ⏳ pendiente | Requiere la app y el número de prueba del autor. Probado solo contra un doble de la Graph API v25.0. Falta: `debug_token` = `SYSTEM_USER`, "Hola" real, mensaje con tildes real |
 | Deploy en Render (`render.yaml`) | ⏳ pendiente | render.com bloqueado por la red de la sesión; el blueprint no se validó contra Render. Falta: crear el Blueprint, fijar `DASHBOARD_ORIGIN` y `VITE_API_ORIGIN` |
+| TabPFN-2 (pesos V2) | ⏳ pendiente | Hugging Face bloqueado en la sesión. Correr el workflow `tabpfn-eval` (Actions → Run workflow) y copiar la tabla al README |
 | Plantilla *utility* del recordatorio | ⏳ pendiente | Fuera de la ventana de 24 h un interactivo no basta; hay que registrar y aprobar la plantilla en Meta |
 | Ollama + `gemma4:e4b` | ⏳ pendiente | No hay Ollama en la sesión en la nube. Probado contra un doble de `/api/chat` con `format` = JSON Schema. Falta: correr `npm run eval:intent -- --ollama` en la laptop de la terapeuta (precisión y latencia reales) |
 | Dashboard en navegador real | ✅ 2026-10-02 | Ver la sección `playwright-cli` abajo |
