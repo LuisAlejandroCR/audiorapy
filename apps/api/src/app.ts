@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { formatSlotEs, type ChannelPort, type PortResult } from '@audiorapy/domain';
 import type { Config } from './config.ts';
 import { FallbackIntentClassifier } from './ai/rules-intent.ts';
+import type { FallbackRisk } from './ai/risk.ts';
+import { buildRisk } from './providers.ts';
 import { verifySignature } from './meta/signature.ts';
 import { parseWebhook } from './meta/parse.ts';
 import { ConsoleChannel } from './channel/console-channel.ts';
@@ -19,6 +21,8 @@ export interface AppDeps {
   store: SchedulingStore;
   channel: ChannelPort;
   classifier: FallbackIntentClassifier;
+  /** Defaults to what RISK_PROVIDER configures. */
+  risk?: FallbackRisk | null;
   now?: () => Date;
 }
 
@@ -71,6 +75,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     });
   }
 
+  const risk = deps.risk === undefined ? buildRisk(config) : deps.risk;
   const log = (event: string, fields: Record<string, unknown>) =>
     app.log.info({ event, ...fields });
   const inbox = new Inbox({
@@ -78,7 +83,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     channel,
     classifier,
     catalogue: { practiceName: config.PRACTICE_NAME, privacyUrl: config.PRIVACY_URL },
-    riskEnabled: config.RISK_PROVIDER !== 'off',
+    risk,
     now,
     log,
   });
@@ -96,7 +101,12 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
         fallback: 'rules',
         last: primary ? describe(primary) : null,
       },
-      risk: { active: config.RISK_PROVIDER === 'off' ? 'off' : 'heuristic' },
+      risk: {
+        configured: config.RISK_PROVIDER,
+        active: risk ? (risk.primary ? risk.primary.name : 'heuristic') : 'off',
+        fallback: risk ? 'heuristic' : null,
+        last: risk?.lastPrimary ? describe(risk.lastPrimary) : null,
+      },
       scheduler: { active: 'db-cron' },
       store: { active: store.name },
       webhook: {

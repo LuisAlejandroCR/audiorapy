@@ -35,7 +35,7 @@
 | B4 | Dashboard web: desbloqueo, Hoy, progreso por nivel de apoyo, modo sesión, borrador SOAP, respaldo/restauración, e2e Playwright | `feat/web-dashboard` | ✅ verificado en navegador real (`playwright-cli` + 20 e2e); Ollama real ⏳ |
 | B5 | Postgres (Render Postgres) detrás del port de repositorio | `feat/postgres-store` | ✅ contrato en memoria, PGlite y Postgres 16 real; la agenda sobrevive un reinicio. Render Postgres real ⏳ |
 | B6 | Expo dev build: modo sesión ✓/✗ + apoyo + deshacer, SQLCipher, outbox | — | ⏳ roadmap (el modo sesión ya existe en web como puente) |
-| B7 | Sidecar TabPFN-2 + CSV sintético + baseline logístico | — | ⏳ roadmap |
+| B7 | Sidecar TabPFN-2 + CSV sintético + baseline logístico | `feat/risk-sidecar` | ✅ sidecar + baseline (AUC 0,675) + adaptador con fallback, probados en vivo. Cifra de TabPFN-2 ⏳ (workflow manual) |
 | B8 | Mini-eval de 40 mensajes: reglas vs reglas + Gemma | `feat/intent-eval` | ✅ arnés + set + compuerta en CI; reglas 37/40. Columna Gemma ⏳ requiere Ollama real |
 | B9 | Despliegue (Render) y prueba "matar al proveedor" grabada | `feat/deploy-degraded` | ✅ `render.yaml` + test de consistencia; `npm run demo:degraded` 22/22 en CI. Deploy real y video ⏳ |
 

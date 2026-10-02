@@ -8,6 +8,10 @@ export interface RiskFeatures {
   priorNoShows: number;
   leadTimeDays: number;
   repliedToLastReminder: boolean | null;
+  /** Extra context for the model sidecar; the heuristic ignores them. Local time, Colombia. */
+  weekday?: number;
+  hour?: number;
+  sessionNumber?: number;
 }
 
 export interface Risk {

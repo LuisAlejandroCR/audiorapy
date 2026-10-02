@@ -1,5 +1,5 @@
 # ci.yml: the verify gate (typecheck, lint, format, unit/fuzz/invariant tests, build, API smoke) and the
-# Playwright end-to-end suite and the Postgres integration job, on every PR and push to main.
+# Playwright end-to-end suite, the Postgres integration job and the risk sidecar job, on every PR and push to main.
 name: ci
 
 on:
@@ -97,3 +97,31 @@ jobs:
         run: npm run test:integration
       - name: Smoke test with Postgres (bookings survive a restart)
         run: npm run smoke:api
+
+  risk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install the risk sidecar
+        working-directory: services/risk
+        run: python -m pip install '.[dev]'
+      - name: Sidecar tests (unit, fuzz, invariant)
+        working-directory: services/risk
+        run: python -m pytest -q
+      - name: Evaluate the baseline on synthetic data
+        working-directory: services/risk
+        run: python -m risk.evaluate --models logistic --min-auc 0.6
+      - run: npm ci
+      - name: API scores a booking through the real sidecar
+        run: npm run smoke:risk
+        env:
+          RISK_PYTHON: python

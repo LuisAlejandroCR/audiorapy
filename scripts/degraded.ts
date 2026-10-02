@@ -154,6 +154,29 @@ await scenario(
   },
 );
 
+await scenario(
+  'Risk sidecar down',
+  { RISK_PROVIDER: 'sidecar', RISK_URL: DEAD, RISK_TIMEOUT_MS: '1000' },
+  async (api) => {
+    const c = record('Risk sidecar down');
+    c(
+      'booking by buttons',
+      (await bookByButtons(api, '573100000006')).booked.state.step === 'booked',
+    );
+    const p = (await providers(api)) as Providers & {
+      risk: { last: { available: boolean } | null };
+    };
+    c(
+      '/health/providers reports the sidecar as unavailable',
+      p.risk.active === 'sidecar' && p.risk.last?.available === false,
+    );
+    // Logs are written asynchronously; give them a moment to reach stdout.
+    const logged = () => /"event":"risk.scored".*"source":"heuristic"/.test(api.output());
+    for (let i = 0; i < 30 && !logged(); i++) await new Promise((r) => setTimeout(r, 100));
+    c('reminders still planned with the heuristic', logged());
+  },
+);
+
 await scenario('No-show risk off', { RISK_PROVIDER: 'off' }, async (api) => {
   const c = record('No-show risk off');
   c('/health/providers says off', (await providers(api)).risk.active === 'off');

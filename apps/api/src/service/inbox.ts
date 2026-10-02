@@ -2,16 +2,17 @@
 // step the conversation, apply effects, send catalogue replies. Logs carry no message text.
 import {
   findSlots,
-  heuristicRisk,
   planReminders,
   recordConsent,
   step,
+  toLocalParts,
   type CatalogueContext,
   type Effect,
   type Inbound,
   type ChannelPort,
 } from '@audiorapy/domain';
 import type { FallbackIntentClassifier } from '../ai/rules-intent.ts';
+import type { FallbackRisk } from '../ai/risk.ts';
 import type { NormalizedMessage } from '../meta/parse.ts';
 import type { SchedulingStore } from '../store/store.ts';
 
@@ -22,7 +23,8 @@ export interface InboxDeps {
   channel: ChannelPort;
   classifier: FallbackIntentClassifier;
   catalogue: CatalogueContext;
-  riskEnabled: boolean;
+  /** null = risk off: fixed reminder cadence. */
+  risk: FallbackRisk | null;
   now?: () => Date;
   log?: (event: string, fields: Record<string, unknown>) => void;
 }
@@ -138,8 +140,8 @@ export class Inbox {
           new Date(Date.parse(effect.startsAt) + durationMs).toISOString(),
           now,
         );
-        const band = this.deps.riskEnabled
-          ? await this.riskBand(contact, appt.startsAt, now)
+        const band = this.deps.risk
+          ? await this.riskBand(this.deps.risk, contact, appt.startsAt, now)
           : null;
         for (const r of planReminders(new Date(appt.startsAt), now, band))
           await store.addJob(appt.id, r.kind, r.dueAt);
@@ -165,16 +167,22 @@ export class Inbox {
     }
   }
 
-  private async riskBand(contact: string, startsAt: string, now: Date) {
+  private async riskBand(risk: FallbackRisk, contact: string, startsAt: string, now: Date) {
     const history = (await this.deps.store.listAppointments()).filter(
       (a) => a.contact === contact && a.startsAt < now.toISOString(),
     );
-    return heuristicRisk({
+    const local = toLocalParts(new Date(startsAt));
+    const { risk: r, source } = await risk.score({
       priorVisits: history.length,
       priorNoShows: history.filter((a) => a.status === 'no_show').length,
       leadTimeDays: (Date.parse(startsAt) - now.getTime()) / 86_400_000,
       repliedToLastReminder: null,
-    }).band;
+      weekday: local.weekday,
+      hour: Math.floor(local.minutes / 60),
+      sessionNumber: history.length + 1,
+    });
+    this.log('risk.scored', { band: r.band, source });
+    return r.band;
   }
 
   private now(): Date {
