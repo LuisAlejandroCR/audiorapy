@@ -29,6 +29,7 @@
 | 2026-10-02 | Invariante diferencial memoria vs Postgres ×8 | PASS 8/8 tras dos correcciones: reactivar una cita sobre un cupo ya tomado divergía (ahora `SlotTakenError` en ambos) y el orden de empates por id aleatorio hacía el test intermitente | Linux |
 | 2026-10-02 | Arranque tipo Render del sidecar: `pip install .` en venv limpio + `uvicorn … --port $PORT`; API con `RISK_URL=127.0.0.1:10091` (sin esquema) | Sidecar listo en ~2 s; la reserva se puntuó por `sidecar:logistic`. En la primera corrida la API llamó antes de que el sidecar arrancara: reservó igual con la heurística (fallback correcto) | Python 3.11.15, Linux |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
+| 2026-10-02 | `submission.spec.ts` (borrador del post) | PASS 5/5; mutaciones atrapadas: cifra de reglas distinta al README, `published: true` con marcas abiertas, sección de la plantilla renombrada | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
 
@@ -55,6 +56,7 @@
 | Deploy en Render (`render.yaml`) | ⏳ pendiente | render.com bloqueado por la red de la sesión; el blueprint no se validó contra Render (incluidos `type: pserv`, `fromService … hostport` y `PYTHON_VERSION` del sidecar). Falta: crear el Blueprint, fijar `DASHBOARD_ORIGIN` y `VITE_API_ORIGIN` |
 | TabPFN-2 (pesos V2) | ⏳ pendiente | Hugging Face bloqueado en la sesión. Correr el workflow `tabpfn-eval` (Actions → Run workflow) y copiar la tabla al README |
 | Plantilla *utility* del recordatorio | ⏳ pendiente | Fuera de la ventana de 24 h un interactivo no basta; hay que registrar y aprobar la plantilla en Meta |
+| Post de DEV (`submission/dev-post.md`) | ⏳ pendiente | Borrador listo; faltan las marcas `[[AUTHOR: …]]`: cita de la terapeuta, video, URL desplegada, cifras de Gemma y TabPFN, sesión del agente. El repo debe ser público para el embed `{% github %}` |
 | Ollama + `gemma4:e4b` | ⏳ pendiente | No hay Ollama en la sesión en la nube. Probado contra un doble de `/api/chat` con `format` = JSON Schema. Falta: correr `npm run eval:intent -- --ollama` en la laptop de la terapeuta (precisión y latencia reales) |
 | Dashboard en navegador real | ✅ 2026-10-02 | Ver la sección `playwright-cli` abajo |
 
