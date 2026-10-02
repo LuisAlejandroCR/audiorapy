@@ -1,3 +1,6 @@
+<!-- features_practica_clinica.md: nota de investigación — funciones, flujos, modelo de datos clínico y visualizaciones de una práctica fonoaudiológica a domicilio. Foto del 2026-10-02; se distingue del reporte
+     (docs/research-report.md), que sintetiza las siete notas. -->
+
 # Funcionalidades, flujos, modelo de datos clínico y visualizaciones para software de práctica fonoaudiológica (fonoaudióloga independiente, atención domiciliaria, Colombia) — estado a octubre de 2026
 
 > Nota metodológica (2026-10-02): en esta sesión el proxy bloqueó `WebFetch` para casi todos los dominios (simplepractice.com, jane.app, theraplatform.com, slptoolkit.com, asha.org, pubmed, ncbi, imsalud.gov.co). Todo lo que sigue sale de **resúmenes del buscador web** sobre las URL citadas, no de una lectura completa de cada página. Los precios de proveedores salen en su mayoría de **agregadores** (schedulingkit, costbench, softwarefinder, pricingsaas) y no de la página oficial de precios: hay que tratarlos como **no verificados** y volver a confirmarlos en la web del proveedor antes de usarlos en un informe final. Las cifras de estudios (RR, g, n) coinciden con abstracts conocidos, pero también conviene verificarlas contra el texto completo.

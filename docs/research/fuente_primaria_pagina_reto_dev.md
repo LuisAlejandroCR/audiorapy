@@ -1,3 +1,6 @@
+<!-- fuente_primaria_pagina_reto_dev.md: nota de investigación — texto de la página oficial del reto, pegado por el usuario; fuente autoritativa sobre reglas y premios. Foto del 2026-10-02; se distingue del reporte
+     (docs/research-report.md), que sintetiza las siete notas. -->
+
 # Fuente primaria: página oficial del reto (pegada por el usuario, 2026-10-02)
 
 URL: https://dev.to/challenges/hacktoberfest-weekend-2026-10-01

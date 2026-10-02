@@ -1,3 +1,6 @@
+<!-- marco_legal_colombia.md: nota de investigación — marco legal colombiano aplicable (datos de salud, historia clínica, telesalud). Foto del 2026-10-02; se distingue del reporte
+     (docs/research-report.md), que sintetiza las siete notas. -->
+
 # Marco legal y regulatorio colombiano aplicable a una app clínica para fonoaudióloga independiente a domicilio (estado a octubre de 2026)
 
 > **Nota metodológica (léase primero).** En esta sesión el proxy de red bloqueó la descarga directa de TODAS las fuentes oficiales (secretariasenado.gov.co, funcionpublica.gov.co, suin-juriscol.gov.co, minsalud.gov.co, sic.gov.co, normograma DIAN/Supersalud, alcaldiabogota.gov.co). Los hallazgos provienen de resúmenes de buscador sobre textos oficiales y análisis secundarios (firmas de software clínico, gremios, prensa). Convenciones:

@@ -29,6 +29,8 @@
 | 2026-10-02 | Invariante diferencial memoria vs Postgres ×8 | PASS 8/8 tras dos correcciones: reactivar una cita sobre un cupo ya tomado divergía (ahora `SlotTakenError` en ambos) y el orden de empates por id aleatorio hacía el test intermitente | Linux |
 | 2026-10-02 | Arranque tipo Render del sidecar: `pip install .` en venv limpio + `uvicorn … --port $PORT`; API con `RISK_URL=127.0.0.1:10091` (sin esquema) | Sidecar listo en ~2 s; la reserva se puntuó por `sidecar:logistic`. En la primera corrida la API llamó antes de que el sidecar arrancara: reservó igual con la heurística (fallback correcto) | Python 3.11.15, Linux |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
+| 2026-10-02 | Auditoría (PR #17): `npm run verify`, e2e, integración, smokes, `demo:degraded`, pytest, invariantes ×3 | PASS — 223 tests; e2e 20/20; integración 13/13 y `smoke:api` 12/12 ×2 en Postgres 16 local; degraded 26/26; `smoke:risk`; pytest 12/12 | Linux, Node 22.22.0, Postgres 16 |
+| 2026-10-02 | Timeout de Postgres por `buildStore` | `select pg_sleep(12)` cancelada a los 10 002 ms (`57014`) | Postgres 16 local |
 | 2026-10-02 | `submission.spec.ts` (borrador del post) | PASS 5/5; mutaciones atrapadas: cifra de reglas distinta al README, `published: true` con marcas abiertas, sección de la plantilla renombrada | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -46,6 +48,9 @@
 | 2026-10-02 | `schema.ts`: sin la restricción de exclusión | contrato (3 casos fallan, incluido el de concurrencia) |
 | 2026-10-02 | `memory-store.ts`: `book()` no revisa solapes | contrato + invariante diferencial (4 fallan) |
 | 2026-10-02 | `inbox.ts`: ignorar el cupo perdido | `two families tap the same slot…` |
+| 2026-10-02 | `inbox.ts`: sin la cola por contacto | `inbox-order.invariant.spec.ts` (contraejemplo: dos `consent:yes` seguidos) |
+| 2026-10-02 | `reminders.ts`: sin `singleFlight` | `the minute timer and a manual tick… send a due reminder once` (2 intentos en vez de 1) |
+| 2026-10-02 | `reminders.ts`: se envía aunque la visita ya empezó | `a reminder that could not go out before the visit started is skipped` |
 | 2026-10-02 | `postgres-store.ts`: cancelar no salta los recordatorios pendientes | invariante diferencial memoria vs Postgres (3/3 tras sesgar el generador) |
 
 ## Límites externos (ejercicio contra la cosa real)

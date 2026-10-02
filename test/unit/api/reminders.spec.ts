@@ -1,6 +1,8 @@
 // reminders.spec.ts: the cron tick sends due reminders, turns silence into an alert, never cancels.
 import { describe, expect, it } from 'vitest';
-import { tickReminders } from '../../../apps/api/src/service/reminders.ts';
+import { degraded, type ChannelPort } from '@audiorapy/domain';
+import { singleFlight, tickReminders } from '../../../apps/api/src/service/reminders.ts';
+import { DASH, testApp } from '../../api-helpers.ts';
 import { ConsoleChannel } from '../../../apps/api/src/channel/console-channel.ts';
 import { MemoryStore } from '../../../apps/api/src/store/memory-store.ts';
 
@@ -67,5 +69,66 @@ describe('tickReminders', () => {
       skipped: 0,
       failed: 0,
     });
+  });
+
+  it('a reminder that could not go out before the visit started is skipped, not sent late', async () => {
+    const { store } = await setup();
+    const down: ChannelPort = { name: 'down', send: async () => degraded('down', 'unreachable') };
+    expect((await tickReminders(store, down, new Date('2026-10-08T14:00:00Z'))).failed).toBe(1);
+    const channel = new ConsoleChannel();
+    const after = await tickReminders(store, channel, new Date('2026-10-09T14:00:00Z'));
+    // The stale reminder is dropped; the silence check still alerts the therapist.
+    expect(after).toEqual({ sent: 0, alerts: 1, skipped: 1, failed: 0 });
+    expect(channel.sentTo('57300')).toHaveLength(0);
+    expect((await store.listJobs()).find((j) => j.kind === 'day_before')?.state).toBe('skipped');
+  });
+});
+
+describe('singleFlight', () => {
+  it('overlapping calls share the run in flight; the next call starts a new one', async () => {
+    let runs = 0;
+    let release!: () => void;
+    const tick = singleFlight(async () => {
+      runs++;
+      await new Promise<void>((r) => (release = r));
+      return runs;
+    });
+    const a = tick();
+    const b = tick();
+    release();
+    expect(await Promise.all([a, b])).toEqual([1, 1]);
+    const c = tick();
+    release();
+    expect(await c).toBe(2);
+  });
+
+  it('the minute timer and a manual tick from the dashboard send a due reminder once', async () => {
+    const { app, store, channel } = await testApp({ now: new Date('2026-10-08T14:00:00Z') });
+    const appt = await store.createAppointment(
+      '57300',
+      '2026-10-09T14:00:00.000Z',
+      '2026-10-09T14:45:00.000Z',
+      new Date('2026-10-02T12:00:00Z'),
+    );
+    await store.addJob(appt.id, 'day_before', '2026-10-08T14:00:00.000Z');
+    // Count attempts: the console channel itself drops a repeated idempotency key, Meta's might not.
+    let attempts = 0;
+    const send = channel.send.bind(channel);
+    channel.send = async (...args) => {
+      attempts++;
+      await new Promise((r) => setTimeout(r, 50)); // a slow Meta keeps the first tick in flight
+      return send(...args);
+    };
+    const [timer, manual] = await Promise.all([
+      app.tickReminders(new Date('2026-10-08T14:00:00Z')),
+      app.inject({
+        method: 'POST',
+        url: '/api/reminders/tick',
+        headers: { authorization: `Bearer ${DASH}` },
+      }),
+    ]);
+    expect(timer.sent).toBe(1);
+    expect(manual.statusCode).toBe(200);
+    expect(attempts).toBe(1);
   });
 });

@@ -3,7 +3,6 @@ import { loadConfig } from './config.ts';
 import { buildApp } from './app.ts';
 import { buildChannel, buildClassifier, buildStore } from './providers.ts';
 import { PURGE_INTERVAL_MS, runPurge } from './service/maintenance.ts';
-import { tickReminders } from './service/reminders.ts';
 
 const config = loadConfig();
 // The database is the source of truth: if it is configured but unreachable, stop with a clear
@@ -18,7 +17,7 @@ const channel = buildChannel(config);
 const app = await buildApp({ config, store, channel, classifier: buildClassifier(config) });
 
 const timer = setInterval(() => {
-  tickReminders(store, channel, new Date()).catch((error: unknown) =>
+  app.tickReminders(new Date()).catch((error: unknown) =>
     app.log.error({
       event: 'reminders.error',
       error: error instanceof Error ? error.message : 'unknown',

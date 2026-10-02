@@ -1,3 +1,6 @@
+<!-- arquitectura_zero_knowledge_local_first.md: nota de investigación — cifrado de extremo a extremo y local-first: qué se cifra, llaves recuperables y qué ve el servidor. Foto del 2026-10-02; se distingue del reporte
+     (docs/research-report.md), que sintetiza las siete notas. -->
+
 # Arquitectura "zero-knowledge" (cifrado de extremo a extremo) y local-first para la app de fonoaudiología a domicilio — estado a octubre de 2026
 
 > Alcance y método: investigación hecha el 2026-10-02. Muchos sitios de documentación estaban bloqueados por el proxy de salida (evolu.dev, jazz.tools, supabase.com, docs.expo.dev, powersync.com, rxdb.info, corbado.com, etc.). Por eso las fuentes primarias se leyeron directamente de los repositorios GitHub de cada proyecto, en sus commits de HEAD de finales de sept./1-oct. 2026. Las versiones y fechas de publicación vienen del registro npm (consultado el 2026-10-02). Para cada afirmación se cita la URL pública equivalente: la del repo o la del sitio de documentación. Lo que solo se pudo confirmar por fragmentos de buscador se marca como tal.

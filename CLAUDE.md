@@ -83,5 +83,6 @@ Viven en `.env` (gitignored); nombres en [`.env.example`](.env.example). Nunca i
 - Plan y criterios → [`docs/plan.md`](docs/plan.md)
 - Decisiones y bitácora → [`docs/memoria.md`](docs/memoria.md)
 - Verificado y pendiente → [`docs/verificacion.md`](docs/verificacion.md)
+- Auditoría → [`docs/auditoria.md`](docs/auditoria.md)
 - Aprendizajes → [`LEARNINGS.md`](LEARNINGS.md)
 - Procedimientos fuente → <https://github.com/LuisAlejandroCR/procedures>

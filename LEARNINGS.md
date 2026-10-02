@@ -30,6 +30,11 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
   sobre código roto: el generador casi nunca llega al estado profundo donde vive el bug. Partir de
   **estados arbitrarios** (un paso) además de secuencias, y probarlo con una mutación a mano.
 
+- `2026-10-02` — Un webhook que responde primero y procesa después convierte cada mensaje en una
+  tarea concurrente. Si el procesamiento lee y escribe estado por usuario, hay que serializar por
+  usuario: el bug no aparece en tests que procesan mensajes uno a uno, solo al comparar "lote" contra
+  "uno a uno" en un invariante.
+
 ## 2. ¿Qué costó más de lo esperado, y por qué?
 
 - `2026-10-02` — `pkill -f "vite preview"` dentro de un comando que contiene ese mismo texto mata
@@ -38,6 +43,10 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
 - `2026-10-02` — `path.resolve('python')` convierte un comando en una ruta relativa al directorio
   actual que no existe: `smoke:risk` funcionó en local (con ruta al venv) y falló en CI (con
   `python` del PATH). Resolver solo los valores que contienen `/`.
+- `2026-10-02` — Un test de concurrencia contra dobles rápidos puede pasar sin la corrección: el
+  canal de consola descartaba el envío repetido y la petición HTTP llegaba cuando el primer tick ya
+  había terminado. Contar intentos (no mensajes entregados) y hacer lento el doble; confirmar con una
+  mutación que el test se pone rojo.
 - `2026-10-02` — Un servidor de una corrida anterior seguía en el puerto 3000: el nuevo no arrancó y
   las pruebas manuales hablaron con el estado viejo. Confirmar puertos libres antes y después.
 
