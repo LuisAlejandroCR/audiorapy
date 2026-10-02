@@ -26,7 +26,8 @@
     "test:e2e": "playwright test",
     "dev:web": "npm run dev -w @audiorapy/web",
     "eval:intent": "tsx scripts/eval-intent.ts",
-    "test:integration": "vitest run --project integration"
+    "test:integration": "vitest run --project integration",
+    "demo:degraded": "tsx scripts/degraded.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
@@ -42,6 +43,7 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.0",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
   }
 }

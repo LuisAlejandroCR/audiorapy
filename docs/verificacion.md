@@ -18,6 +18,8 @@
 | 2026-10-02 | `eval:intent` códigos de salida | 0 con `--min-accuracy 0.9`; 1 con `0.95`; 2 con `--ollama` sin Ollama | Linux, Node 22.22.0 |
 | 2026-10-02 | `npm run test:integration` contra Postgres 16.14 local | PASS 9/9 (contrato completo, incluido dedupe concurrente con pool de 10 conexiones); sin `DATABASE_URL` falla con mensaje explícito | Linux, Node 22.22.0 |
 | 2026-10-02 | `DATABASE_URL=… npm run smoke:api` ×2 | PASS 12/12 las dos corridas: reserva y conversación sobreviven al reinicio del proceso; `/health/providers` dice `postgres` | Postgres 16.14 |
+| 2026-10-02 | `npm run demo:degraded` | PASS 22/22: sin claves, Ollama caído, Meta inalcanzable, riesgo apagado, Ollama + riesgo apagados, base caída al arrancar | Linux, Node 22.22.0 |
+| 2026-10-02 | API con `NODE_ENV=production` | `/health` 200, `/dev/simulate` 404, `POST /webhook` sin secreto 503 | Linux, Node 22.22.0 |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -28,6 +30,7 @@
 | 2026-10-02 | `conversation.ts`: un texto "sí" cuenta como consentimiento | `never offers slots before a consent:yes…` y `consent is recorded as accepted only…` |
 | 2026-10-02 | `inbox.ts`: se desactiva el dedupe por `message.id` | `A2: redelivering any message…` |
 | 2026-10-02 | `postgres-store.ts`: el dedupe hace `DO UPDATE` en vez de `DO NOTHING` | contrato `dedupes message ids` y `…concurrent deliveries…` |
+| 2026-10-02 | `rules-intent.ts`: el respaldo devuelve `unknown` cuando Ollama falla | `demo:degraded` → "free text still understood by the rules" |
 | 2026-10-02 | `postgres-store.ts`: cancelar no salta los recordatorios pendientes | invariante diferencial memoria vs Postgres (3/3 tras sesgar el generador) |
 
 ## Límites externos (ejercicio contra la cosa real)
@@ -35,6 +38,7 @@
 | Límite | Estado | Nota |
 |---|---|---|
 | Meta WhatsApp Cloud API (envío y webhook) | ⏳ pendiente | Requiere la app y el número de prueba del autor. Probado solo contra un doble de la Graph API v25.0. Falta: `debug_token` = `SYSTEM_USER`, "Hola" real, mensaje con tildes real |
+| Deploy en Render (`render.yaml`) | ⏳ pendiente | render.com bloqueado por la red de la sesión; el blueprint no se validó contra Render. Falta: crear el Blueprint, fijar `DASHBOARD_ORIGIN` y `VITE_API_ORIGIN` |
 | Plantilla *utility* del recordatorio | ⏳ pendiente | Fuera de la ventana de 24 h un interactivo no basta; hay que registrar y aprobar la plantilla en Meta |
 | Ollama + `gemma4:e4b` | ⏳ pendiente | No hay Ollama en la sesión en la nube. Probado contra un doble de `/api/chat` con `format` = JSON Schema. Falta: correr `npm run eval:intent -- --ollama` en la laptop de la terapeuta (precisión y latencia reales) |
 | Dashboard en navegador real | ✅ 2026-10-02 | Ver la sección `playwright-cli` abajo |

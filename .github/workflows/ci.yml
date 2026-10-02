@@ -39,6 +39,8 @@ jobs:
         run: npm run eval:intent -- --min-accuracy 0.9
       - name: Smoke test the real API process
         run: npm run smoke:api
+      - name: Kill the providers (each external service unreachable)
+        run: npm run demo:degraded
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 

@@ -15,6 +15,7 @@ export function buildChannel(config: Config): ChannelPort {
       accessToken: config.META_ACCESS_TOKEN!,
       phoneNumberId: config.META_PHONE_NUMBER_ID!,
       graphVersion: config.META_GRAPH_VERSION,
+      graphBaseUrl: config.META_GRAPH_BASE_URL,
     });
   }
   return new ConsoleChannel();

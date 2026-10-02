@@ -15,6 +15,7 @@ const EnvSchema = z.object({
   META_APP_SECRET: optional,
   META_VERIFY_TOKEN: optional,
   META_GRAPH_VERSION: z.string().default('v25.0'),
+  META_GRAPH_BASE_URL: z.string().url().default('https://graph.facebook.com'),
   AI_INTENT_PROVIDER: z.enum(['ollama', 'rules']).default('rules'),
   OLLAMA_BASE_URL: z.string().url().default('http://127.0.0.1:11434'),
   OLLAMA_MODEL: z.string().default('gemma4:e4b'),
@@ -26,6 +27,9 @@ const EnvSchema = z.object({
   PRACTICE_NAME: z.string().default('Fonoaudiología a domicilio'),
   PRIVACY_URL: z.string().url().default('https://example.org/privacidad'),
 });
+
+/** Every environment variable the API reads; deployment blueprints may only set these. */
+export const CONFIG_KEYS = Object.keys(EnvSchema.shape);
 
 export type Config = z.infer<typeof EnvSchema> & {
   channel: 'meta' | 'console';
