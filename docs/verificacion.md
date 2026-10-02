@@ -13,6 +13,7 @@
 | 2026-10-02 | `npm run smoke:api` | PASS 9/9 — proceso real: 401 sin firma, 200 sonda firmada, 403 token malo, reto devuelto, consentimiento → cupos → reserva, agenda, logs sin teléfono | Linux, Node 22.22.0 |
 | 2026-10-02 | `npm run verify` (B4) | PASS — 157 tests: unit 119, fuzz 17, invariant 21; build web 385 kB JS (124 kB gzip) | Linux, Node 22.22.0 |
 | 2026-10-02 | `npm run test:e2e` ×2 | PASS 20/20 las dos corridas (10 tests × móvil Pixel 7 y escritorio) | Chromium 141 (`PW_CHROMIUM_PATH`), Playwright 1.63 |
+| 2026-10-02 | Paleta azul y blanco: `npm run verify` + `npm run test:e2e` | PASS — 157 tests; e2e 20/20; contraste texto ≥ 5,8:1 en claro y oscuro; `playwright-cli` a 360 px `{ overflow: false, h1: 1, small: 0 }`, 0 errores de consola | Chromium 141 |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)

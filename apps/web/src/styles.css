@@ -1,22 +1,22 @@
-/* styles.css: dashboard styles — tokens for light and dark, mobile first, 44px touch targets. */
+/* styles.css: dashboard styles — blue-and-white tokens for light and dark, mobile first, 44px touch targets. */
 :root {
-  --bg: #f6f5f2;
+  --bg: #f4f8fd;
   --surface: #ffffff;
-  --text: #1d2321;
-  --muted: #5d6662;
-  --line: #dcdcd6;
-  --accent: #1f6f5c;
+  --text: #0f1f3a;
+  --muted: #4d5f7a;
+  --line: #d6e2f2;
+  --accent: #1d5fd1;
   --accent-text: #ffffff;
   --warn-bg: #fff4d6;
   --warn-text: #6b4c00;
   --error-bg: #fde4e1;
   --error-text: #8a1f11;
-  --ok-bg: #e2f3ea;
-  --ok-text: #1d5c3b;
-  --ai-bg: #e8ecfb;
-  --ai-text: #26346e;
+  --ok-bg: #e3f0fd;
+  --ok-text: #12407f;
+  --ai-bg: #e8effc;
+  --ai-text: #1a3a7a;
   --cue-independent: #1f7a4d;
-  --cue-min: #4f9bd1;
+  --cue-min: #0e9aa7;
   --cue-mod: #e0a526;
   --cue-max: #c94a3a;
   --radius: 12px;
@@ -25,23 +25,23 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121514;
-    --surface: #1c201e;
-    --text: #e8ece9;
-    --muted: #a3ada8;
-    --line: #333a37;
-    --accent: #5cc3a5;
-    --accent-text: #0d1a16;
+    --bg: #0b1424;
+    --surface: #111e35;
+    --text: #e6eefb;
+    --muted: #9fb2cf;
+    --line: #23375a;
+    --accent: #6ea8ff;
+    --accent-text: #0b1424;
     --warn-bg: #3b3115;
     --warn-text: #f3d98a;
     --error-bg: #46201b;
     --error-text: #ffb4a8;
-    --ok-bg: #173327;
-    --ok-text: #9fe0bd;
-    --ai-bg: #20294d;
-    --ai-text: #c3cdfa;
+    --ok-bg: #16305a;
+    --ok-text: #b9d4ff;
+    --ai-bg: #1a2c52;
+    --ai-text: #c6d8ff;
     --cue-independent: #4fc98a;
-    --cue-min: #7cbcec;
+    --cue-min: #4fd1db;
     --cue-mod: #f0c049;
     --cue-max: #ee7a69;
   }

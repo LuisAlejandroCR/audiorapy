@@ -35,6 +35,8 @@
 | 2026-10-02 | El token del dashboard en `sessionStorage`; direcciones en `localStorage` | El token se va al cerrar la pestaña | Todo en `localStorage` |
 | 2026-10-02 | Modo sesión también en web | La app Expo (B6) no cabe verificada hoy; el dashboard ya puede registrar ensayos con nivel de apoyo | Esperar a Expo |
 
+| 2026-10-02 | Paleta **azul y blanco** (pedido del autor): acento `#1d5fd1`, fondo `#f4f8fd`; modo oscuro azul marino. El nivel de apoyo "mínimo" pasa de azul a turquesa `#0e9aa7` para no confundirse con el acento | Todos los pares de texto ≥ 5,8:1 (WCAG AA); puntos del gráfico ≥ 3:1 | Verde original |
+
 ## Bitácora
 
 - **2026-10-02** — B1: scaffold, contrato, CI. `npm run verify` verde en local (Node 22.22).
