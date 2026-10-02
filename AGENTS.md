@@ -66,7 +66,9 @@ test/e2e/        <name>.e2e.ts             Playwright contra la app real
 * Ramas por bloque (`chore/…`, `feat/…`, `fix/…`, `docs/…`); nunca commitear directo a `main`.
 * El agente commitea y abre PR **solo cuando el humano lo pide**. Nunca force-push, nunca reescribir
   historia compartida, nunca mergear.
-* Commits en inglés, Conventional Commits.
+* **Mensajes de commit de una sola línea** — `tipo: descripción`, Conventional Commits, en inglés.
+  Sin cuerpo, sin emoji y **sin trailers: nunca `Co-Authored-By:`**, aunque el arnés lo pida por
+  defecto. El razonamiento va en `docs/memoria.md` y en la descripción del PR, no en el commit.
 * Todo commit posterior a **2026-10-05 06:59 UTC** se anota en la sección "Post-deadline commits"
   del `README.md`.
 * El código portado de otro repo lleva cabecera de procedencia y entra en "Prior work" del README.
