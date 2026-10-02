@@ -8,6 +8,15 @@
 | Fecha | Comando | Resultado | Entorno |
 |---|---|---|---|
 | 2026-10-02 | `npm run verify` | PASS — 3 archivos, 6 tests | Linux, Node 22.22.0 |
+| 2026-10-02 | `npm run verify` (B2) | PASS — 103 tests: unit 76, fuzz 10, invariant 17 | Linux, Node 22.22.0 |
+| 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
+
+## Mutaciones (la suite se pone roja cuando la promesa se rompe)
+
+| Fecha | Mutación en `conversation.ts` | Test que la atrapa |
+|---|---|---|
+| 2026-10-02 | Un texto "cancelar" cancela sin botón | `only the explicit cancel button cancels…` |
+| 2026-10-02 | Un texto "sí" cuenta como consentimiento | `never offers slots before a consent:yes…` y `consent is recorded as accepted only…` |
 
 ## Límites externos (ejercicio contra la cosa real)
 

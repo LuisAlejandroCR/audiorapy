@@ -43,6 +43,19 @@ without it.
 | [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md) | Rules for coding agents working in this repo (Spanish) |
 | [docs/research/](docs/research/) | The seven sourced research notes behind the report, including the official challenge page as primary source |
 
+## Model input manifest
+
+What each AI component sees — nothing else is sent to it.
+
+| Component | Runs on | Sees | Never sees | Fallback |
+|---|---|---|---|---|
+| Intent classifier (Gemma 4 via Ollama) | Therapist's machine | The caregiver's free-text WhatsApp message (≤500 chars), which Meta already sees | Child name, clinical data | Deterministic Spanish rules (`classifyByRules`) |
+| SOAP draft (Gemma 4 via Ollama, called from the dashboard) | Therapist's laptop, `localhost` | Target labels, correct/total counts, dominant cue level, the therapist's own short notes | Child name, age, address, diagnosis | Template note with `[completar]` |
+
+The model never writes figures (any drafted sentence with a digit is replaced by `[completar]`), never
+messages a caregiver (the bot only sends a fixed catalogue of templates and buttons), and every draft
+stays `draft` until the therapist approves it.
+
 ## Prior work
 
 Code ported from the author's earlier project [asegura](https://github.com/LuisAlejandroCR/asegura)
