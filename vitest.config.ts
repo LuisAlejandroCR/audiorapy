@@ -1,4 +1,5 @@
-// vitest.config.ts: test projects (unit, fuzz, invariant) that each run on their own.
+// vitest.config.ts: test projects (unit, fuzz, invariant, integration) that each run on their own.
+// `integration` needs a real Postgres (DATABASE_URL) and is not part of `npm test`.
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
 
@@ -17,6 +18,7 @@ export default defineConfig({
       project('unit', 'test/unit/**/*.spec.ts'),
       project('fuzz', 'test/fuzz/**/*.fuzz.spec.ts', 60_000),
       project('invariant', 'test/invariant/**/*.invariant.spec.ts', 60_000),
+      project('integration', 'test/integration/**/*.integration.spec.ts', 60_000),
     ],
   },
 });

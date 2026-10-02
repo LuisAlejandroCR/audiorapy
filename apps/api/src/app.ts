@@ -12,11 +12,11 @@ import { parseWebhook } from './meta/parse.ts';
 import { ConsoleChannel } from './channel/console-channel.ts';
 import { Inbox } from './service/inbox.ts';
 import { tickReminders } from './service/reminders.ts';
-import { MemoryStore } from './store/memory-store.ts';
+import type { SchedulingStore } from './store/store.ts';
 
 export interface AppDeps {
   config: Config;
-  store: MemoryStore;
+  store: SchedulingStore;
   channel: ChannelPort;
   classifier: FallbackIntentClassifier;
   now?: () => Date;
@@ -98,6 +98,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       },
       risk: { active: config.RISK_PROVIDER === 'off' ? 'off' : 'heuristic' },
       scheduler: { active: 'db-cron' },
+      store: { active: store.name },
       webhook: {
         signatureSecret: Boolean(config.META_APP_SECRET),
         verifyToken: Boolean(config.META_VERIFY_TOKEN),
@@ -145,17 +146,19 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 
   app.get('/api/agenda', { preHandler: requireDashboard }, async () => ({
     generatedAt: now().toISOString(),
-    appointments: store.listAppointments().map((a) => ({
+    appointments: (await store.listAppointments()).map((a) => ({
       ...a,
       label: formatSlotEs(new Date(a.startsAt)),
       contact: maskContact(a.contact),
     })),
-    alerts: store.listAlerts().map((a) => ({ ...a, contact: maskContact(a.contact) })),
+    alerts: (await store.listAlerts()).map((a) => ({ ...a, contact: maskContact(a.contact) })),
   }));
 
   app.post('/api/alerts/:id/resolve', { preHandler: requireDashboard }, async (req, reply) => {
     const { id } = req.params as { id: string };
-    return store.resolveAlert(id) ? { ok: true } : reply.code(404).send({ error: 'not found' });
+    return (await store.resolveAlert(id))
+      ? { ok: true }
+      : reply.code(404).send({ error: 'not found' });
   });
 
   app.post('/api/reminders/tick', { preHandler: requireDashboard }, async () =>
@@ -192,7 +195,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       return {
         ...result,
         replies: channel.outbox.slice(before).map((m) => m.message),
-        state: store.getConversation(from),
+        state: await store.getConversation(from),
       };
     });
   }

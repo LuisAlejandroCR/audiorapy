@@ -16,6 +16,8 @@
 | 2026-10-02 | Paleta azul y blanco: `npm run verify` + `npm run test:e2e` | PASS — 157 tests; e2e 20/20; contraste texto ≥ 5,8:1 en claro y oscuro; `playwright-cli` a 360 px `{ overflow: false, h1: 1, small: 0 }`, 0 errores de consola | Chromium 141 |
 | 2026-10-02 | `npm run eval:intent` (reglas) | 37/40 (93 %), preferencia 5/5, p95 1 ms. Fallas: "Mi niño amaneció enfermo, toca moverla" → `unknown`; "¿la corremos para la otra?" → `question`; "Quisiera saber si reciben la EPS" → `unknown` | Linux, Node 22.22.0 |
 | 2026-10-02 | `eval:intent` códigos de salida | 0 con `--min-accuracy 0.9`; 1 con `0.95`; 2 con `--ollama` sin Ollama | Linux, Node 22.22.0 |
+| 2026-10-02 | `npm run test:integration` contra Postgres 16.14 local | PASS 9/9 (contrato completo, incluido dedupe concurrente con pool de 10 conexiones); sin `DATABASE_URL` falla con mensaje explícito | Linux, Node 22.22.0 |
+| 2026-10-02 | `DATABASE_URL=… npm run smoke:api` ×2 | PASS 12/12 las dos corridas: reserva y conversación sobreviven al reinicio del proceso; `/health/providers` dice `postgres` | Postgres 16.14 |
 | 2026-10-02 | `npm run test:invariant` ×3 | PASS las tres corridas (semillas aleatorias) | Linux, Node 22.22.0 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -25,6 +27,8 @@
 | 2026-10-02 | `conversation.ts`: un texto "cancelar" cancela sin botón | `only the explicit cancel button cancels…` |
 | 2026-10-02 | `conversation.ts`: un texto "sí" cuenta como consentimiento | `never offers slots before a consent:yes…` y `consent is recorded as accepted only…` |
 | 2026-10-02 | `inbox.ts`: se desactiva el dedupe por `message.id` | `A2: redelivering any message…` |
+| 2026-10-02 | `postgres-store.ts`: el dedupe hace `DO UPDATE` en vez de `DO NOTHING` | contrato `dedupes message ids` y `…concurrent deliveries…` |
+| 2026-10-02 | `postgres-store.ts`: cancelar no salta los recordatorios pendientes | invariante diferencial memoria vs Postgres (3/3 tras sesgar el generador) |
 
 ## Límites externos (ejercicio contra la cosa real)
 

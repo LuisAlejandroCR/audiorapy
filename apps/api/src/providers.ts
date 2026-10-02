@@ -5,6 +5,9 @@ import { OllamaIntentClassifier } from './ai/ollama-intent.ts';
 import { FallbackIntentClassifier } from './ai/rules-intent.ts';
 import { ConsoleChannel } from './channel/console-channel.ts';
 import { MetaChannel } from './channel/meta-channel.ts';
+import { MemoryStore } from './store/memory-store.ts';
+import { PostgresStore } from './store/postgres-store.ts';
+import type { SchedulingStore } from './store/store.ts';
 
 export function buildChannel(config: Config): ChannelPort {
   if (config.channel === 'meta') {
@@ -28,4 +31,16 @@ export function buildClassifier(config: Config): FallbackIntentClassifier {
     );
   }
   return new FallbackIntentClassifier(null);
+}
+
+/** Postgres when DATABASE_URL is set (the schema is applied at startup); otherwise in memory. */
+export async function buildStore(config: Config): Promise<SchedulingStore> {
+  if (!config.DATABASE_URL) return new MemoryStore();
+  const { default: pg } = await import('pg');
+  const pool = new pg.Pool({
+    connectionString: config.DATABASE_URL,
+    max: 5,
+    connectionTimeoutMillis: 5000,
+  });
+  return PostgresStore.open(pool);
 }

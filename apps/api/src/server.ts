@@ -1,12 +1,11 @@
 // server.ts: process entry point — load config, wire providers, start the reminder tick, listen.
 import { loadConfig } from './config.ts';
 import { buildApp } from './app.ts';
-import { buildChannel, buildClassifier } from './providers.ts';
+import { buildChannel, buildClassifier, buildStore } from './providers.ts';
 import { tickReminders } from './service/reminders.ts';
-import { MemoryStore } from './store/memory-store.ts';
 
 const config = loadConfig();
-const store = new MemoryStore();
+const store = await buildStore(config);
 const channel = buildChannel(config);
 const app = await buildApp({ config, store, channel, classifier: buildClassifier(config) });
 
@@ -23,6 +22,7 @@ const shutdown = async () => {
   clearInterval(timer);
   await app.inbox.idle();
   await app.close();
+  await store.close();
   process.exit(0);
 };
 process.on('SIGINT', shutdown);

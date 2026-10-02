@@ -1,72 +1,29 @@
-// memory-store.ts: in-memory implementation of the scheduling store. Holds only the messaging plane
-// (contacts, consent evidence, appointment time/status, reminder jobs); nothing clinical.
+// memory-store.ts: in-memory scheduling store, for development and tests. Lost on restart.
 import { randomUUID } from 'node:crypto';
 import type {
   AppointmentStatus,
   ConsentRecord,
   ConversationState,
-  EscalationReason,
   Interval,
   ReminderKind,
-  WeeklyWindow,
 } from '@audiorapy/domain';
+import {
+  ACTIVE_STATUSES,
+  DEFAULT_SCHEDULE,
+  type Alert,
+  type AlertReason,
+  type Appointment,
+  type ReminderJob,
+  type Schedule,
+  type SchedulingStore,
+} from './store.ts';
 
-export interface Appointment {
-  id: string;
-  contact: string;
-  startsAt: string;
-  endsAt: string;
-  status: AppointmentStatus;
-  createdAt: string;
-  updatedAt: string;
-}
+export * from './store.ts';
 
-export interface ReminderJob {
-  id: string;
-  appointmentId: string;
-  kind: ReminderKind;
-  dueAt: string;
-  state: 'pending' | 'sent' | 'skipped';
-}
-
-export type AlertReason = EscalationReason | 'no_reply' | 'reschedule_requested' | 'cancelled';
-
-export interface Alert {
-  id: string;
-  contact: string;
-  appointmentId: string | null;
-  reason: AlertReason;
-  at: string;
-  resolved: boolean;
-}
-
-export interface Schedule {
-  windows: WeeklyWindow[];
-  durationMinutes: number;
-  bufferMinutes: number;
-  minLeadMinutes: number;
-  horizonDays: number;
-  stepMinutes: number;
-  holidays: string[];
-}
-
-export const DEFAULT_SCHEDULE: Schedule = {
-  windows: [1, 2, 3, 4, 5].flatMap((weekday) => [
-    { weekday, start: '08:00', end: '12:00' },
-    { weekday, start: '14:00', end: '18:00' },
-  ]),
-  durationMinutes: 45,
-  bufferMinutes: 30,
-  minLeadMinutes: 12 * 60,
-  horizonDays: 14,
-  stepMinutes: 30,
-  holidays: [],
-};
-
-const ACTIVE: AppointmentStatus[] = ['scheduled', 'confirmed'];
 const PROCESSED_CAP = 10_000;
 
-export class MemoryStore {
+export class MemoryStore implements SchedulingStore {
+  readonly name = 'memory';
   schedule: Schedule = DEFAULT_SCHEDULE;
   private readonly conversations = new Map<string, ConversationState>();
   private readonly appointments = new Map<string, Appointment>();
@@ -75,8 +32,7 @@ export class MemoryStore {
   private readonly alerts: Alert[] = [];
   private readonly processed = new Set<string>();
 
-  /** Records a message id; false when it was already processed (a redelivery). */
-  markProcessed(messageId: string): boolean {
+  async markProcessed(messageId: string): Promise<boolean> {
     if (this.processed.has(messageId)) return false;
     this.processed.add(messageId);
     if (this.processed.size > PROCESSED_CAP)
@@ -84,23 +40,28 @@ export class MemoryStore {
     return true;
   }
 
-  getConversation(contact: string): ConversationState {
-    return this.conversations.get(contact) ?? { step: 'new' };
+  async getConversation(contact: string): Promise<ConversationState> {
+    return structuredClone(this.conversations.get(contact) ?? { step: 'new' });
   }
 
-  setConversation(contact: string, state: ConversationState) {
-    this.conversations.set(contact, state);
+  async setConversation(contact: string, state: ConversationState): Promise<void> {
+    this.conversations.set(contact, structuredClone(state));
   }
 
-  addConsent(record: ConsentRecord) {
-    this.consents.push(record);
+  async addConsent(record: ConsentRecord): Promise<void> {
+    this.consents.push({ ...record });
   }
 
-  listConsents(): readonly ConsentRecord[] {
-    return this.consents;
+  async listConsents(): Promise<ConsentRecord[]> {
+    return this.consents.map((c) => ({ ...c }));
   }
 
-  createAppointment(contact: string, startsAt: string, endsAt: string, now: Date): Appointment {
+  async createAppointment(
+    contact: string,
+    startsAt: string,
+    endsAt: string,
+    now: Date,
+  ): Promise<Appointment> {
     const appt: Appointment = {
       id: randomUUID(),
       contact,
@@ -111,65 +72,80 @@ export class MemoryStore {
       updatedAt: now.toISOString(),
     };
     this.appointments.set(appt.id, appt);
-    return appt;
+    return { ...appt };
   }
 
-  updateStatus(id: string, status: AppointmentStatus, now: Date): Appointment | null {
+  async updateStatus(
+    id: string,
+    status: AppointmentStatus,
+    now: Date,
+  ): Promise<Appointment | null> {
     const appt = this.appointments.get(id);
     if (!appt) return null;
     appt.status = status;
     appt.updatedAt = now.toISOString();
-    if (!ACTIVE.includes(status)) {
+    if (!ACTIVE_STATUSES.includes(status)) {
       for (const job of this.jobs.values())
         if (job.appointmentId === id && job.state === 'pending') job.state = 'skipped';
     }
-    return appt;
+    return { ...appt };
   }
 
-  getAppointment(id: string): Appointment | null {
-    return this.appointments.get(id) ?? null;
+  async getAppointment(id: string): Promise<Appointment | null> {
+    const a = this.appointments.get(id);
+    return a ? { ...a } : null;
   }
 
-  findActive(contact: string, startsAt: string): Appointment | null {
+  async findActive(contact: string, startsAt: string): Promise<Appointment | null> {
     for (const a of this.appointments.values()) {
-      if (a.contact === contact && a.startsAt === startsAt && ACTIVE.includes(a.status)) return a;
+      if (a.contact === contact && a.startsAt === startsAt && ACTIVE_STATUSES.includes(a.status))
+        return { ...a };
     }
     return null;
   }
 
-  listAppointments(): Appointment[] {
-    return [...this.appointments.values()].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  async listAppointments(): Promise<Appointment[]> {
+    return [...this.appointments.values()]
+      .map((a) => ({ ...a }))
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   }
 
-  busyIntervals(): Interval[] {
-    return this.listAppointments()
-      .filter((a) => ACTIVE.includes(a.status))
+  async busyIntervals(): Promise<Interval[]> {
+    return (await this.listAppointments())
+      .filter((a) => ACTIVE_STATUSES.includes(a.status))
       .map((a) => ({ startsAt: a.startsAt, endsAt: a.endsAt }));
   }
 
-  addJob(appointmentId: string, kind: ReminderKind, dueAt: string): ReminderJob {
-    const job: ReminderJob = {
-      id: `${appointmentId}:${kind}`,
-      appointmentId,
-      kind,
-      dueAt,
-      state: 'pending',
-    };
-    if (!this.jobs.has(job.id)) this.jobs.set(job.id, job);
-    return this.jobs.get(job.id)!;
+  async addJob(appointmentId: string, kind: ReminderKind, dueAt: string): Promise<ReminderJob> {
+    const id = `${appointmentId}:${kind}`;
+    if (!this.jobs.has(id)) this.jobs.set(id, { id, appointmentId, kind, dueAt, state: 'pending' });
+    return { ...this.jobs.get(id)! };
   }
 
-  dueJobs(now: Date): ReminderJob[] {
+  async dueJobs(now: Date): Promise<ReminderJob[]> {
     return [...this.jobs.values()]
       .filter((j) => j.state === 'pending' && Date.parse(j.dueAt) <= now.getTime())
-      .sort((a, b) => a.dueAt.localeCompare(b.dueAt));
+      .map((j) => ({ ...j }))
+      .sort((a, b) =>
+        a.dueAt < b.dueAt ? -1 : a.dueAt > b.dueAt ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+      );
   }
 
-  listJobs(): ReminderJob[] {
-    return [...this.jobs.values()];
+  async setJobState(id: string, state: ReminderJob['state']): Promise<void> {
+    const job = this.jobs.get(id);
+    if (job) job.state = state;
   }
 
-  addAlert(contact: string, appointmentId: string | null, reason: AlertReason, now: Date): Alert {
+  async listJobs(): Promise<ReminderJob[]> {
+    return [...this.jobs.values()].map((j) => ({ ...j }));
+  }
+
+  async addAlert(
+    contact: string,
+    appointmentId: string | null,
+    reason: AlertReason,
+    now: Date,
+  ): Promise<Alert> {
     const alert: Alert = {
       id: randomUUID(),
       contact,
@@ -179,17 +155,19 @@ export class MemoryStore {
       resolved: false,
     };
     this.alerts.push(alert);
-    return alert;
+    return { ...alert };
   }
 
-  listAlerts(): readonly Alert[] {
-    return this.alerts;
+  async listAlerts(): Promise<Alert[]> {
+    return this.alerts.map((a) => ({ ...a }));
   }
 
-  resolveAlert(id: string): boolean {
+  async resolveAlert(id: string): Promise<boolean> {
     const alert = this.alerts.find((a) => a.id === id);
     if (!alert) return false;
     alert.resolved = true;
     return true;
   }
+
+  async close(): Promise<void> {}
 }

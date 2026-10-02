@@ -13,12 +13,12 @@ import {
 } from '@audiorapy/domain';
 import type { FallbackIntentClassifier } from '../ai/rules-intent.ts';
 import type { NormalizedMessage } from '../meta/parse.ts';
-import type { MemoryStore } from '../store/memory-store.ts';
+import type { SchedulingStore } from '../store/store.ts';
 
 export const CONSENT_TEXT_VERSION = 'whatsapp-scheduling-v1';
 
 export interface InboxDeps {
-  store: MemoryStore;
+  store: SchedulingStore;
   channel: ChannelPort;
   classifier: FallbackIntentClassifier;
   catalogue: CatalogueContext;
@@ -57,12 +57,12 @@ export class Inbox {
 
   async handle(message: NormalizedMessage): Promise<InboxResult> {
     const { store, channel, classifier, catalogue } = this.deps;
-    if (!store.markProcessed(message.id)) {
+    if (!(await store.markProcessed(message.id))) {
       this.log('inbox.duplicate', { id: message.id });
       return { duplicate: true, effects: [], sent: 0, failedSends: 0 };
     }
     const now = this.now();
-    const state = store.getConversation(message.from);
+    const state = await store.getConversation(message.from);
 
     const classified =
       message.inbound.kind === 'text'
@@ -72,14 +72,15 @@ export class Inbox {
     const offer = findSlots({
       now,
       ...store.schedule,
-      busy: store.busyIntervals(),
+      busy: await store.busyIntervals(),
       limit: 3,
       ...(classified.intent.preference ? { preference: classified.intent.preference } : {}),
     });
 
     const result = step(state, message.inbound, { intent: classified.intent, offer, catalogue });
-    for (const effect of result.effects) this.apply(effect, message.from, message.inbound, now);
-    store.setConversation(message.from, result.state);
+    for (const effect of result.effects)
+      await this.apply(effect, message.from, message.inbound, now);
+    await store.setConversation(message.from, result.state);
 
     let sent = 0;
     let failedSends = 0;
@@ -108,11 +109,11 @@ export class Inbox {
     };
   }
 
-  private apply(effect: Effect, contact: string, inbound: Inbound, now: Date) {
+  private async apply(effect: Effect, contact: string, inbound: Inbound, now: Date) {
     const { store } = this.deps;
     switch (effect.type) {
       case 'record_consent':
-        store.addConsent(
+        await store.addConsent(
           recordConsent({
             contactRef: contact,
             purpose: 'whatsapp_scheduling',
@@ -127,45 +128,47 @@ export class Inbox {
         return;
       case 'book': {
         if (effect.replaces) {
-          const old = store.findActive(contact, effect.replaces);
-          if (old) store.updateStatus(old.id, 'cancelled_by_caregiver', now);
+          const old = await store.findActive(contact, effect.replaces);
+          if (old) await store.updateStatus(old.id, 'cancelled_by_caregiver', now);
         }
         const durationMs = store.schedule.durationMinutes * 60_000;
-        const appt = store.createAppointment(
+        const appt = await store.createAppointment(
           contact,
           effect.startsAt,
           new Date(Date.parse(effect.startsAt) + durationMs).toISOString(),
           now,
         );
-        const band = this.deps.riskEnabled ? this.riskBand(contact, appt.startsAt, now) : null;
+        const band = this.deps.riskEnabled
+          ? await this.riskBand(contact, appt.startsAt, now)
+          : null;
         for (const r of planReminders(new Date(appt.startsAt), now, band))
-          store.addJob(appt.id, r.kind, r.dueAt);
+          await store.addJob(appt.id, r.kind, r.dueAt);
         return;
       }
       case 'confirm_appointment': {
-        const appt = store.findActive(contact, effect.startsAt);
-        if (appt) store.updateStatus(appt.id, 'confirmed', now);
+        const appt = await store.findActive(contact, effect.startsAt);
+        if (appt) await store.updateStatus(appt.id, 'confirmed', now);
         return;
       }
       case 'cancel_appointment': {
         if (inbound.kind !== 'button') return;
-        const appt = store.findActive(contact, effect.startsAt);
+        const appt = await store.findActive(contact, effect.startsAt);
         if (!appt) return;
         const late = Date.parse(appt.startsAt) - now.getTime() < 24 * 3_600_000;
-        store.updateStatus(appt.id, late ? 'late_cancel' : 'cancelled_by_caregiver', now);
-        store.addAlert(contact, appt.id, 'cancelled', now);
+        await store.updateStatus(appt.id, late ? 'late_cancel' : 'cancelled_by_caregiver', now);
+        await store.addAlert(contact, appt.id, 'cancelled', now);
         return;
       }
       case 'escalate':
-        store.addAlert(contact, null, effect.reason, now);
+        await store.addAlert(contact, null, effect.reason, now);
         return;
     }
   }
 
-  private riskBand(contact: string, startsAt: string, now: Date) {
-    const history = this.deps.store
-      .listAppointments()
-      .filter((a) => a.contact === contact && a.startsAt < now.toISOString());
+  private async riskBand(contact: string, startsAt: string, now: Date) {
+    const history = (await this.deps.store.listAppointments()).filter(
+      (a) => a.contact === contact && a.startsAt < now.toISOString(),
+    );
     return heuristicRisk({
       priorVisits: history.length,
       priorNoShows: history.filter((a) => a.status === 'no_show').length,

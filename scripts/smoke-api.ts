@@ -1,4 +1,5 @@
 // smoke-api.ts: starts the real API process and checks the webhook guards and the booking flow over HTTP.
+// With DATABASE_URL it also restarts the process and checks that bookings and conversations persist.
 import { spawn } from 'node:child_process';
 import { createHmac } from 'node:crypto';
 
@@ -12,14 +13,29 @@ const env = {
   META_VERIFY_TOKEN: 'smoke-verify',
   DASHBOARD_TOKEN: 'smoke-dash',
 };
-const server = spawn(process.execPath, ['--import', 'tsx', 'apps/api/src/server.ts'], {
-  env,
-  stdio: ['ignore', 'pipe', 'pipe'],
-});
+const persistent = Boolean(process.env.DATABASE_URL);
 let output = '';
-server.stdout.on('data', (d) => (output += d));
-server.stderr.on('data', (d) => (output += d));
 
+function start() {
+  const child = spawn(process.execPath, ['--import', 'tsx', 'apps/api/src/server.ts'], {
+    env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  child.stdout.on('data', (d) => (output += d));
+  child.stderr.on('data', (d) => (output += d));
+  return child;
+}
+
+async function stop(child: ReturnType<typeof start>) {
+  const exited = new Promise((r) => child.once('exit', r));
+  child.kill('SIGTERM');
+  await exited;
+}
+
+let server = start();
+
+// A fresh number per run, so a persistent database from an earlier run does not change the flow.
+const PHONE = `5730${String(Date.now() % 1e7).padStart(7, '0')}`;
 const checks: Array<[string, boolean]> = [];
 const check = (name: string, pass: boolean) => checks.push([name, pass]);
 
@@ -84,20 +100,36 @@ try {
       )
     ).text()) === '77',
   );
-  const a = await simulate({ from: '573000000001', text: 'Hola' });
+  const a = await simulate({ from: PHONE, text: 'Hola' });
   check('first contact asks for consent', a.replies[0]?.key === 'consent_request');
-  const b = await simulate({ from: '573000000001', buttonId: 'consent:yes' });
+  const b = await simulate({ from: PHONE, buttonId: 'consent:yes' });
   check('consent button offers slots', b.replies[0]?.key === 'slot_list');
-  const c = await simulate({ from: '573000000001', buttonId: b.replies[0]!.rows![0]!.id });
+  const c = await simulate({ from: PHONE, buttonId: b.replies[0]!.rows![0]!.id });
   check('choosing a slot books it', c.state.step === 'booked');
-  const agenda = await (
-    await fetch(`${BASE}/api/agenda`, { headers: { authorization: 'Bearer smoke-dash' } })
-  ).json();
-  check(
-    'agenda lists the booking',
-    (agenda as { appointments: unknown[] }).appointments.length === 1,
-  );
-  check('logs never contain the phone number', !output.includes('573000000001'));
+  const agenda = async () =>
+    (
+      (await (
+        await fetch(`${BASE}/api/agenda`, { headers: { authorization: 'Bearer smoke-dash' } })
+      ).json()) as { appointments: Array<{ id: string; contact: string }> }
+    ).appointments.filter((x) => x.contact.endsWith(PHONE.slice(-4)));
+  const booked = await agenda();
+  check('agenda lists the booking', booked.length === 1);
+  if (persistent) {
+    await stop(server);
+    server = start();
+    await waitForHealth();
+    const health = (await (await fetch(`${BASE}/health/providers`)).json()) as {
+      store: { active: string };
+    };
+    check('store is postgres', health.store.active === 'postgres');
+    check('booking survives a restart', (await agenda())[0]?.id === booked[0]?.id);
+    const confirm = await simulate({ from: PHONE, buttonId: 'appt:confirm' });
+    check(
+      'conversation survives a restart',
+      confirm.state.step === 'booked' && confirm.replies[0]?.key === 'confirmed_ack',
+    );
+  }
+  check('logs never contain the phone number', !output.includes(PHONE));
 } catch (error) {
   check(`smoke run: ${error instanceof Error ? error.message : 'unknown'}`, false);
 } finally {
