@@ -46,7 +46,7 @@
 | B12 | Borrador del post de DEV en inglés | `docs/dev-post` (#15) | ✅ borrador + test; marcas `[[AUTHOR: …]]` ⏳ (cita, video, URL, cifras de Gemma y TabPFN) |
 | B13 | Auditoría completa contra AGENTS.md | `chore/audit` (#17) | ✅ 6 hallazgos corregidos, cada uno con test; informe en `docs/auditoria.md` |
 | B14 | Verificación reproducible en Windows con `core.autocrlf=true` | `fix/windows-verify` (#18) | ✅ `.gitattributes` fija LF en el working tree; el test del post normaliza LF/CRLF; `npm run verify` pasa completo en Windows |
-| B15 | Pulido UI/UX del dashboard: jerarquía visual, navegación con iconos, agenda escaneable y estados accesibles; capturas móvil/escritorio | `feat/ui-ux-polish` | ✅ A11–A13; e2e 20/20 móvil + escritorio; capturas regeneradas con datos sintéticos |
+| B15 | Pulido UI/UX del dashboard: jerarquía visual, navegación con iconos, agenda escaneable y estados accesibles; capturas móvil/escritorio | `feat/ui-ux-polish` (#19) | ✅ A11–A13; e2e 20/20 móvil + escritorio; capturas regeneradas con datos sintéticos |
 
 ## Fuera de alcance del fin de semana
 
