@@ -75,6 +75,10 @@ constraint on the time range), so two families tapping the same slot at the same
 get it — the second is told the slot was just taken and gets fresh options. Back-to-back visits are
 fine; rescheduling cancels the old visit and books the new one in one transaction.
 
+Reminders: messages from one family are handled one at a time, in arrival order, so a batched webhook
+cannot make the bot lose track of a conversation. The reminder cron never runs twice at once, and a
+reminder that could not be sent before the visit started is dropped instead of arriving late.
+
 Retention: every 6 hours (and at startup) the API deletes processed message ids older than 14 days and
 finished reminder jobs (sent or skipped) due more than 30 days ago. Appointments, consent evidence and
 alerts are never deleted by this job.
@@ -102,6 +106,7 @@ without it.
 | [docs/research-report.md](docs/research-report.md) | The full report (Spanish): weekend MVP vs roadmap, architecture, clinical data model and dashboards, zero-knowledge encryption under Colombian law, open-source AI core, sponsor categories with fallbacks, reuse from prior work, weekend plan |
 | [docs/plan.md](docs/plan.md) | User story, acceptance criteria and build blocks with status (Spanish) |
 | [docs/memoria.md](docs/memoria.md) | Architecture decisions and why (Spanish) |
+| [docs/auditoria.md](docs/auditoria.md) | Full audit against the rules in `AGENTS.md`: findings, fixes and the test behind each (Spanish) |
 | [docs/verificacion.md](docs/verificacion.md) | Dated evidence of what was verified and what is pending (Spanish) |
 | [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md) | Rules for coding agents working in this repo (Spanish) |
 | [submission/dev-post.md](submission/dev-post.md) | Draft of the DEV submission post; `[[AUTHOR: …]]` marks what only the author can fill in |
@@ -182,7 +187,7 @@ What each AI component sees — nothing else is sent to it.
 
 | Component | Runs on | Sees | Never sees | Fallback |
 |---|---|---|---|---|
-| Intent classifier (Gemma 4 via Ollama) | Therapist's machine | The caregiver's free-text WhatsApp message (≤500 chars), which Meta already sees | Child name, clinical data | Deterministic Spanish rules (`classifyByRules`) |
+| Intent classifier (Gemma 4 via Ollama) | Wherever the API can reach Ollama: the therapist's machine when the API runs there. The Render blueprint ships with `rules` until Ollama sits behind an authenticated tunnel | The caregiver's free-text WhatsApp message (≤500 chars), which Meta already sees | Child name, clinical data | Deterministic Spanish rules (`classifyByRules`) |
 | SOAP draft (Gemma 4 via Ollama, called from the dashboard) | Therapist's laptop, `localhost` | Target labels, correct/total counts, dominant cue level, the therapist's own short notes | Child name, age, address, diagnosis | Template note with `[completar]` |
 
 The model never writes figures (any drafted sentence with a digit is replaced by `[completar]`), never

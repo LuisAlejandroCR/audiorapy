@@ -1,5 +1,6 @@
 // reminders.ts: the database-cron scheduler. Each tick sends due reminders and turns silence into a
 // therapist alert. It never cancels an appointment. Rebuildable from the store after a restart.
+// A failed send stays pending and is retried on the next tick, until the visit starts.
 import { applyReminderReply, reminder, type ChannelPort } from '@audiorapy/domain';
 import type { SchedulingStore } from '../store/store.ts';
 
@@ -32,6 +33,12 @@ export async function tickReminders(
       await store.setJobState(job.id, 'sent');
       continue;
     }
+    // A reminder that could not go out before the visit started is no longer worth sending.
+    if (Date.parse(appt.startsAt) <= now.getTime()) {
+      await store.setJobState(job.id, 'skipped');
+      result.skipped++;
+      continue;
+    }
     if (appt.status === 'confirmed' && job.kind === 'early') {
       await store.setJobState(job.id, 'skipped');
       result.skipped++;
@@ -46,4 +53,18 @@ export async function tickReminders(
     }
   }
   return result;
+}
+
+/**
+ * Wraps a tick so overlapping calls (the minute timer and a manual tick from the dashboard, or a slow
+ * tick that outlives its interval) share the run in flight instead of sending the same reminder twice.
+ */
+export function singleFlight<A extends unknown[], R>(
+  run: (...args: A) => Promise<R>,
+): (...args: A) => Promise<R> {
+  let inFlight: Promise<R> | null = null;
+  return (...args) => {
+    inFlight ??= run(...args).finally(() => (inFlight = null));
+    return inFlight;
+  };
 }

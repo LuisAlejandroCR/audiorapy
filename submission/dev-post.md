@@ -34,9 +34,11 @@ how she keeps the agenda today, what a bad week looks like). Only real details, 
 - **Families book and confirm on WhatsApp with buttons.** "Hola" → a consent screen (Colombian data
   law requires explicit, optional authorization for health data) → open slots as a list → tap one →
   booked. Reminders go out at T−24 h with *Confirm / Reschedule / Cancel*.
-- **Free text is understood by an open-weight model.** When a grandmother types *"mejor el miércoles en
-  la tarde"* instead of tapping, Gemma 4 running on Ollama classifies it, and the next message offers
-  Wednesday-afternoon slots. The model only classifies; the bot never sends text the model wrote.
+- **Free text goes to an open-weight model.** When a grandmother types *"¿la corremos para la otra?"*
+  ("can we push it to the next one?") instead of tapping, the message goes to Gemma 4 on Ollama to be
+  classified. Plain Spanish rules handle the common phrasings (*"mejor el miércoles en la tarde"* gets
+  Wednesday-afternoon slots) and take over whenever the model can't be reached. The model only
+  classifies; the bot never sends text the model wrote.
 - **Silence is escalated, never acted on.** If nobody answers a reminder, the visit is *not* cancelled.
   It lands in her agenda as an alert, because she knows that family and the bot doesn't.
 - **A dashboard that decrypts in her browser.** Today's visits, progress by cue level per target sound,
@@ -93,9 +95,13 @@ legally required record. Backups are the same ciphertext.
 
 | Component | Runs on | Sees | Never sees | When it's off |
 |---|---|---|---|---|
-| Intent classifier — **Gemma 4 E4B on Ollama** | her machine | the caregiver's free-text message (≤500 chars), which Meta already saw | child's name, any clinical data | deterministic Spanish rules |
+| Intent classifier — **Gemma 4 E4B on Ollama** | wherever the API can reach Ollama | the caregiver's free-text message (≤500 chars), which Meta already saw | child's name, any clinical data | deterministic Spanish rules |
 | SOAP draft — **Gemma 4 E4B on Ollama**, called from the dashboard | her laptop, `localhost` | target labels, hit counts, dominant cue level, her own short notes | name, age, address, diagnosis | a template with `[completar]` blanks |
 | No-show risk — **TabPFN-2** sidecar (logistic baseline today) | a private service | eight numeric attendance features | names, phones, anything clinical | a fixed heuristic |
+
+One caveat about deployment: the classifier runs wherever the API can reach Ollama. When the API
+runs on her laptop, that's `localhost`. The Render blueprint ships with the rules instead, until Ollama
+sits behind an authenticated tunnel, so in the cloud deployment Gemma's job is the SOAP draft.
 
 Three guardrails are enforced in code and tested, not just promised:
 

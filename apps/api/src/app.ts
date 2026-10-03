@@ -13,7 +13,7 @@ import { verifySignature } from './meta/signature.ts';
 import { parseWebhook } from './meta/parse.ts';
 import { ConsoleChannel } from './channel/console-channel.ts';
 import { Inbox } from './service/inbox.ts';
-import { tickReminders } from './service/reminders.ts';
+import { singleFlight, tickReminders, type TickResult } from './service/reminders.ts';
 import type { SchedulingStore } from './store/store.ts';
 
 export interface AppDeps {
@@ -32,6 +32,8 @@ declare module 'fastify' {
   }
   interface FastifyInstance {
     inbox: Inbox;
+    /** The only way to run the reminder cron: overlapping calls share one run. */
+    tickReminders: (now: Date) => Promise<TickResult>;
   }
 }
 
@@ -88,6 +90,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     log,
   });
   app.decorate('inbox', inbox);
+  const tick = singleFlight((at: Date) => tickReminders(store, channel, at));
+  app.decorate('tickReminders', tick);
 
   app.get('/health', async () => ({ ok: true }));
 
@@ -171,9 +175,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       : reply.code(404).send({ error: 'not found' });
   });
 
-  app.post('/api/reminders/tick', { preHandler: requireDashboard }, async () =>
-    tickReminders(store, channel, now()),
-  );
+  app.post('/api/reminders/tick', { preHandler: requireDashboard }, async () => tick(now()));
 
   if (
     config.channel === 'console' &&

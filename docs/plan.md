@@ -41,6 +41,7 @@
 | B10 | Retención: purga de ids procesados (14 d) y recordatorios terminados (30 d) | `feat/retention-purge` (#11) | ✅ memoria, PGlite y Postgres 16 real |
 | B11 | Sin doble reserva: restricción de exclusión + `book()` atómico | `feat/no-double-booking` (#13) | ✅ memoria, PGlite y Postgres 16 real, incluidas reservas concurrentes |
 | B12 | Borrador del post de DEV en inglés | `docs/dev-post` (#15) | ✅ borrador + test; marcas `[[AUTHOR: …]]` ⏳ (cita, video, URL, cifras de Gemma y TabPFN) |
+| B13 | Auditoría completa contra AGENTS.md | `chore/audit` (#17) | ✅ 6 hallazgos corregidos, cada uno con test; informe en `docs/auditoria.md` |
 
 ## Fuera de alcance del fin de semana
 

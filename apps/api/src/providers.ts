@@ -43,6 +43,10 @@ export async function buildStore(config: Config): Promise<SchedulingStore> {
     connectionString: config.DATABASE_URL,
     max: 5,
     connectionTimeoutMillis: 5000,
+    // A hung query must not hold one of five connections forever: the server cancels it at 10 s,
+    // and the client gives up at 15 s even if the server never answers.
+    statement_timeout: 10_000,
+    query_timeout: 15_000,
   });
   return PostgresStore.open(pool);
 }

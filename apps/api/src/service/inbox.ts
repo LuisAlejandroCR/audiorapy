@@ -40,16 +40,29 @@ export interface InboxResult {
 
 export class Inbox {
   private pending = new Set<Promise<unknown>>();
+  /** Last queued message per contact: each one reads the conversation state the previous one wrote. */
+  private tails = new Map<string, Promise<void>>();
 
   constructor(private readonly deps: InboxDeps) {}
 
-  /** Queues processing so the webhook can acknowledge first. */
+  /**
+   * Queues processing so the webhook can acknowledge first. Messages from one contact run in arrival
+   * order, one at a time; different contacts run concurrently. Single process only.
+   */
   enqueue(message: NormalizedMessage) {
-    const p = this.handle(message)
-      .catch((error: unknown) =>
-        this.log('inbox.error', { error: error instanceof Error ? error.message : 'unknown' }),
+    const previous = this.tails.get(message.from) ?? Promise.resolve();
+    const p: Promise<void> = previous
+      .then(() => this.handle(message))
+      .then(
+        () => undefined,
+        (error: unknown) =>
+          this.log('inbox.error', { error: error instanceof Error ? error.message : 'unknown' }),
       )
-      .finally(() => this.pending.delete(p));
+      .finally(() => {
+        this.pending.delete(p);
+        if (this.tails.get(message.from) === p) this.tails.delete(message.from);
+      });
+    this.tails.set(message.from, p);
     this.pending.add(p);
   }
 

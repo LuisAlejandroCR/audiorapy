@@ -1,3 +1,6 @@
+<!-- whatsapp_cloud_api_2026.md: nota de investigación — WhatsApp Cloud API: número de prueba, tokens, plantillas, webhooks y políticas. Foto del 2026-10-02; se distingue del reporte
+     (docs/research-report.md), que sintetiza las siete notas. -->
+
 # WhatsApp Business Platform (Cloud API) para agenda de fonoaudióloga a domicilio en Colombia — estado a octubre 2026
 
 *Nota metodológica (2026-10-02):* desde el entorno de investigación, `developers.facebook.com`, `business.whatsapp.com`, `whatsapp.com` y casi todos los blogs de BSP estaban **bloqueados para lectura directa** (proxy de salida). Las afirmaciones atribuidas a páginas de Meta provienen de **extractos de buscador** de esas páginas (no de lectura completa) y se marcan con la URL de Meta; donde fue posible se contrastaron con 2+ fuentes independientes. La única fuente primaria leída íntegramente fue el repositorio oficial de Meta en GitHub `WhatsApp/WhatsApp-Flows-Tools` (código de cifrado de Flows). Antes de usar cifras en producción, validar contra el rate card CSV oficial descargado desde la cuenta de Meta.
