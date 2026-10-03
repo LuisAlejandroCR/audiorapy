@@ -1,0 +1,4 @@
+# .gitattributes: force LF in every working tree, whatever core.autocrlf says,
+# so Prettier's default endOfLine "lf" stays strict on Windows too.
+* text=auto eol=lf
+*.png binary

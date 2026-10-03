@@ -42,7 +42,7 @@
 | B11 | Sin doble reserva: restricción de exclusión + `book()` atómico | `feat/no-double-booking` (#13) | ✅ memoria, PGlite y Postgres 16 real, incluidas reservas concurrentes |
 | B12 | Borrador del post de DEV en inglés | `docs/dev-post` (#15) | ✅ borrador + test; marcas `[[AUTHOR: …]]` ⏳ (cita, video, URL, cifras de Gemma y TabPFN) |
 | B13 | Auditoría completa contra AGENTS.md | `chore/audit` (#17) | ✅ 6 hallazgos corregidos, cada uno con test; informe en `docs/auditoria.md` |
-| B14 | Verificación reproducible en Windows con `core.autocrlf=true` | `fix/windows-verify` | ✅ Prettier acepta el checkout CRLF; el test del post normaliza LF/CRLF; `npm run verify` pasa completo en Windows |
+| B14 | Verificación reproducible en Windows con `core.autocrlf=true` | `fix/windows-verify` (#18) | ✅ `.gitattributes` fija LF en el working tree; el test del post normaliza LF/CRLF; `npm run verify` pasa completo en Windows |
 
 ## Fuera de alcance del fin de semana
 
