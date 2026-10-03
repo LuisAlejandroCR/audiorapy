@@ -6,12 +6,12 @@
 > Se llena mientras el proyecto vive. Lo que generalice sube anonimizado a `procedures/knowledge/`.
 
 **Proyecto:** `audiorapy`
-**Arrancó:** `2026-10-02` · **Última actividad:** `2026-10-02` · **Estado:** ⏳ activo
+**Arrancó:** `2026-10-02` · **Última actividad:** `2026-10-03` · **Estado:** ⏳ activo
 **Forma:** en curso
 **Fecha límite:** `2026-10-05`
 **Alias calendario:** Hacktoberfest weekend, audiorapy
 **URL:** —
-**Última actualización de este archivo:** `2026-10-02`
+**Última actualización de este archivo:** `2026-10-03`
 
 ---
 
@@ -34,6 +34,11 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
   tarea concurrente. Si el procesamiento lee y escribe estado por usuario, hay que serializar por
   usuario: el bug no aparece en tests que procesan mensajes uno a uno, solo al comparar "lote" contra
   "uno a uno" en un invariante.
+
+- `2026-10-03` — Una compuerta verde en Linux no garantiza que el propio test sea portable: un
+  checkout limpio con `core.autocrlf=true` expuso tanto la política implícita de Prettier como un
+  parser de front matter que asumía `\n`. Probar la compuerta desde un segundo sistema operativo
+  encontró ambos sin tocar comportamiento de producción.
 
 ## 2. ¿Qué costó más de lo esperado, y por qué?
 

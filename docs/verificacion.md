@@ -32,6 +32,7 @@
 | 2026-10-02 | Auditoría (PR #17): `npm run verify`, e2e, integración, smokes, `demo:degraded`, pytest, invariantes ×3 | PASS — 223 tests; e2e 20/20; integración 13/13 y `smoke:api` 12/12 ×2 en Postgres 16 local; degraded 26/26; `smoke:risk`; pytest 12/12 | Linux, Node 22.22.0, Postgres 16 |
 | 2026-10-02 | Timeout de Postgres por `buildStore` | `select pg_sleep(12)` cancelada a los 10 002 ms (`57014`) | Postgres 16 local |
 | 2026-10-02 | `submission.spec.ts` (borrador del post) | PASS 5/5; mutaciones atrapadas: cifra de reglas distinta al README, `published: true` con marcas abiertas, sección de la plantilla renombrada | Linux, Node 22.22.0 |
+| 2026-10-03 | `npm ci` + `npm run verify` (B14, clon limpio con `core.autocrlf=true` y `.gitattributes` `eol=lf`; Prettier con `endOfLine` estricto) | PASS — 162 archivos de texto en LF en el working tree; typecheck, lint, formato, 224/224 tests y build web (385,53 kB JS; 124,12 kB gzip) | Windows, Node 22 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
 
