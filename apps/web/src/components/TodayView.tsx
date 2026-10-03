@@ -22,19 +22,35 @@ export function TodayView() {
   }, []);
 
   return (
-    <section className="card" aria-labelledby="today-title">
-      <div className="row between">
-        <h2 id="today-title">Agenda</h2>
+    <section className="today" aria-labelledby="today-title">
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">Panel diario</p>
+          <h2 id="today-title">Tu agenda de hoy</h2>
+          <p className="muted">Visitas y asuntos que necesitan tu atención.</p>
+        </div>
         <button type="button" className="ghost" onClick={refresh}>
+          <span aria-hidden="true">↻</span>
           Actualizar
         </button>
       </div>
-      {result === null && <p aria-busy="true">Cargando agenda…</p>}
+      {result === null && (
+        <div className="card loading-card" aria-busy="true">
+          <span className="spinner" aria-hidden="true" />
+          <span>Cargando agenda…</span>
+        </div>
+      )}
       {result && !result.available && (
-        <p role="status" className="banner warn">
-          Agenda no disponible: {result.error}. Configúrala en Respaldo → Conexiones. Las notas
-          clínicas siguen disponibles.
-        </p>
+        <div role="status" className="card unavailable">
+          <span className="status-icon" aria-hidden="true">
+            !
+          </span>
+          <div>
+            <h3>Agenda no disponible: {result.error}</h3>
+            <p>Configúrala en Respaldo → Conexiones.</p>
+            <p className="muted">Tus notas clínicas siguen disponibles en este dispositivo.</p>
+          </div>
+        </div>
       )}
       {result?.available && <AgendaList agenda={result.data} />}
     </section>
@@ -46,32 +62,77 @@ function AgendaList({ agenda }: { agenda: Agenda }) {
     (a) => a.status === 'scheduled' || a.status === 'confirmed',
   );
   const open = agenda.alerts.filter((a) => !a.resolved);
+  const pending = upcoming.filter((a) => a.status === 'scheduled').length;
   return (
     <>
+      <div className="agenda-summary" aria-label="Resumen de agenda">
+        <article className="summary-card primary">
+          <span className="summary-label">Próxima visita</span>
+          <strong>{upcoming[0]?.label ?? 'Sin visitas próximas'}</strong>
+          <span>{upcoming[0] ? `Familia ${upcoming[0].contact}` : 'Tu agenda está libre'}</span>
+        </article>
+        <article className="summary-card">
+          <span className="summary-label">Próximas</span>
+          <strong>{upcoming.length}</strong>
+          <span>{upcoming.length === 1 ? 'visita agendada' : 'visitas agendadas'}</span>
+        </article>
+        <article className="summary-card">
+          <span className="summary-label">Por confirmar</span>
+          <strong>{pending}</strong>
+          <span>{pending === 1 ? 'familia pendiente' : 'familias pendientes'}</span>
+        </article>
+      </div>
       {open.length > 0 && (
-        <div className="alerts" aria-label="Avisos">
-          <h3>Requieren tu atención</h3>
+        <div className="alerts card" aria-label="Avisos">
+          <div className="alert-heading">
+            <span className="status-icon" aria-hidden="true">
+              !
+            </span>
+            <div>
+              <p className="eyebrow">Pendiente</p>
+              <h3>Requiere tu atención</h3>
+            </div>
+          </div>
           <ul>
             {open.map((a) => (
               <li key={a.id}>
-                <strong>{ALERT_ES[a.reason] ?? a.reason}</strong> · familia {a.contact}
+                <strong>{ALERT_ES[a.reason] ?? a.reason}</strong>
+                <span>Familia {a.contact}</span>
               </li>
             ))}
           </ul>
         </div>
       )}
       {upcoming.length === 0 ? (
-        <p className="muted">No hay visitas próximas.</p>
+        <div className="card empty agenda-empty">
+          <span className="empty-icon" aria-hidden="true">
+            ✓
+          </span>
+          <h3>Todo despejado</h3>
+          <p className="muted">No hay visitas próximas.</p>
+        </div>
       ) : (
-        <ul className="visits">
-          {upcoming.map((a) => (
-            <li key={a.id} data-status={a.status}>
-              <span className="when">{a.label}</span>
-              <span className="who">Familia {a.contact}</span>
-              <span className={`pill ${a.status}`}>{STATUS_ES[a.status] ?? a.status}</span>
-            </li>
-          ))}
-        </ul>
+        <section className="card schedule" aria-labelledby="upcoming-title">
+          <div className="schedule-heading">
+            <div>
+              <p className="eyebrow">Agenda</p>
+              <h3 id="upcoming-title">Próximas visitas</h3>
+            </div>
+            <span className="muted">{upcoming.length} en total</span>
+          </div>
+          <ul className="visits">
+            {upcoming.map((a) => (
+              <li key={a.id} data-status={a.status}>
+                <span className="timeline-dot" aria-hidden="true" />
+                <span className="visit-copy">
+                  <span className="when">{a.label}</span>
+                  <span className="who">Familia {a.contact}</span>
+                </span>
+                <span className={`pill ${a.status}`}>{STATUS_ES[a.status] ?? a.status}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </>
   );

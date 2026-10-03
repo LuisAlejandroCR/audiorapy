@@ -50,9 +50,13 @@ export function SessionView({ records, onAppend }: Props) {
           }}
         />
       ) : (
-        <section className="card">
-          <div className="row between">
-            <h2>Sesiones</h2>
+        <section className="card session-toolbar">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Registro clínico</p>
+              <h2>Sesiones</h2>
+              <p className="muted">Registra ensayos y revisa tus notas.</p>
+            </div>
             <button type="button" onClick={() => setRecording(true)}>
               Nueva sesión
             </button>
@@ -210,7 +214,7 @@ function SoapPanel({
 
   if (approved) {
     return (
-      <section className="card" aria-labelledby="soap-title">
+      <section className="card soap-card" aria-labelledby="soap-title">
         <h2 id="soap-title">Nota SOAP · {session.date}</h2>
         <p className="banner ok">
           Aprobada {approved.approvedAt.slice(0, 16).replace('T', ' ')} · registro inmodificable
@@ -229,7 +233,8 @@ function SoapPanel({
   };
 
   return (
-    <section className="card" aria-labelledby="soap-title">
+    <section className="card soap-card" aria-labelledby="soap-title">
+      <p className="eyebrow">Borrador privado</p>
       <h2 id="soap-title">Nota SOAP · {session.date}</h2>
       <div className="row">
         <button type="button" onClick={draft} disabled={busy}>

@@ -24,6 +24,9 @@
 | A8 | La "O" del SOAP se calcula desde los ensayos; el borrador del modelo no puede alterar cifras | B2, B4 |
 | A9 | El dashboard funciona sin Ollama y muestra "IA no disponible" sin bloquear | B4 |
 | A10 | `/health/providers` muestra qué adapter está activo y su último `checked_at` | B3 |
+| A11 | La navegación identifica cada sección con icono y texto, conserva objetivos táctiles de 44 px y se adapta sin desbordamiento entre 360 px y escritorio | B15 |
+| A12 | La agenda permite distinguir de un vistazo avisos, próxima visita y estado de confirmación, con estados de carga, error y vacío claramente diferenciados | B15 |
+| A13 | Las superficies clínicas comunican privacidad local, procedencia sintética y siguiente acción sin depender solo del color | B15 |
 
 ## Bloques (del más fácil al más difícil)
 
@@ -43,6 +46,7 @@
 | B12 | Borrador del post de DEV en inglés | `docs/dev-post` (#15) | ✅ borrador + test; marcas `[[AUTHOR: …]]` ⏳ (cita, video, URL, cifras de Gemma y TabPFN) |
 | B13 | Auditoría completa contra AGENTS.md | `chore/audit` (#17) | ✅ 6 hallazgos corregidos, cada uno con test; informe en `docs/auditoria.md` |
 | B14 | Verificación reproducible en Windows con `core.autocrlf=true` | `fix/windows-verify` (#18) | ✅ `.gitattributes` fija LF en el working tree; el test del post normaliza LF/CRLF; `npm run verify` pasa completo en Windows |
+| B15 | Pulido UI/UX del dashboard: jerarquía visual, navegación con iconos, agenda escaneable y estados accesibles; capturas móvil/escritorio | `feat/ui-ux-polish` | ✅ A11–A13; e2e 20/20 móvil + escritorio; capturas regeneradas con datos sintéticos |
 
 ## Fuera de alcance del fin de semana
 

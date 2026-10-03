@@ -33,6 +33,7 @@
 | 2026-10-02 | Timeout de Postgres por `buildStore` | `select pg_sleep(12)` cancelada a los 10 002 ms (`57014`) | Postgres 16 local |
 | 2026-10-02 | `submission.spec.ts` (borrador del post) | PASS 5/5; mutaciones atrapadas: cifra de reglas distinta al README, `published: true` con marcas abiertas, sección de la plantilla renombrada | Linux, Node 22.22.0 |
 | 2026-10-03 | `npm ci` + `npm run verify` (B14, clon limpio con `core.autocrlf=true` y `.gitattributes` `eol=lf`; Prettier con `endOfLine` estricto) | PASS — 162 archivos de texto en LF en el working tree; typecheck, lint, formato, 224/224 tests y build web (385,53 kB JS; 124,12 kB gzip) | Windows, Node 22 |
+| 2026-10-03 | B15 pulido UI/UX: `npm run verify` + `npm run test:e2e` | PASS — 224/224 tests; e2e 20/20 (móvil y escritorio, incluido layout sin desbordamiento y objetivos táctiles); revisión visual de capturas a 360 px y escritorio | Windows, Node 22 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
 
@@ -92,4 +93,4 @@ Chromium 141, `--mobile` (360 px) y luego 1100 × 900.
 | Bloquear → clave de recuperación sin tildes y en mayúsculas | Desbloquea; la nota aprobada sigue ahí |
 | Consola | Único error: `ERR_CONNECTION_REFUSED` a `127.0.0.1:11434` — es la ruta degradada esperada sin Ollama |
 
-Capturas: `docs/screenshots/` (datos sintéticos; la respuesta de Ollama de la captura SOAP es simulada, por eso dice "0.0 s").
+Capturas: `docs/screenshots/` (datos sintéticos; desde B15 la captura SOAP muestra el borrador antes de pedir la IA local, así que no depende de Ollama). `today-mobile.png` documenta la navegación inferior a 360 px.

@@ -83,7 +83,11 @@ function Create({
   };
 
   return (
-    <section className="card narrow">
+    <section className="card narrow vault-card">
+      <span className="vault-symbol" aria-hidden="true">
+        ◇
+      </span>
+      <p className="eyebrow">Privacidad desde el inicio</p>
       <h2>Crea tu bóveda</h2>
       <p className="muted">
         Las notas clínicas se cifran en este navegador con tu frase de paso. Nadie más —tampoco el
@@ -134,7 +138,11 @@ function RecoveryPhrase({ phrase, onDone }: { phrase: string; onDone: () => void
   const [written, setWritten] = useState(false);
   const words = phrase.split(' ');
   return (
-    <section className="card narrow">
+    <section className="card narrow vault-card">
+      <span className="vault-symbol" aria-hidden="true">
+        ✓
+      </span>
+      <p className="eyebrow">Paso final</p>
       <h2>Tu clave de recuperación</h2>
       <p>
         Escríbela en papel y guárdala lejos del computador. Si olvidas la frase de paso, es la{' '}
@@ -194,7 +202,11 @@ function Unlock({
   };
 
   return (
-    <section className="card narrow">
+    <section className="card narrow vault-card">
+      <span className="vault-symbol" aria-hidden="true">
+        ◇
+      </span>
+      <p className="eyebrow">Contenido protegido</p>
       <h2>Desbloquear</h2>
       <p className="muted">
         Bóveda {file.header.fingerprint} · {file.log.length} registros cifrados

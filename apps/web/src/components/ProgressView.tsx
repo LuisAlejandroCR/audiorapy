@@ -14,9 +14,13 @@ export function ProgressView({ records }: { records: ClinicalRecord[] }) {
   if (!patient) return null;
 
   return (
-    <section className="card" aria-labelledby="progress-title">
-      <div className="row between">
-        <h2 id="progress-title">Progreso por objetivo</h2>
+    <section className="card progress-view" aria-labelledby="progress-title">
+      <div className="section-heading progress-heading">
+        <div>
+          <p className="eyebrow">Evolución clínica</p>
+          <h2 id="progress-title">Progreso por objetivo</h2>
+          <p className="muted">Tendencias por sesión y nivel de apoyo.</p>
+        </div>
         {patients.length > 1 && (
           <select
             aria-label="Paciente"
@@ -31,11 +35,22 @@ export function ProgressView({ records }: { records: ClinicalRecord[] }) {
           </select>
         )}
       </div>
-      <p className="muted">
-        {patient.alias}
+      <div className="patient-context">
+        <span className="patient-avatar" aria-hidden="true">
+          {patient.alias.slice(0, 1).toUpperCase()}
+        </span>
+        <div>
+          <strong>{patient.alias}</strong>
+          <span>
+            {series.length} {series.length === 1 ? 'objetivo' : 'objetivos'} en seguimiento
+          </span>
+        </div>
         {patient.synthetic && <span className="tag">datos sintéticos</span>}
-      </p>
-      <Legend />
+      </div>
+      <div className="legend-panel">
+        <span className="legend-title">Nivel de apoyo</span>
+        <Legend />
+      </div>
       <div className="charts">
         {series.map((s) => (
           <TargetChart key={s.targetId} series={s} />
@@ -73,14 +88,13 @@ function TargetChart({ series }: { series: ProgressSeries }) {
   const last = pts.at(-1);
 
   return (
-    <figure className="chart">
+    <figure className="chart chart-card">
       <figcaption>
-        <strong>{series.label}</strong>
+        <span className="target-label">{series.label}</span>
         {last && (
-          <span className="muted">
-            {' '}
-            · última: {last.percent} % con apoyo{' '}
-            {last.dominantCue ? CUE_LABEL_ES[last.dominantCue] : '—'}
+          <span className="chart-result">
+            <strong>{last.percent} %</strong>
+            <small>apoyo {last.dominantCue ? CUE_LABEL_ES[last.dominantCue] : '—'}</small>
           </span>
         )}
       </figcaption>

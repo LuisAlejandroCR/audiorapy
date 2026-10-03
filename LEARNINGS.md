@@ -40,6 +40,10 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
   parser de front matter que asumía `\n`. Probar la compuerta desde un segundo sistema operativo
   encontró ambos sin tocar comportamiento de producción.
 
+- `2026-10-03` — “Sin overflow” no significa “buena composición móvil”: la primera captura a 360 px
+  mostró que una píldora de estado podía comprimir la hora en tres líneas aunque el test de layout
+  siguiera verde. La captura visual sigue siendo una prueba distinta y necesaria.
+
 ## 2. ¿Qué costó más de lo esperado, y por qué?
 
 - `2026-10-02` — `pkill -f "vite preview"` dentro de un comando que contiene ese mismo texto mata
