@@ -3,7 +3,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const read = (p: string) => readFileSync(new URL(`../../${p}`, import.meta.url), 'utf8');
+const normalizeNewlines = (text: string) => text.replace(/\r\n?/g, '\n');
+const read = (p: string) =>
+  normalizeNewlines(readFileSync(new URL(`../../${p}`, import.meta.url), 'utf8'));
 const post = read('submission/dev-post.md');
 const readme = read('README.md');
 const frontMatter = post.match(/^---\n([\s\S]*?)\n---\n/)?.[1] ?? '';
@@ -20,6 +22,12 @@ const TEMPLATE_SECTIONS = [
 ];
 
 describe('DEV submission draft', () => {
+  it('normalizes Windows line endings before parsing Markdown', () => {
+    expect(normalizeNewlines('---\r\ntags: one, two\r\n---\r\n')).toBe(
+      '---\ntags: one, two\n---\n',
+    );
+  });
+
   it('carries exactly the three required tags', () => {
     const tags = frontMatter
       .match(/^tags: (.+)$/m)?.[1]
