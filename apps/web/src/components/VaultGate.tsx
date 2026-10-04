@@ -80,8 +80,15 @@ function Create({
     setBusy(true);
     setError(null);
     await nextFrame();
-    const vault = createVault(pass);
-    onCreated({ file: newVaultFile(vault.header), dek: vault.dek, phrase: vault.recoveryPhrase });
+    try {
+      const vault = createVault(pass);
+      onCreated({ file: newVaultFile(vault.header), dek: vault.dek, phrase: vault.recoveryPhrase });
+    } catch {
+      setBusy(false);
+      setError(
+        'Este navegador no pudo crear la bóveda. Prueba con Chrome, Edge o Safari actualizados.',
+      );
+    }
   };
 
   const restore = async (file: File | undefined) => {

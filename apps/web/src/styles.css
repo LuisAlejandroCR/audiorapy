@@ -464,6 +464,7 @@ td {
 }
 
 .trial-buttons button {
+  touch-action: manipulation;
   min-height: 88px;
   font-size: 2rem;
 }

@@ -72,7 +72,7 @@ export function JourneyMap({ route, onGo }: { route: Journey; onGo: (step: StepI
                   <span className="muted">{s.hint}</span>
                 </span>
                 {state === 'current' && s.id !== 'vault' && (
-                  <button type="button" onClick={() => onGo(s.id)}>
+                  <button type="button" aria-label={`Ir a: ${s.title}`} onClick={() => onGo(s.id)}>
                     Ir
                   </button>
                 )}

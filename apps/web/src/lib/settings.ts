@@ -30,9 +30,15 @@ export function loadApiSettings(): ApiSettings {
   };
 }
 
+/** Pasted values often carry spaces or a newline; a token with one is "rejected" for no visible reason. */
+export function cleanApiSettings(s: ApiSettings): ApiSettings {
+  return { baseUrl: s.baseUrl.trim().replace(/\/+$/, ''), token: s.token.trim() };
+}
+
 export function saveApiSettings(s: ApiSettings) {
-  write(() => localStorage, API_URL, s.baseUrl);
-  write(() => sessionStorage, API_TOKEN, s.token);
+  const clean = cleanApiSettings(s);
+  write(() => localStorage, API_URL, clean.baseUrl);
+  write(() => sessionStorage, API_TOKEN, clean.token);
 }
 
 export function loadAiSettings(): AiSettings {

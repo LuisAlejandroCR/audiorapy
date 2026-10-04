@@ -17,6 +17,7 @@ import { liveStats, localDate, masteryRun } from '../../../apps/web/src/lib/stat
 import { agendaKpis, type Agenda } from '../../../apps/web/src/lib/agenda.ts';
 import { cleanAddress, MAP_APPS, mapLink } from '../../../apps/web/src/lib/maps.ts';
 import type { ClinicalRecord } from '../../../apps/web/src/lib/records.ts';
+import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { iso } from '../../arbitraries.ts';
 
 const recordArb: fc.Arbitrary<ClinicalRecord> = fc.oneof(
@@ -230,6 +231,23 @@ describe('agenda and directions (invariant)', () => {
             expect(u.searchParams.get(app.id === 'google' ? 'query' : 'q')).toBe(clean);
           }
         }
+      }),
+      { numRuns: 1000 },
+    );
+  });
+});
+
+describe('connection settings (invariant)', () => {
+  it('cleaning is idempotent, never leaves outer whitespace, and keeps the inner token intact', () => {
+    const ws = fc.constantFrom(' ', '\n', '\t', '\r\n', '');
+    const core = fc.stringMatching(/^[A-Za-z0-9._~-]{1,40}$/);
+    fc.assert(
+      fc.property(ws, core, ws, fc.string(), (pre, token, post, url) => {
+        const once = cleanApiSettings({ baseUrl: url, token: `${pre}${token}${post}` });
+        expect(once.token).toBe(token);
+        expect(cleanApiSettings(once)).toEqual(once);
+        expect(once.baseUrl).toBe(once.baseUrl.trim());
+        expect(once.baseUrl.endsWith('/')).toBe(false);
       }),
       { numRuns: 1000 },
     );

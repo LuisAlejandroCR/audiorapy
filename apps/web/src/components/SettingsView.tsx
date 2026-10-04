@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { unlockWithRecovery } from '@audiorapy/domain';
 import { isLoopback } from '../lib/ai.ts';
 import type { JourneyFlags } from '../lib/journey.ts';
-import { formatStampEs } from '../lib/stats.ts';
+import { formatStampEs, localDate } from '../lib/stats.ts';
 import {
   loadAiSettings,
   loadApiSettings,
@@ -33,7 +33,7 @@ export function SettingsView({
     const blob = new Blob([JSON.stringify(unlocked.file, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `audiorapy-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `audiorapy-respaldo-${localDate(new Date())}.json`;
     // Firefox needs the link in the document; revoking at once can cancel the download in Safari.
     document.body.append(a);
     a.click();
@@ -66,7 +66,11 @@ export function SettingsView({
 
       <RecoveryCheck
         verified={flags.recoveryVerified === true}
-        check={(phrase) => unlockWithRecovery(unlocked.file.header, phrase) !== null}
+        check={(phrase) => {
+          const dek = unlockWithRecovery(unlocked.file.header, phrase);
+          dek?.fill(0);
+          return dek !== null;
+        }}
         onVerified={() => onFlags({ recoveryVerified: true })}
       />
 
