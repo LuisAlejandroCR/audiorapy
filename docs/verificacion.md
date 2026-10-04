@@ -34,6 +34,7 @@
 | 2026-10-02 | `submission.spec.ts` (borrador del post) | PASS 5/5; mutaciones atrapadas: cifra de reglas distinta al README, `published: true` con marcas abiertas, sección de la plantilla renombrada | Linux, Node 22.22.0 |
 | 2026-10-03 | `npm ci` + `npm run verify` (B14, clon limpio con `core.autocrlf=true` y `.gitattributes` `eol=lf`; Prettier con `endOfLine` estricto) | PASS — 162 archivos de texto en LF en el working tree; typecheck, lint, formato, 224/224 tests y build web (385,53 kB JS; 124,12 kB gzip) | Windows, Node 22 |
 | 2026-10-03 | B15 pulido UI/UX: `npm run verify` + `npm run test:e2e` | PASS — 224/224 tests; e2e 20/20 (móvil y escritorio, incluido layout sin desbordamiento y objetivos táctiles); revisión visual de capturas a 360 px y escritorio | Windows, Node 22 |
+| 2026-10-04 | B16 ruta gamificada + auditoría UI/UX: `npm run verify` + `npm run test:e2e` | PASS — 261/261 tests (37 nuevos en `test/{unit,fuzz,invariant}/web/journey*`); e2e 30/30 (15 × móvil Pixel 7 y escritorio), incluido layout sin desbordamiento, objetivos de 44 px y sin violaciones de CSP; capturas a 360 px y 1180 px en claro y oscuro (`scripts/screenshots.ts`) | Windows, Node 22, Playwright 1.63 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
 
@@ -53,6 +54,8 @@
 | 2026-10-02 | `inbox.ts`: sin la cola por contacto | `inbox-order.invariant.spec.ts` (contraejemplo: dos `consent:yes` seguidos) |
 | 2026-10-02 | `reminders.ts`: sin `singleFlight` | `the minute timer and a manual tick… send a due reminder once` (2 intentos en vez de 1) |
 | 2026-10-02 | `reminders.ts`: se envía aunque la visita ya empezó | `a reminder that could not go out before the visit started is skipped` |
+| 2026-10-04 | `journey.ts`: las sesiones sintéticas cuentan como sesión registrada | `only synthetic records can never complete…` |
+| 2026-10-04 | `messages.ts`: `endSentence` siempre agrega punto | `no slot-bearing message has a double period…` |
 | 2026-10-02 | `postgres-store.ts`: cancelar no salta los recordatorios pendientes | invariante diferencial memoria vs Postgres (3/3 tras sesgar el generador) |
 
 ## Límites externos (ejercicio contra la cosa real)
@@ -93,4 +96,4 @@ Chromium 141, `--mobile` (360 px) y luego 1100 × 900.
 | Bloquear → clave de recuperación sin tildes y en mayúsculas | Desbloquea; la nota aprobada sigue ahí |
 | Consola | Único error: `ERR_CONNECTION_REFUSED` a `127.0.0.1:11434` — es la ruta degradada esperada sin Ollama |
 
-Capturas: `docs/screenshots/` (datos sintéticos; desde B15 la captura SOAP muestra el borrador antes de pedir la IA local, así que no depende de Ollama). `today-mobile.png` documenta la navegación inferior a 360 px.
+Capturas: `docs/screenshots/` (datos sintéticos; desde B15 la captura SOAP muestra el borrador antes de pedir la IA local, así que no depende de Ollama). `today-mobile.png` documenta la navegación inferior a 360 px. Desde B16 se regeneran con `scripts/screenshots.ts` (ruta de inicio, KPIs, modo sesión, comprobación de la clave; claro y oscuro).

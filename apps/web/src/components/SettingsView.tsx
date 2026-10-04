@@ -1,7 +1,10 @@
 // SettingsView.tsx: encrypted backup export/import, chain status, and connection settings
 // (scheduling API and local Ollama). Exports contain ciphertext only.
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import { unlockWithRecovery } from '@audiorapy/domain';
 import { isLoopback } from '../lib/ai.ts';
+import type { JourneyFlags } from '../lib/journey.ts';
+import { formatStampEs } from '../lib/stats.ts';
 import {
   loadAiSettings,
   loadApiSettings,
@@ -11,7 +14,17 @@ import {
 import { clearVault } from '../lib/storage.ts';
 import type { Unlocked } from '../App.tsx';
 
-export function SettingsView({ unlocked, chainOk }: { unlocked: Unlocked; chainOk: boolean }) {
+export function SettingsView({
+  unlocked,
+  chainOk,
+  flags,
+  onFlags,
+}: {
+  unlocked: Unlocked;
+  chainOk: boolean;
+  flags: JourneyFlags;
+  onFlags: (patch: JourneyFlags) => void;
+}) {
   const [api, setApi] = useState(loadApiSettings);
   const [ai, setAi] = useState(loadAiSettings);
   const [saved, setSaved] = useState(false);
@@ -21,8 +34,12 @@ export function SettingsView({ unlocked, chainOk }: { unlocked: Unlocked; chainO
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `audiorapy-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
+    // Firefox needs the link in the document; revoking at once can cancel the download in Safari.
+    document.body.append(a);
     a.click();
-    URL.revokeObjectURL(a.href);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+    onFlags({ backupAt: new Date().toISOString() });
   };
 
   return (
@@ -41,8 +58,17 @@ export function SettingsView({ unlocked, chainOk }: { unlocked: Unlocked; chainO
           <button type="button" onClick={exportBackup}>
             Descargar respaldo cifrado
           </button>
+          {flags.backupAt && (
+            <span className="muted">Último respaldo: {formatStampEs(flags.backupAt)}</span>
+          )}
         </div>
       </section>
+
+      <RecoveryCheck
+        verified={flags.recoveryVerified === true}
+        check={(phrase) => unlockWithRecovery(unlocked.file.header, phrase) !== null}
+        onVerified={() => onFlags({ recoveryVerified: true })}
+      />
 
       <section className="card" aria-labelledby="conn-title">
         <h2 id="conn-title">Conexiones</h2>
@@ -118,5 +144,65 @@ export function SettingsView({ unlocked, chainOk }: { unlocked: Unlocked; chainO
         </button>
       </section>
     </>
+  );
+}
+
+function RecoveryCheck({
+  verified,
+  check,
+  onVerified,
+}: {
+  verified: boolean;
+  check: (phrase: string) => boolean;
+  onVerified: () => void;
+}) {
+  const [phrase, setPhrase] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    await new Promise((r) => setTimeout(r, 30));
+    const ok = check(phrase);
+    setBusy(false);
+    if (ok) {
+      setPhrase('');
+      onVerified();
+    } else setError('Esa no es la clave de esta bóveda. Revisa el orden de las palabras.');
+  };
+
+  return (
+    <section className="card" aria-labelledby="recovery-title">
+      <h2 id="recovery-title">Clave de recuperación</h2>
+      {verified ? (
+        <p className="banner ok">Comprobada: tu papel abre esta bóveda.</p>
+      ) : (
+        <form className="stack" onSubmit={submit}>
+          <p className="muted">
+            Escribe las 24 palabras de tu papel para comprobar que abren esta bóveda. No se guardan.
+          </p>
+          <label>
+            Las 24 palabras de tu clave
+            <textarea
+              rows={3}
+              autoComplete="off"
+              spellCheck={false}
+              value={phrase}
+              onChange={(e) => setPhrase(e.target.value)}
+            />
+          </label>
+          {error && (
+            <p role="alert" className="error-text">
+              {error}
+            </p>
+          )}
+          <button type="submit" disabled={busy || phrase.trim() === ''}>
+            {busy ? 'Comprobando…' : 'Comprobar mi clave'}
+          </button>
+        </form>
+      )}
+    </section>
   );
 }

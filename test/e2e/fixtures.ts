@@ -26,8 +26,22 @@ export async function createVault(page: Page): Promise<string[]> {
   await expect(page.getByRole('button', { name: 'Continuar' })).toBeDisabled();
   await page.getByLabel('La escribí y la guardé').check();
   await page.getByRole('button', { name: 'Continuar' }).click();
+  await answerQuiz(page, words);
+  await page.getByRole('button', { name: 'Comprobar y entrar' }).click();
   await expect(page.getByRole('navigation', { name: 'Secciones' })).toBeVisible();
   return words;
+}
+
+/** Fills the recovery quiz from the words shown, optionally with one deliberately wrong answer. */
+export async function answerQuiz(page: Page, words: string[], wrong = false) {
+  const fields = page.getByLabel(/Palabra n\.º \d+/);
+  await expect(fields).toHaveCount(3);
+  for (let i = 0; i < 3; i++) {
+    const field = fields.nth(i);
+    const label = await field.evaluate((el) => el.closest('label')?.textContent ?? '');
+    const n = Number(/\d+/.exec(label)?.[0]);
+    await field.fill(wrong && i === 0 ? 'zzz' : stripAccents(words[n - 1]!).toUpperCase());
+  }
 }
 
 export async function loadSynthetic(page: Page) {

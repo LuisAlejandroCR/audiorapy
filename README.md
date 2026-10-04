@@ -56,6 +56,17 @@ npm run test:e2e      # Playwright: builds the dashboard, starts the real API, r
 |---|---|---|
 | ![Today](docs/screenshots/today-desktop.png) | ![Session note](docs/screenshots/soap-desktop.png) | ![Progress](docs/screenshots/progress-mobile.png) |
 
+A first-run **start route** turns setup into a short quest: create the vault, prove the recovery
+phrase (three random words), load a synthetic case, record a session, approve a SOAP note and download
+an encrypted backup. Each step is earned from real records, never from a click. Today and Progress open
+with KPI cards (confirmation rate, open alerts, accuracy, mastered targets), session mode shows a live
+streak and trial goal, and each visit offers "Cómo llegar" links to Google Maps, Apple Maps or Waze —
+the address stays in the browser until the therapist taps one.
+
+| Start route and KPIs (phone) | Session mode with streak | Recovery check |
+|---|---|---|
+| ![Start route](docs/screenshots/today-mobile.png) | ![Session mode](docs/screenshots/session-mobile.png) | ![Recovery quiz](docs/screenshots/quiz-mobile.png) |
+
 The screenshots use synthetic data only; no real patient appears anywhere in this repo.
 
 Persistence: without `DATABASE_URL` the API keeps the schedule in memory. Point it at Postgres (Render Postgres

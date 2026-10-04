@@ -22,7 +22,7 @@ test('A9: with Ollama down the note falls back to the template and O is computed
   await loadSynthetic(page);
   await page.getByRole('button', { name: 'Sesión' }).click();
   await page.getByRole('button', { name: 'Borrador con IA local' }).click();
-  await expect(page.getByRole('status')).toContainText('IA no disponible');
+  await expect(page.getByRole('status').filter({ hasText: 'IA no disponible' })).toBeVisible();
   await expect(page.getByLabel('S · Subjetivo')).toHaveValue('[completar]');
   await expect(page.getByText(/\/s\/ inicial en palabras: \d+\/10 \(\d+ %\)/)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Aprobar y guardar cifrada' })).toBeDisabled();
@@ -40,7 +40,9 @@ test('A8: the model draft loses sentences with figures, and the note is saved on
   await loadSynthetic(page);
   await page.getByRole('button', { name: 'Sesión' }).click();
   await page.getByRole('button', { name: 'Borrador con IA local' }).click();
-  await expect(page.getByRole('status')).toContainText('Se quitó 1 frase con cifras');
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Se quitó 1 frase con cifras' }),
+  ).toBeVisible();
   await expect(page.getByLabel('A · Análisis')).toHaveValue('Mejora sostenida. [completar]');
   expect(modelInput).not.toContain('Paciente sintético');
   expect(JSON.parse(modelInput).model).toBe('gemma4:e4b');

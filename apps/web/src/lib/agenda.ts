@@ -56,6 +56,54 @@ export async function fetchAgenda(
   );
 }
 
+/** Marks an alert handled on the server. Degraded, never thrown. */
+export async function resolveAlert(
+  settings: ApiSettings,
+  id: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<PortResult<true>> {
+  return guard(
+    'api',
+    async (signal) => {
+      const res = await fetchImpl(
+        `${settings.baseUrl.replace(/\/$/, '')}/api/alerts/${encodeURIComponent(id)}/resolve`,
+        { method: 'POST', headers: { Authorization: `Bearer ${settings.token}` }, signal },
+      );
+      if (res.status === 401) throw new Error('token rechazado');
+      if (!res.ok) throw new Error(`la API respondió ${res.status}`);
+      return true as const;
+    },
+    5000,
+  );
+}
+
+export interface AgendaKpis {
+  upcoming: number;
+  next7Days: number;
+  confirmed: number;
+  /** Confirmed share of upcoming visits, 0..100, or null with no upcoming visits. */
+  confirmedPercent: number | null;
+  openAlerts: number;
+}
+
+const ACTIVE = new Set(['scheduled', 'confirmed']);
+
+export function agendaKpis(agenda: Agenda, now: Date): AgendaKpis {
+  const nowMs = now.getTime();
+  const upcoming = agenda.appointments.filter(
+    (a) => ACTIVE.has(a.status) && !(Date.parse(a.startsAt) < nowMs),
+  );
+  const weekEnd = nowMs + 7 * 86_400_000;
+  const confirmed = upcoming.filter((a) => a.status === 'confirmed').length;
+  return {
+    upcoming: upcoming.length,
+    next7Days: upcoming.filter((a) => Date.parse(a.startsAt) <= weekEnd).length,
+    confirmed,
+    confirmedPercent: upcoming.length ? Math.round((confirmed / upcoming.length) * 100) : null,
+    openAlerts: agenda.alerts.filter((a) => !a.resolved).length,
+  };
+}
+
 export const STATUS_ES: Record<string, string> = {
   scheduled: 'Pendiente de confirmar',
   confirmed: 'Confirmada',

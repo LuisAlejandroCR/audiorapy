@@ -1,11 +1,23 @@
-// TodayView.tsx: the scheduling plane from the API — upcoming visits, confirmation state and alerts.
-// When the API is unreachable it says so and the rest of the dashboard keeps working.
+// TodayView.tsx: the scheduling plane from the API — KPI cards, upcoming visits, confirmation state and
+// alerts the therapist can mark as handled. When the API is unreachable it says so and the rest works.
 import { useCallback, useEffect, useState } from 'react';
 import type { PortResult } from '@audiorapy/domain';
-import { ALERT_ES, fetchAgenda, STATUS_ES, type Agenda } from '../lib/agenda.ts';
+import {
+  agendaKpis,
+  ALERT_ES,
+  fetchAgenda,
+  resolveAlert,
+  STATUS_ES,
+  type Agenda,
+} from '../lib/agenda.ts';
 import { loadApiSettings } from '../lib/settings.ts';
+import { formatStampEs } from '../lib/stats.ts';
+import { Icon } from './Icon.tsx';
+import { Kpi } from './Kpi.tsx';
+import { Directions } from './Directions.tsx';
+import { loadBook, saveAddress } from '../lib/maps.ts';
 
-export function TodayView() {
+export function TodayView({ onConfigure }: { onConfigure: () => void }) {
   const [result, setResult] = useState<PortResult<Agenda> | null>(null);
 
   const refresh = useCallback(async () => {
@@ -26,10 +38,10 @@ export function TodayView() {
       <div className="section-heading">
         <div>
           <p className="eyebrow">Panel diario</p>
-          <h2 id="today-title">Tu agenda de hoy</h2>
-          <p className="muted">Visitas y asuntos que necesitan tu atención.</p>
+          <h2 id="today-title">Tu agenda</h2>
+          <p className="muted">Próximas visitas y asuntos que necesitan tu atención.</p>
         </div>
-        <button type="button" className="ghost" onClick={refresh}>
+        <button type="button" className="ghost" onClick={refresh} aria-label="Actualizar agenda">
           <span aria-hidden="true">↻</span>
           Actualizar
         </button>
@@ -47,41 +59,77 @@ export function TodayView() {
           </span>
           <div>
             <h3>Agenda no disponible: {result.error}</h3>
-            <p>Configúrala en Respaldo → Conexiones.</p>
             <p className="muted">Tus notas clínicas siguen disponibles en este dispositivo.</p>
+            <button type="button" className="ghost" onClick={onConfigure}>
+              Configurar conexión
+            </button>
           </div>
         </div>
       )}
-      {result?.available && <AgendaList agenda={result.data} />}
+      {result?.available && <AgendaList agenda={result.data} onChanged={refresh} />}
     </section>
   );
 }
 
-function AgendaList({ agenda }: { agenda: Agenda }) {
-  const upcoming = agenda.appointments.filter(
-    (a) => a.status === 'scheduled' || a.status === 'confirmed',
-  );
+function AgendaList({ agenda, onChanged }: { agenda: Agenda; onChanged: () => void }) {
+  const [now] = useState(() => new Date());
+  const [resolving, setResolving] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [book, setBook] = useState(loadBook);
+  const kpi = agendaKpis(agenda, now);
+  const upcoming = agenda.appointments
+    .filter(
+      (a) =>
+        (a.status === 'scheduled' || a.status === 'confirmed') &&
+        !(Date.parse(a.startsAt) < now.getTime()),
+    )
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const open = agenda.alerts.filter((a) => !a.resolved);
-  const pending = upcoming.filter((a) => a.status === 'scheduled').length;
+  const pending = upcoming.length - kpi.confirmed;
+
+  const resolve = async (id: string) => {
+    setResolving(id);
+    setError(null);
+    const r = await resolveAlert(loadApiSettings(), id);
+    setResolving(null);
+    if (r.available) onChanged();
+    else setError(`No se pudo marcar: ${r.error}`);
+  };
+
   return (
     <>
-      <div className="agenda-summary" aria-label="Resumen de agenda">
+      <div className="kpi-grid" aria-label="Resumen de agenda">
         <article className="summary-card primary">
           <span className="summary-label">Próxima visita</span>
           <strong>{upcoming[0]?.label ?? 'Sin visitas próximas'}</strong>
           <span>{upcoming[0] ? `Familia ${upcoming[0].contact}` : 'Tu agenda está libre'}</span>
         </article>
-        <article className="summary-card">
-          <span className="summary-label">Próximas</span>
-          <strong>{upcoming.length}</strong>
-          <span>{upcoming.length === 1 ? 'visita agendada' : 'visitas agendadas'}</span>
-        </article>
-        <article className="summary-card">
-          <span className="summary-label">Por confirmar</span>
-          <strong>{pending}</strong>
-          <span>{pending === 1 ? 'familia pendiente' : 'familias pendientes'}</span>
-        </article>
+        <Kpi
+          icon="calendar"
+          label="Próximos 7 días"
+          value={kpi.next7Days}
+          unit={kpi.next7Days === 1 ? 'visita' : 'visitas'}
+        />
+        <Kpi
+          icon="check"
+          label="Confirmadas"
+          value={kpi.confirmedPercent === null ? '—' : `${kpi.confirmedPercent} %`}
+          unit={pending === 1 ? '1 por confirmar' : `${pending} por confirmar`}
+          meter={kpi.confirmedPercent ?? 0}
+        />
+        <Kpi
+          icon="bell"
+          label="Avisos abiertos"
+          value={kpi.openAlerts}
+          unit={kpi.openAlerts === 0 ? 'todo al día' : 'requieren respuesta'}
+          tone={kpi.openAlerts > 0 ? 'warn' : 'ok'}
+        />
       </div>
+      {error && (
+        <p role="alert" className="banner error">
+          {error}
+        </p>
+      )}
       {open.length > 0 && (
         <div className="alerts card" aria-label="Avisos">
           <div className="alert-heading">
@@ -96,8 +144,21 @@ function AgendaList({ agenda }: { agenda: Agenda }) {
           <ul>
             {open.map((a) => (
               <li key={a.id}>
-                <strong>{ALERT_ES[a.reason] ?? a.reason}</strong>
-                <span>Familia {a.contact}</span>
+                <span className="alert-copy">
+                  <strong>{ALERT_ES[a.reason] ?? a.reason}</strong>
+                  <span>
+                    Familia {a.contact} · {formatStampEs(a.at)}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  className="ghost"
+                  disabled={resolving !== null}
+                  onClick={() => resolve(a.id)}
+                >
+                  <Icon name="check" />
+                  {resolving === a.id ? 'Marcando…' : 'Resuelto'}
+                </button>
               </li>
             ))}
           </ul>
@@ -129,6 +190,11 @@ function AgendaList({ agenda }: { agenda: Agenda }) {
                   <span className="who">Familia {a.contact}</span>
                 </span>
                 <span className={`pill ${a.status}`}>{STATUS_ES[a.status] ?? a.status}</span>
+                <Directions
+                  contact={a.contact}
+                  address={book[a.contact] ?? ''}
+                  onSave={(address) => setBook((b) => saveAddress(b, a.contact, address))}
+                />
               </li>
             ))}
           </ul>
