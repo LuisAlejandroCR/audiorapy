@@ -52,11 +52,11 @@ npm run dev:web       # http://localhost:5173
 npm run test:e2e      # Playwright: builds the dashboard, starts the real API, runs mobile + desktop
 ```
 
-| Today (scheduling plane, phones masked) | SOAP note (local Gemma draft, figures computed by code) | Progress by cue level (synthetic data) |
+| Today (scheduling plane, phones masked) | Session note (figures computed by code) | Progress by cue level (synthetic data) |
 |---|---|---|
-| ![Today](docs/screenshots/today-desktop.png) | ![SOAP](docs/screenshots/soap-desktop.png) | ![Progress](docs/screenshots/progress-mobile.png) |
+| ![Today](docs/screenshots/today-desktop.png) | ![Session note](docs/screenshots/soap-desktop.png) | ![Progress](docs/screenshots/progress-mobile.png) |
 
-The screenshots use synthetic data and a mocked Ollama reply; no real patient appears anywhere in this repo.
+The screenshots use synthetic data only; no real patient appears anywhere in this repo.
 
 Persistence: without `DATABASE_URL` the API keeps the schedule in memory. Point it at Postgres (Render Postgres
 in production; any Postgres 14+ works) and the schema is created at startup:
