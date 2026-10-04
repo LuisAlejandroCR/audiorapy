@@ -59,6 +59,13 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
 - `2026-10-02` — Un servidor de una corrida anterior seguía en el puerto 3000: el nuevo no arrancó y
   las pruebas manuales hablaron con el estado viejo. Confirmar puertos libres antes y después.
 
+- `2026-10-04` — Poner una pista dentro del `<label>` cambia el nombre accesible del campo: los 30
+  e2e fallaron en `getByLabel('Frase de paso', { exact: true })`. La pista va fuera del `label` y se
+  enlaza con `aria-describedby`. Los tests por rol y nombre detectan esto; los selectores por CSS no.
+- `2026-10-04` — Un fuzz con `fc.double()` como longitud de arreglo tumbó el worker de Vitest sin
+  memoria (no un test rojo: un proceso muerto). Toda función que reserve según su entrada debe acotarla,
+  aunque hoy solo la llame código propio.
+
 ## 3. ¿Qué haría distinto?
 
 - `2026-10-02` — Al adaptar una plantilla, diffear contra el original antes de dar el contrato por

@@ -27,6 +27,12 @@
 | A11 | La navegación identifica cada sección con icono y texto, conserva objetivos táctiles de 44 px y se adapta sin desbordamiento entre 360 px y escritorio | B15 |
 | A12 | La agenda permite distinguir de un vistazo avisos, próxima visita y estado de confirmación, con estados de carga, error y vacío claramente diferenciados | B15 |
 | A13 | Las superficies clínicas comunican privacidad local, procedencia sintética y siguiente acción sin depender solo del color | B15 |
+| A14 | Una ruta de inicio guiada (bóveda → comprobar clave → caso → sesión → nota → respaldo) muestra paso actual, progreso y puntos; cada paso se marca solo cuando la acción real ocurrió (derivado de los registros, no de clics) | B16 |
+| A15 | La clave de recuperación se comprueba pidiendo 3 palabras al azar (sin tildes ni mayúsculas) antes de continuar | B16 |
+| A16 | Ninguna acción deja perder trabajo en silencio: cambiar de pestaña conserva la sesión en curso y los borradores SOAP; descartar, bloquear o "usar otra bóveda" piden confirmación | B16 |
+| A17 | El modo sesión muestra racha, meta de ensayos por objetivo y si se alcanzó el criterio; el progreso marca dominio (≥ criterio en las 3 últimas sesiones) | B16 |
+| A18 | Fechas en hora local de Colombia (no UTC); avisos se pueden marcar como resueltos; ningún mensaje al cuidador tiene doble punto | B16 |
+| A19 | La ruta se dibuja como mapa de misiones (nodos hechos, actual y bloqueados); Hoy y Progreso abren con tarjetas KPI calculadas por código (visitas, confirmación, avisos; sesiones, acierto, objetivos dominados) | B16 |
 
 ## Bloques (del más fácil al más difícil)
 
@@ -46,6 +52,7 @@
 | B12 | Borrador del post de DEV en inglés | `docs/dev-post` (#15) | ✅ borrador + test; marcas `[[AUTHOR: …]]` ⏳ (cita, video, URL, cifras de Gemma y TabPFN) |
 | B13 | Auditoría completa contra AGENTS.md | `chore/audit` (#17) | ✅ 6 hallazgos corregidos, cada uno con test; informe en `docs/auditoria.md` |
 | B14 | Verificación reproducible en Windows con `core.autocrlf=true` | `fix/windows-verify` (#18) | ✅ `.gitattributes` fija LF en el working tree; el test del post normaliza LF/CRLF; `npm run verify` pasa completo en Windows |
+| B16 | Auditoría UI/UX + ruta de inicio gamificada, corrección de bugs de pérdida de datos y fechas | `feat/guided-flow` (#20) | ✅ A14–A19; 261 tests (37 nuevos: unit, fuzz, invariante); e2e 30/30 móvil + escritorio; capturas claro/oscuro |
 | B15 | Pulido UI/UX del dashboard: jerarquía visual, navegación con iconos, agenda escaneable y estados accesibles; capturas móvil/escritorio | `feat/ui-ux-polish` (#19) | ✅ A11–A13; e2e 20/20 móvil + escritorio; capturas regeneradas con datos sintéticos |
 
 ## Fuera de alcance del fin de semana

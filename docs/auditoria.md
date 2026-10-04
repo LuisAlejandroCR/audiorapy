@@ -2,6 +2,40 @@
      qué se encontró y qué se corrigió. Se distingue de verificacion.md (evidencia de cada comando) y de
      memoria.md (decisiones): aquí está el informe de una revisión puntual, con fecha. -->
 
+# Auditoría UI/UX — 2026-10-04 (B16, `feat/guided-flow`)
+
+Alcance: el dashboard (`apps/web`) recorrido como diseñadora experta en un navegador real a 375 px y en
+escritorio, claro y oscuro, con API real en canal consola y datos sintéticos; más los mensajes al
+cuidador (`packages/domain/src/messages.ts`), que son la "app móvil" que el cuidador ve por WhatsApp.
+No hay app nativa (B6 sigue en roadmap). Cada bug quedó cubierto por un test.
+
+### Bugs corregidos
+
+| # | Severidad | Dónde | Bug | Corrección | Test |
+|---|---|---|---|---|---|
+| U1 | Alta | `SessionView` | Cambiar de pestaña a mitad de sesión borraba todos los ensayos sin aviso | El borrador vive en `App` (solo en memoria); punto rojo en la pestaña Sesión; bloquear con borrador pide confirmación | e2e `journey` (cambio de pestaña conserva 3/3) |
+| U2 | Alta | `VaultGate` | "Usar otra bóveda" borraba la bóveda guardada sin confirmar | `window.confirm` antes de `clearVault` | e2e `"Usar otra bóveda" asks…` |
+| U3 | Alta | `SessionView` | La fecha de la sesión salía en UTC: después de las 7 p. m. en Colombia quedaba con la fecha de mañana | `localDate()` en la zona del dispositivo | unit + invariante `localDate` |
+| U4 | Media | `TodayView` | Los avisos no se podían cerrar: la API tiene `/api/alerts/:id/resolve` y el dashboard nunca lo llamaba | Botón "Resuelto" | unit `resolveAlert` + e2e |
+| U5 | Media | Modo sesión | El selector de nivel de apoyo desbordaba en el teléfono (441 px en 302): "máximo" quedaba oculto tras un scroll horizontal | Rejilla 2×2 en móvil | e2e `layout` |
+| U6 | Media | `messages.ts` | WhatsApp decía "8:00 a. m.. Te enviaremos…" (doble punto) en reserva y recordatorio | `endSentence()` | unit + invariante para toda hora |
+| U7 | Media | `styles.css` | Botón "Borrar de este navegador" en oscuro: blanco sobre `#ffb4a8` ≈ 1,6:1 | Tokens `--danger`/`--danger-text` por tema | revisión visual |
+| U8 | Media | `SoapPanel` | Pedir el borrador IA sobrescribía lo que la terapeuta ya había escrito; el borrador se perdía al cambiar de pestaña | La IA solo llena lo vacío o `[completar]`; borradores en `App` | e2e `journey` |
+| U9 | Baja | `SettingsView` | La descarga del respaldo revocaba el blob al instante y no adjuntaba el enlace (Safari/Firefox pueden cancelarla) | Enlace en el documento y `revokeObjectURL` diferido | e2e restauración |
+| U10 | Baja | Varios | Fechas ISO crudas (`2026-10-03`) y sello de aprobación en UTC | `formatDayEs`, `formatStampEs` | unit |
+| U11 | Baja | `VaultGate` | Mínimo de 10 caracteres oculto hasta fallar; selector de archivo en inglés ("Choose File") | Pista con contador; botón propio en español | e2e `vault` |
+| U12 | Baja | Hoy | "Tu agenda de hoy" mostraba días futuros | "Tu agenda" | — |
+| F1 | — | `quizPositions` | El fuzz encontró que una longitud enorme o no finita reservaba un arreglo de ese tamaño (proceso sin memoria) | Entradas acotadas a 48 palabras | fuzz `quiz … never throw` |
+
+### Mejoras de experiencia (A14–A19)
+
+Ruta de inicio gamificada como mapa de misiones (6 pasos, 800 puntos, rangos), cada paso derivado de
+registros reales; comprobación de la clave con 3 palabras; celebración breve y anunciada (sin confeti con
+`prefers-reduced-motion`); tarjetas KPI en Hoy y Progreso; racha, meta de 10 ensayos y criterio en el modo
+sesión; insignia de dominio (3 sesiones seguidas ≥ criterio); lista S/A/P antes de aprobar; "Cómo llegar"
+con Google Maps, Apple Maps y Waze (enlaces, sin mapa embebido: la CSP no admite teselas externas y la
+dirección solo sale del equipo al tocar el enlace).
+
 # Auditoría — 2026-10-02 (PR #17)
 
 Alcance: todo el repo en `main` tras el PR #16 — `packages/domain`, `apps/api`, `apps/web`,

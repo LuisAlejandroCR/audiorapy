@@ -116,11 +116,16 @@ export function noSlots(): Outbound {
   };
 }
 
+/** Ends a sentence once: a slot label already ends in "a. m." / "p. m.", whose period closes it. */
+export function endSentence(text: string): string {
+  return /[.!?]$/.test(text) ? text : `${text}.`;
+}
+
 export function booked(startsAt: string): Outbound {
   return {
     type: 'text',
     key: 'booked',
-    body: `Listo, la visita quedó agendada para el ${formatSlotEs(new Date(startsAt))}. Te enviaremos un recordatorio el día anterior.`,
+    body: `${endSentence(`Listo, la visita quedó agendada para el ${formatSlotEs(new Date(startsAt))}`)} Te enviaremos un recordatorio el día anterior.`,
   };
 }
 
@@ -128,7 +133,7 @@ export function reminder(startsAt: string): Outbound {
   return {
     type: 'buttons',
     key: 'reminder',
-    body: `Recordatorio: tienes una visita el ${formatSlotEs(new Date(startsAt))}. ¿Nos confirmas?`,
+    body: `${endSentence(`Recordatorio: tienes una visita el ${formatSlotEs(new Date(startsAt))}`)} ¿Nos confirmas?`,
     buttons: [
       { id: BUTTON_IDS.apptConfirm, title: 'Confirmar' },
       { id: BUTTON_IDS.apptReschedule, title: 'Reprogramar' },

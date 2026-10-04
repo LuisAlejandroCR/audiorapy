@@ -27,7 +27,9 @@ test('a booking made over the API appears in Hoy, phone masked', async ({ page, 
 
 test('without API configuration Hoy degrades and the rest keeps working', async ({ page }) => {
   await createVault(page);
-  await expect(page.getByRole('status')).toContainText('Agenda no disponible: API no configurada');
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Agenda no disponible: API no configurada' }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Progreso' }).click();
   await expect(page.getByRole('button', { name: 'Cargar datos sintéticos' })).toBeVisible();
 });
@@ -39,5 +41,5 @@ test('a wrong token is reported, not crashed on', async ({ page }) => {
   await page.getByLabel('Token del dashboard').fill('wrong');
   await page.getByRole('button', { name: 'Guardar' }).click();
   await page.getByRole('button', { name: 'Hoy' }).click();
-  await expect(page.getByRole('status')).toContainText('token rechazado');
+  await expect(page.getByRole('status').filter({ hasText: 'token rechazado' })).toBeVisible();
 });

@@ -8,10 +8,11 @@ import {
   unlockWithRecovery,
 } from '@audiorapy/domain';
 import { clearVault, newVaultFile, parseVaultFile, type VaultFile } from '../lib/storage.ts';
+import { quizMatches, quizPositions, type JourneyFlags } from '../lib/journey.ts';
 
 interface Props {
   stored: VaultFile | null;
-  onOpen: (file: VaultFile, dek: Uint8Array) => void;
+  onOpen: (file: VaultFile, dek: Uint8Array, flags?: JourneyFlags) => void;
   onForget: () => void;
 }
 
@@ -28,7 +29,12 @@ export function VaultGate({ stored, onOpen, onForget }: Props) {
 
   if (created) {
     return (
-      <RecoveryPhrase phrase={created.phrase} onDone={() => onOpen(created.file, created.dek)} />
+      <RecoveryPhrase
+        phrase={created.phrase}
+        onDone={(verified) =>
+          onOpen(created.file, created.dek, verified ? { recoveryVerified: true } : {})
+        }
+      />
     );
   }
   if (pending) {
@@ -37,6 +43,13 @@ export function VaultGate({ stored, onOpen, onForget }: Props) {
         file={pending}
         onOpen={onOpen}
         onForget={() => {
+          if (
+            stored &&
+            !window.confirm(
+              'Esto borra la bóveda guardada en este navegador. Sin un respaldo o tu clave no se puede recuperar. ¿Continuar?',
+            )
+          )
+            return;
           if (stored) clearVault();
           setPending(null);
           onForget();
@@ -87,7 +100,7 @@ function Create({
       <span className="vault-symbol" aria-hidden="true">
         ◇
       </span>
-      <p className="eyebrow">Privacidad desde el inicio</p>
+      <p className="eyebrow">Paso 1 de 3 · Privacidad desde el inicio</p>
       <h2>Crea tu bóveda</h2>
       <p className="muted">
         Las notas clínicas se cifran en este navegador con tu frase de paso. Nadie más —tampoco el
@@ -99,10 +112,16 @@ function Create({
           <input
             type="password"
             autoComplete="new-password"
+            aria-describedby="pass-hint"
             value={pass}
             onChange={(e) => setPass(e.target.value)}
           />
         </label>
+        <span id="pass-hint" className={`hint${pass.length >= MIN_PASSPHRASE_LENGTH ? ' ok' : ''}`}>
+          {pass.length >= MIN_PASSPHRASE_LENGTH ? '✓ ' : ''}
+          Mínimo {MIN_PASSPHRASE_LENGTH} caracteres · {pass.length}/{MIN_PASSPHRASE_LENGTH}. Una
+          frase de varias palabras es más fácil de recordar.
+        </span>
         <label>
           Repite la frase
           <input
@@ -124,25 +143,39 @@ function Create({
       <hr />
       <label className="file">
         Restaurar desde un respaldo
+        <span className="file-button" aria-hidden="true">
+          Elegir archivo .json
+        </span>
         <input
           type="file"
           accept="application/json,.json"
-          onChange={(e) => restore(e.target.files?.[0])}
+          onChange={(e) => {
+            void restore(e.target.files?.[0]);
+            e.target.value = '';
+          }}
         />
       </label>
     </section>
   );
 }
 
-function RecoveryPhrase({ phrase, onDone }: { phrase: string; onDone: () => void }) {
+function RecoveryPhrase({
+  phrase,
+  onDone,
+}: {
+  phrase: string;
+  onDone: (verified: boolean) => void;
+}) {
   const [written, setWritten] = useState(false);
+  const [quiz, setQuiz] = useState(false);
   const words = phrase.split(' ');
+  if (quiz) return <RecoveryQuiz words={words} onBack={() => setQuiz(false)} onDone={onDone} />;
   return (
     <section className="card narrow vault-card">
       <span className="vault-symbol" aria-hidden="true">
         ✓
       </span>
-      <p className="eyebrow">Paso final</p>
+      <p className="eyebrow">Paso 2 de 3 · Clave de recuperación</p>
       <h2>Tu clave de recuperación</h2>
       <p>
         Escríbela en papel y guárdala lejos del computador. Si olvidas la frase de paso, es la{' '}
@@ -163,9 +196,78 @@ function RecoveryPhrase({ phrase, onDone }: { phrase: string; onDone: () => void
         <input type="checkbox" checked={written} onChange={(e) => setWritten(e.target.checked)} />
         La escribí y la guardé
       </label>
-      <button type="button" disabled={!written} onClick={onDone}>
+      <button type="button" disabled={!written} onClick={() => setQuiz(true)}>
         Continuar
       </button>
+    </section>
+  );
+}
+
+const QUIZ_SIZE = 3;
+
+function RecoveryQuiz({
+  words,
+  onBack,
+  onDone,
+}: {
+  words: string[];
+  onBack: () => void;
+  onDone: (verified: boolean) => void;
+}) {
+  const [positions] = useState(() => quizPositions(words.length, QUIZ_SIZE, Math.random));
+  const [answers, setAnswers] = useState<string[]>(() => positions.map(() => ''));
+  const [tried, setTried] = useState(false);
+  const right = positions.map((p, i) => quizMatches(words[p]!, answers[i]!));
+  const allRight = right.every(Boolean);
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    setTried(true);
+    if (allRight) onDone(true);
+  };
+
+  return (
+    <section className="card narrow vault-card">
+      <span className="vault-symbol" aria-hidden="true">
+        ?
+      </span>
+      <p className="eyebrow">Paso 3 de 3 · Comprobación</p>
+      <h2>Comprueba tu clave</h2>
+      <p className="muted">
+        Escribe estas palabras mirando tu papel. Sin tildes ni mayúsculas también vale.
+      </p>
+      <form className="stack" onSubmit={submit}>
+        {positions.map((p, i) => (
+          <label key={p}>
+            Palabra n.º {p + 1}
+            <input
+              autoComplete="off"
+              spellCheck={false}
+              autoCapitalize="none"
+              aria-invalid={tried && !right[i] ? true : undefined}
+              value={answers[i]}
+              onChange={(e) => setAnswers((a) => a.map((x, k) => (k === i ? e.target.value : x)))}
+            />
+          </label>
+        ))}
+        {tried && !allRight && (
+          <p role="alert" className="error-text">
+            {right.filter((r) => !r).length === 1
+              ? 'Una palabra no coincide.'
+              : `${right.filter((r) => !r).length} palabras no coinciden.`}{' '}
+            Revisa tu papel.
+          </p>
+        )}
+        <button type="submit">Comprobar y entrar</button>
+      </form>
+      <div className="row between">
+        <button type="button" className="link" onClick={onBack}>
+          Ver las palabras otra vez
+        </button>
+        <button type="button" className="link" onClick={() => onDone(false)}>
+          Comprobar después
+        </button>
+      </div>
     </section>
   );
 }
