@@ -1,5 +1,5 @@
 // landing.ts: scroll motion and the landing's QR codes — the dashboard at this site's own /app/ (so it is right on
-// any domain) and, when VITE_EXPO_URL is set at build time, the Expo preview for Expo Go.
+// any domain), the Android APK and the iOS TestFlight beta — each with a full-screen view.
 /// <reference types="vite/client" />
 import { qrPath, QUIET } from './lib/qr.ts';
 
@@ -25,14 +25,51 @@ function draw(slot: HTMLElement, url: string, label: string) {
   slot.replaceChildren(svg);
 }
 
-const web = document.querySelector<HTMLElement>('[data-qr="web"]');
-if (web) draw(web, new URL('/app/', window.location.origin).href, 'abrir el panel web');
+const CODES: Record<string, { url: string; label: string; caption: string }> = {
+  web: {
+    url: new URL('/app/', window.location.origin).href,
+    label: 'abrir el panel web',
+    caption: 'Escanea con tu teléfono para abrir el panel web.',
+  },
+  android: {
+    url: 'https://expo.dev/accounts/alejoo_oo/projects/audiorapy/builds/25208c1c-513c-40ab-9e87-c8884f1f7a0a',
+    label: 'instalar la beta de Android',
+    caption: 'Escanea con un Android para descargar el APK de la beta.',
+  },
+  ios: {
+    url: 'https://testflight.apple.com/join/BWFrPaur',
+    label: 'unirse a la beta en TestFlight',
+    caption: 'Escanea con un iPhone para unirte a la beta en TestFlight.',
+  },
+};
 
-const expoUrl = (import.meta.env.VITE_EXPO_URL as string | undefined) ?? '';
-const expo = document.querySelector<HTMLElement>('[data-qr="expo"]');
-if (expo && expoUrl) {
-  draw(expo, expoUrl, 'abrir la app en Expo Go');
-  document.querySelector('[data-qr-hint="expo"]')?.remove();
+for (const [key, code] of Object.entries(CODES)) {
+  const slot = document.querySelector<HTMLElement>(`[data-qr="${key}"]`);
+  if (slot) draw(slot, code.url, code.label);
+}
+
+// Full screen: the arrows button opens the same code large, for scanning from across a table.
+const full = document.querySelector<HTMLDialogElement>('dialog.qr-full');
+const fullCode = full?.querySelector<HTMLElement>('[data-qr-full]');
+const fullCaption = full?.querySelector<HTMLElement>('[data-qr-full-caption]');
+const fullLink = full?.querySelector<HTMLAnchorElement>('[data-qr-full-link]');
+if (full && fullCode && fullCaption && fullLink && typeof full.showModal === 'function') {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-qr-open]')) {
+    const code = CODES[button.dataset.qrOpen ?? ''];
+    if (!code) continue;
+    button.hidden = false;
+    button.addEventListener('click', () => {
+      draw(fullCode, code.url, code.label);
+      fullCaption.textContent = code.caption;
+      fullLink.href = code.url;
+      full.showModal();
+    });
+  }
+  full.querySelector('[data-qr-close]')?.addEventListener('click', () => full.close());
+  // A click on the backdrop (outside the panel) closes it too.
+  full.addEventListener('click', (e) => {
+    if (e.target === full) full.close();
+  });
 }
 
 // Motion: reveal sections as they scroll in and count the facts up once. The page is complete without JS.

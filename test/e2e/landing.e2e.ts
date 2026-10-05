@@ -34,6 +34,22 @@ test('the landing page fits the screen, loads only its own assets and opens the 
 
   const qr = page.getByRole('img', { name: 'Código QR: abrir el panel web' });
   await expect(qr).toBeVisible();
+  await expect(
+    page.getByRole('img', { name: 'Código QR: instalar la beta de Android' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('img', { name: 'Código QR: unirse a la beta en TestFlight' }),
+  ).toBeVisible();
+  // The arrows open the same code full screen, with the install link; "Cerrar" closes it.
+  await page.getByRole('button', { name: 'Ver en grande el QR de iPhone' }).click();
+  const full = page.getByRole('dialog');
+  await expect(full.getByRole('img', { name: /TestFlight/ })).toBeVisible();
+  await expect(full.getByRole('link', { name: 'Abrir página de instalación' })).toHaveAttribute(
+    'href',
+    'https://testflight.apple.com/join/BWFrPaur',
+  );
+  await full.getByRole('button', { name: 'Cerrar' }).click();
+  await expect(full).toBeHidden();
   // On a phone the top bar is gone; the hero's own button leads to the panel.
   const phone = (page.viewportSize()?.width ?? 1000) < 640;
   await expect(page.getByRole('link', { name: 'Abrir el panel' })).toBeVisible({ visible: !phone });
