@@ -379,33 +379,100 @@ h2 {
   color: #fbeee8;
 }
 
-/* People videos behind three cards: decorative, silent, darkened so the copy stays readable. */
+/* "Pensado para cada visita" in four moments: each card spans the page width and sticks as you scroll,
+   so the next one slides over it — Agenda, Sesión, Nota, Ruta. Pure CSS: no script, nothing animated. */
+#como .cards {
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+
 .card.has-video {
-  position: relative;
-  overflow: hidden;
-  color: #ffffff;
+  position: sticky;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-rows: 1fr auto auto auto 1fr;
+  column-gap: 32px;
+  min-height: min(76vh, 620px);
+  padding: 14px 32px 14px 14px;
+  box-shadow: 0 -12px 40px rgba(20, 36, 59, 0.12);
+}
+
+.card.has-video:nth-child(1) {
+  top: 24px;
+}
+.card.has-video:nth-child(2) {
+  top: 40px;
+}
+.card.has-video:nth-child(3) {
+  top: 56px;
+}
+.card.has-video:nth-child(4) {
+  top: 72px;
+}
+
+.card.has-video:hover {
+  transform: none;
 }
 
 .card-video {
-  position: absolute;
-  inset: 0;
+  grid-column: 1;
+  grid-row: 1 / -1;
   width: 100%;
   height: 100%;
+  min-height: 280px;
+  border-radius: 16px;
   object-fit: cover;
-  z-index: 0;
+  background: rgba(255, 255, 255, 0.15);
 }
 
-.card.has-video::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(180deg, rgba(20, 36, 59, 0.15) 0%, rgba(20, 36, 59, 0.85) 70%);
+.card.has-video .card-tag {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 0.9rem;
 }
 
-.card.has-video > :not(video) {
-  position: relative;
-  z-index: 2;
+.card.has-video h3 {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 10px 0 12px;
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  line-height: 1.08;
+}
+
+.card.has-video p {
+  grid-column: 2;
+  grid-row: 4;
+  max-width: 28em;
+  font-size: 1.08rem;
+}
+
+@media (max-width: 900px) {
+  .card.has-video {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    min-height: 0;
+    padding: 10px 10px 22px;
+  }
+
+  .card-video {
+    grid-row: auto;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 14px;
+  }
+
+  .card.has-video .card-tag,
+  .card.has-video h3,
+  .card.has-video p {
+    grid-column: 1;
+    grid-row: auto;
+    margin-inline: 12px;
+  }
+
+  .card.has-video h3 {
+    font-size: 1.6rem;
+  }
 }
 
 .split {
