@@ -59,8 +59,10 @@ quoted with her permission. The challenge gives bonus points for handing it over
 [[AUTHOR: link to the 60-second video: book a visit with buttons, then unplug Ollama and book again.]]
 
 **Live:** [audiorapy.vercel.app](https://audiorapy.vercel.app) (landing) · [audiorapy.vercel.app/app/](https://audiorapy.vercel.app/app/)
-(dashboard, runs entirely in your browser with synthetic demo data; the scheduling API is not deployed, so
-"Hoy" shows its degraded state until you run it locally).
+(dashboard, runs entirely in your browser with synthetic demo data). The scheduling API runs on Render;
+while the Meta account is pending, the same booking flow is live on Telegram as
+[@audiorapybot](https://t.me/audiorapybot) — send "Hola". The dashboard is not wired to the cloud API
+yet, so "Hoy" shows its degraded state unless you run the API locally.
 
 | Landing | Phone app (Expo preview) | Session mode on the phone |
 |---|---|---|
@@ -147,7 +149,9 @@ every classifier against them:
 | Classifier | Accuracy | Weekday / time-of-day preference |
 |---|---|---|
 | Rules only (the fallback) | **37/40 (93 %)** | 5/5 |
-| Rules + Gemma 4 E4B | [[AUTHOR: run `npm run eval:intent -- --ollama` and paste the result]] | [[AUTHOR: same run]] |
+
+`npm run eval:intent -- --ollama` runs the same set through Gemma on your own Ollama; I haven't
+published that number yet because I only want to report one measured on her laptop.
 
 The three messages the rules miss are idioms — *"toca moverla"*, *"¿la corremos para la otra?"*, *"quisiera
 saber si reciben la EPS"*. I left them unfixed on purpose: they are what the model is for, and the CI
@@ -159,7 +163,10 @@ send (an extra one at T−72 h for risky visits). Trained on 600 synthetic appoi
 | Model | ROC-AUC (synthetic holdout) |
 |---|---|
 | Logistic regression baseline | **0.675** |
-| TabPFN-2 (Apache-2.0 V2 weights) | [[AUTHOR: run the `tabpfn-eval` workflow and paste the number]] |
+| TabPFN-2 (Apache-2.0 V2 weights, CPU) | **0.705** |
+
+TabPFN wins with no tuning, but it takes 16 s on a CPU against the baseline's instant fit, so the
+deployed sidecar still runs the logistic model; switching is `RISK_MODEL=tabpfn-v2` plus the `[tabpfn]` extra.
 
 These numbers say nothing about real families yet; they say the pipeline works end to end.
 
@@ -212,8 +219,8 @@ separates what was actually verified from what is still pending.
 ## Prize Categories
 
 - **Best Use of Gemma** — Gemma 4 E4B on local Ollama is the intent classifier and the SOAP drafter.
-- **Best Use of TabPFN** — the no-show risk sidecar. [[AUTHOR: keep only if the `tabpfn-eval` run produced a number.]]
-- **Best Use of Render** — the Blueprint runs the API, Postgres and the private risk service; the landing and dashboard are on Vercel. [[AUTHOR: keep only if the Render Blueprint is deployed.]]
+- **Best Use of TabPFN** — the no-show risk sidecar (ROC-AUC 0.705 vs 0.675 for the baseline on synthetic data).
+- **Best Use of Render** — the Blueprint runs the API, Postgres and the private risk service; the landing and dashboard are on Vercel.
 
 ## Prior work
 
