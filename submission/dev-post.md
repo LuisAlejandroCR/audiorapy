@@ -34,7 +34,7 @@ All names and sessions are synthetic.
 
 ## Code
 
-{% github LuisAlejandroCR/audiorapy %}
+[github.com/LuisAlejandroCR/audiorapy](https://github.com/LuisAlejandroCR/audiorapy) (MIT)
 
 ## How I Built It
 
