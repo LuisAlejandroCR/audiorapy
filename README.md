@@ -112,6 +112,10 @@ stores nothing clinical on the phone. It installs on its own (outside the npm wo
 cd apps/mobile && npm ci && npx expo start   # scan the QR with Expo Go, or press w for the web preview
 ```
 
+Store builds run on EAS (`apps/mobile/eas.json`): `eas build -p android --profile preview` produces an
+installable APK; `eas build -p ios --profile production --auto-submit` uploads to TestFlight (needs an
+Apple Developer account).
+
 | Landing | Mobile app (Expo preview) | Session mode on the phone |
 |---|---|---|
 | ![Landing](docs/screenshots/landing-mobile.png) | ![Mobile today](docs/screenshots/mobile-app-today.png) | ![Mobile session](docs/screenshots/mobile-app-session.png) |

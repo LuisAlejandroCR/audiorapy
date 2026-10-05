@@ -8,7 +8,10 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "org.audiorapy.preview"
+      "bundleIdentifier": "com.luisalejandrocr.audiorapy",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,13 +21,20 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "org.audiorapy.preview"
+      "package": "com.luisalejandrocr.audiorapy"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "name": "Audiorapy"
     },
     "scheme": "audiorapy",
-    "backgroundColor": "#F5EFE4"
+    "backgroundColor": "#F5EFE4",
+    "plugins": [["expo-notifications", {}]],
+    "extra": {
+      "eas": {
+        "projectId": "807c80c3-aa48-4be0-bfaa-a1978440bb41"
+      }
+    },
+    "owner": "alejoo_oo"
   }
 }

@@ -379,6 +379,35 @@ h2 {
   color: #fbeee8;
 }
 
+/* People videos behind three cards: decorative, silent, darkened so the copy stays readable. */
+.card.has-video {
+  position: relative;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+.card-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.card.has-video::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(20, 36, 59, 0.15) 0%, rgba(20, 36, 59, 0.85) 70%);
+}
+
+.card.has-video > :not(video) {
+  position: relative;
+  z-index: 2;
+}
+
 .split {
   display: grid;
   grid-template-columns: 1fr 1.1fr;
