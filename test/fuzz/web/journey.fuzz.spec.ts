@@ -14,6 +14,7 @@ import { formatDayEs, formatStampEs, liveStats } from '../../../apps/web/src/lib
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { qrPath } from '../../../apps/web/src/lib/qr.ts';
 import { sparkline } from '../../../apps/web/src/lib/summary.ts';
+import { initials, parseProfile, parseRead } from '../../../apps/web/src/lib/inbox.ts';
 
 const jsonish = fc.oneof(
   fc.string(),
@@ -118,6 +119,19 @@ describe('dashboard journey (fuzz)', () => {
         }
       }),
       { numRuns: 1000 },
+    );
+  });
+
+  it('a stored profile or read list in any shape never throws and keeps its limits', () => {
+    fc.assert(
+      fc.property(fc.option(jsonish, { nil: null }), fc.string(), (raw, name) => {
+        const p = parseProfile(raw);
+        for (const v of Object.values(p))
+          expect(typeof v === 'string' && v.length <= 80).toBe(true);
+        for (const id of parseRead(raw)) expect(typeof id).toBe('string');
+        expect(initials(name).length).toBeLessThanOrEqual(4);
+      }),
+      { numRuns: 2000 },
     );
   });
 

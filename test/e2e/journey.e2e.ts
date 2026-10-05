@@ -128,7 +128,10 @@ test('a visit opens in Google Maps, Apple Maps or Waze, and alerts can be resolv
   await visit.getByText('Agregar dirección').click();
   await visit.getByLabel(`Dirección de la familia ${masked}`).fill('Calle 45 # 12-30, Bogotá');
   await visit.getByRole('button', { name: 'Guardar dirección' }).click();
-  const links = visit.getByRole('group', { name: /Cómo llegar/ });
+  // One button; the maps apps appear only after tapping it.
+  await expect(visit.getByRole('link', { name: 'Waze' })).toHaveCount(0);
+  await visit.getByRole('button', { name: 'Cómo llegar' }).click();
+  const links = visit.getByRole('list', { name: /^Abrir Calle 45/ });
   await expect(links.getByRole('link', { name: 'Google Maps' })).toHaveAttribute(
     'href',
     /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=Calle%2045%20%23%2012-30/,
@@ -145,6 +148,16 @@ test('a visit opens in Google Maps, Apple Maps or Waze, and alerts can be resolv
     'rel',
     'noopener noreferrer',
   );
+
+  // The bell counts the family's question; opening an item marks it read and leads to the alert.
+  const bell = page.getByRole('button', { name: /^Notificaciones: \d+ sin leer$/ });
+  await expect(bell).toBeVisible();
+  await bell.click();
+  const panel = page.getByRole('dialog', { name: 'Notificaciones' });
+  await expect(panel.getByRole('button', { name: /Pregunta de la familia/ }).first()).toBeVisible();
+  await panel.getByRole('button', { name: 'Marcar todo como leído' }).click();
+  await expect(page.getByRole('button', { name: 'Notificaciones', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
 
   const alerts = page.getByLabel('Avisos');
   const mine = alerts.getByRole('listitem').filter({ hasText: masked });
@@ -177,4 +190,22 @@ test('"Usar otra bóveda" asks before deleting the stored vault', async ({ page 
   await page.getByRole('button', { name: 'Usar otra bóveda' }).click();
   await expect(page.getByRole('heading', { name: 'Desbloquear' })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('audiorapy.vault.v1'))).not.toBeNull();
+});
+
+test('the profile keeps her name in this browser and shows progress and achievements', async ({
+  page,
+}) => {
+  await createVault(page);
+  await page.getByRole('button', { name: 'Perfil' }).click();
+  await expect(page.getByRole('heading', { name: 'Tu perfil' })).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Logros' })).toContainText('Comprueba tu clave');
+  await page.getByLabel('Nombre').fill('Ana María Rojas');
+  await page.getByLabel('Ciudad').fill('Bogotá');
+  await page.getByRole('button', { name: 'Guardar perfil' }).click();
+  await expect(page.getByRole('heading', { name: 'Ana María Rojas' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Perfil: Ana María Rojas' })).toHaveText('AR');
+  await page.reload();
+  await page.getByLabel('Frase de paso').fill(PASSPHRASE);
+  await page.getByRole('button', { name: 'Desbloquear' }).click();
+  await expect(page.getByRole('button', { name: 'Perfil: Ana María Rojas' })).toBeVisible();
 });

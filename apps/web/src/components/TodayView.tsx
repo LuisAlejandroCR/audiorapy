@@ -18,28 +18,27 @@ import { Directions } from './Directions.tsx';
 import { loadBook, saveAddress } from '../lib/maps.ts';
 import { executiveSummary, newAlertIds, type Executive } from '../lib/summary.ts';
 import type { ClinicalRecord } from '../lib/records.ts';
-import {
-  notificationsOn,
-  notificationsSupported,
-  requestNotifications,
-  setNotificationsOn,
-  showNotification,
-} from '../lib/notify.ts';
+import { notificationsSupported, showNotification } from '../lib/notify.ts';
 import { ExecutiveSummary } from './ExecutiveSummary.tsx';
 
 export function TodayView({
   records,
   onConfigure,
   onNext,
+  notify,
+  onToggleNotify,
+  onAgenda,
   children,
 }: {
   records: ClinicalRecord[];
+  notify: boolean;
+  onToggleNotify: () => void;
+  onAgenda: (agenda: Agenda) => void;
   onConfigure: () => void;
   onNext: (focus: Executive['focus']) => void;
   children?: ReactNode;
 }) {
   const [result, setResult] = useState<PortResult<Agenda> | null>(null);
-  const [notify, setNotify] = useState(notificationsOn);
   const [now] = useState(() => new Date());
   const seen = useRef<Set<string> | null>(null);
 
@@ -67,6 +66,7 @@ export function TodayView({
 
   useEffect(() => {
     if (!result?.available) return;
+    onAgenda(result.data);
     const fresh = newAlertIds(seen.current ?? new Set(), result.data);
     if (seen.current && notify && fresh.length > 0) {
       for (const alert of result.data.alerts.filter((x) => fresh.includes(x.id)))
@@ -75,24 +75,12 @@ export function TodayView({
     seen.current = new Set([...(seen.current ?? []), ...result.data.alerts.map((x) => x.id)]);
     const open = result.data.alerts.filter((x) => !x.resolved).length;
     document.title = open > 0 ? `(${open}) Audiorapy · Panel` : 'Audiorapy · Panel';
-  }, [result, notify]);
+  }, [result, notify, onAgenda]);
 
   const summary = useMemo(
     () => executiveSummary(result?.available ? result.data : null, records, now),
     [result, records, now],
   );
-
-  const toggleNotify = async () => {
-    if (notify) {
-      setNotificationsOn(false);
-      setNotify(false);
-      return;
-    }
-    if (await requestNotifications()) {
-      setNotificationsOn(true);
-      setNotify(true);
-    }
-  };
 
   return (
     <section className="today" aria-labelledby="today-title">
@@ -106,12 +94,7 @@ export function TodayView({
         </div>
         <div className="heading-actions">
           {notificationsSupported() && (
-            <button
-              type="button"
-              className="ghost"
-              aria-pressed={notify}
-              onClick={() => void toggleNotify()}
-            >
+            <button type="button" className="ghost" aria-pressed={notify} onClick={onToggleNotify}>
               <Icon name="bell" />
               {notify ? 'Avisos activos' : 'Activar avisos'}
             </button>

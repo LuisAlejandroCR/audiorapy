@@ -24,6 +24,7 @@ import {
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { qrPath, QUIET } from '../../../apps/web/src/lib/qr.ts';
 import { executiveSummary, newAlertIds } from '../../../apps/web/src/lib/summary.ts';
+import { buildInbox } from '../../../apps/web/src/lib/inbox.ts';
 import { iso } from '../../arbitraries.ts';
 
 const recordArb: fc.Arbitrary<ClinicalRecord> = fc.oneof(
@@ -330,6 +331,47 @@ describe('executive summary (invariant)', () => {
         expect(newAlertIds(new Set(first), agenda)).toEqual([]);
         for (const id of first)
           expect(agenda.alerts.find((a) => a.id === id)?.resolved).toBe(false);
+      }),
+      { numRuns: 500 },
+    );
+  });
+});
+
+describe('notification center (invariant)', () => {
+  const status = fc.constantFrom('scheduled', 'confirmed', 'attended', 'no_show');
+  const agendaArb: fc.Arbitrary<Agenda> = fc.record({
+    generatedAt: iso,
+    appointments: fc.array(
+      fc.record({ id: fc.uuid(), contact: fc.string(), startsAt: iso, label: fc.string(), status }),
+      { maxLength: 12 },
+    ),
+    alerts: fc.array(
+      fc.record({
+        id: fc.uuid(),
+        contact: fc.string(),
+        reason: fc.string(),
+        at: iso,
+        resolved: fc.boolean(),
+      }),
+      { maxLength: 8 },
+    ),
+  });
+
+  it('alerts always come before visits and achievements; every open alert appears once; reading all clears the count', () => {
+    fc.assert(
+      fc.property(agendaArb, iso, flagsArb, (agenda, now, flags) => {
+        const route = journey([], flags);
+        const items = buildInbox(agenda, route, new Set(), new Date(now));
+        const kinds = items.map((i) => i.kind);
+        const order = { alert: 0, visit: 1, achievement: 2 };
+        for (let k = 1; k < kinds.length; k++)
+          expect(order[kinds[k - 1]!] <= order[kinds[k]!]).toBe(true);
+        expect(items.filter((i) => i.kind === 'alert')).toHaveLength(
+          agenda.alerts.filter((a) => !a.resolved).length,
+        );
+        expect(new Set(items.map((i) => i.id)).size).toBe(items.length);
+        const all = new Set(items.map((i) => i.id));
+        expect(buildInbox(agenda, route, all, new Date(now)).some((i) => i.unread)).toBe(false);
       }),
       { numRuns: 500 },
     );

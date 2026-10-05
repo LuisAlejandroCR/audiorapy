@@ -1,5 +1,5 @@
-// Directions.tsx: "Cómo llegar" for one visit — the family's address (kept only in this browser) and
-// links that open it in Google Maps, Apple Maps or Waze. Nothing is sent until a link is tapped.
+// Directions.tsx: "Cómo llegar" for one visit — the family's address (kept only in this browser) and one
+// button; tapping it lets her choose the maps app (Google Maps, Apple Maps or Waze) it opens in. Nothing is sent until a link is tapped.
 import { useState, type FormEvent } from 'react';
 import { MAP_APPS, MAX_ADDRESS, mapLink } from '../lib/maps.ts';
 
@@ -14,6 +14,7 @@ export function Directions({
 }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(address);
+  const [choosing, setChoosing] = useState(false);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -57,18 +58,34 @@ export function Directions({
   return (
     <div className="directions">
       <span className="address">{address}</span>
-      <div className="map-links" role="group" aria-label={`Cómo llegar: ${address}`}>
-        {MAP_APPS.map((m) => (
-          <a
-            key={m.id}
-            className={`map-link ${m.id}`}
-            href={mapLink(m.id, address) ?? undefined}
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="map-links">
+        <div className="chooser">
+          <button
+            type="button"
+            className="ghost"
+            aria-expanded={choosing}
+            aria-controls={`maps-${contact}`}
+            onClick={() => setChoosing((c) => !c)}
           >
-            {m.label}
-          </a>
-        ))}
+            Cómo llegar
+          </button>
+          {choosing && (
+            <ul className="chooser-menu" id={`maps-${contact}`} aria-label={`Abrir ${address} en`}>
+              {MAP_APPS.map((m) => (
+                <li key={m.id}>
+                  <a
+                    href={mapLink(m.id, address) ?? undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setChoosing(false)}
+                  >
+                    {m.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <button type="button" className="link" onClick={() => setEditing(true)}>
           Editar
         </button>
