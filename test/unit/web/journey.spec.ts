@@ -29,6 +29,7 @@ import {
 } from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { qrPath } from '../../../apps/web/src/lib/qr.ts';
+import { executiveSummary, newAlertIds, sparkline } from '../../../apps/web/src/lib/summary.ts';
 import { fakeFetch } from '../../api-helpers.ts';
 
 function fakeStorage() {
@@ -304,6 +305,64 @@ describe('connection settings', () => {
     expect(
       cleanApiSettings({ baseUrl: ' https://api.example.org// \n', token: '\tabc123 \n' }),
     ).toEqual({ baseUrl: 'https://api.example.org', token: 'abc123' });
+  });
+});
+
+describe('executive summary', () => {
+  const agenda: Agenda = {
+    generatedAt: TODAY.toISOString(),
+    appointments: [
+      {
+        id: '1',
+        contact: '••••1',
+        startsAt: '2026-10-05T13:00:00Z',
+        label: '',
+        status: 'scheduled',
+      },
+      {
+        id: '2',
+        contact: '••••2',
+        startsAt: '2026-10-06T13:00:00Z',
+        label: '',
+        status: 'confirmed',
+      },
+    ],
+    alerts: [
+      { id: 'a', contact: '••••1', reason: 'question', at: TODAY.toISOString(), resolved: false },
+    ],
+  };
+
+  it('puts alerts first, then confirmations, then notes, then the next session', () => {
+    const demo = syntheticRecords(TODAY);
+    expect(executiveSummary(agenda, demo, TODAY).focus).toBe('alerts');
+    expect(executiveSummary({ ...agenda, alerts: [] }, demo, TODAY).focus).toBe('confirm');
+    const noAlertsAllConfirmed = {
+      ...agenda,
+      alerts: [],
+      appointments: agenda.appointments.map((a) => ({ ...a, status: 'confirmed' })),
+    };
+    expect(executiveSummary(noAlertsAllConfirmed, demo, TODAY).focus).toBe('notes');
+    expect(executiveSummary(null, [], TODAY).focus).toBe('clear');
+  });
+
+  it('the headline is built from the numbers, with the accuracy trend of the last 8 sessions', () => {
+    const s = executiveSummary(agenda, syntheticRecords(TODAY), TODAY);
+    expect(s).toMatchObject({ next7Days: 2, toConfirm: 1, openAlerts: 1, pendingNotes: 8 });
+    expect(s.trend).toHaveLength(8);
+    expect(s.headline).toContain(
+      '2 visitas en 7 días · 1 por confirmar · 1 aviso · 8 notas pendientes.',
+    );
+    expect(s.headline).toMatch(/Acierto promedio \d+ %/);
+    expect(executiveSummary(null, [], TODAY).headline).toBe(
+      'agenda sin conectar · 0 notas pendientes.',
+    );
+  });
+
+  it('only unseen open alerts are new; sparkline points stay inside the box', () => {
+    expect(newAlertIds(new Set(['a']), agenda)).toEqual([]);
+    expect(newAlertIds(new Set(), agenda)).toEqual(['a']);
+    expect(sparkline([0, 50, 100], 100, 40)).toBe('0.0,40.0 50.0,20.0 100.0,0.0');
+    expect(sparkline([], 100, 40)).toBe('');
   });
 });
 

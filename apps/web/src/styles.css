@@ -1,4 +1,4 @@
-/* styles.css: dashboard styles — blue, beige, white and green tokens for light and dark, mobile first, 44px touch targets. */
+/* styles.css: dashboard styles — blue, beige, white and green tokens (one light theme, same as the landing), mobile first, 44px touch targets. */
 :root {
   --bg: #f5efe4;
   --surface: #ffffff;
@@ -27,35 +27,7 @@
   --brand-2: #3b82e6;
   --shadow: rgba(20, 36, 59, 0.08);
   --radius: 12px;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1a2a;
-    --surface: #16243a;
-    --text: #ede6d8;
-    --muted: #a9b6c6;
-    --line: #2a3a54;
-    --accent: #7fb0ff;
-    --accent-text: #0f1a2a;
-    --warn-bg: #3b3115;
-    --warn-text: #f3d98a;
-    --error-bg: #46201b;
-    --error-text: #ffb4a8;
-    --ok-bg: #173a2b;
-    --ok-text: #bfe8cf;
-    --ai-bg: #1a2c52;
-    --ai-text: #c6d8ff;
-    --cue-independent: #6fcf97;
-    --cue-min: #5fd0d8;
-    --cue-mod: #f0c049;
-    --cue-max: #ee7a69;
-    --danger: #ffb4a8;
-    --danger-text: #3b0d08;
-    --gold: #ffd36b;
-    --gold-bg: #3a2f10;
-  }
+  color-scheme: light;
 }
 
 * {
@@ -1649,7 +1621,199 @@ button.ghost {
   }
 }
 
+/* B18: executive summary and motion. Motion explains order (what appears first matters most). */
+.exec {
+  margin-top: 20px;
+  border-top: 4px solid var(--accent);
+}
+
+.exec-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.exec-top h2 {
+  margin-bottom: 4px;
+}
+
+.exec-headline {
+  max-width: 38em;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.exec-chart {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.exec-chart svg {
+  width: 180px;
+  height: auto;
+  overflow: visible;
+}
+
+.spark {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: draw 1.2s ease-out 0.2s forwards;
+}
+
+.spark-dot {
+  fill: var(--cue-independent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.exec-chart figcaption {
+  display: grid;
+}
+
+.exec-chart figcaption strong {
+  color: var(--accent);
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.exec-chart figcaption span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.exec-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exec-tiles li {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg) 55%, var(--surface));
+  opacity: 0;
+  animation: pop 0.45s ease-out forwards;
+}
+
+.exec-tiles li .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+}
+
+.exec-tiles strong {
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.exec-tiles span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.exec-tiles li.warn {
+  border-color: color-mix(in srgb, var(--warn-text) 35%, var(--line));
+  background: var(--warn-bg);
+}
+
+.exec-tiles li.warn strong,
+.exec-tiles li.warn .icon {
+  color: var(--warn-text);
+}
+
+.exec-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--ok-bg);
+  color: var(--ok-text);
+}
+
+.heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.heading-actions .ghost[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.reveal,
+main > .card,
+.kpi-grid > * {
+  animation: rise-in 0.5s ease-out both;
+}
+
+.kpi-grid > :nth-child(2) {
+  animation-delay: 60ms;
+}
+.kpi-grid > :nth-child(3) {
+  animation-delay: 120ms;
+}
+.kpi-grid > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.trial-buttons button:active {
+  transform: scale(0.96);
+}
+
+.trial-buttons button {
+  transition: transform 0.12s ease;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .reveal,
+  main > .card,
+  .kpi-grid > *,
+  .exec-tiles li,
+  .spark,
   .spinner,
   .live-dot,
   .quest-node.current .node-orb,
@@ -1658,6 +1822,12 @@ button.ghost {
   }
   .confetti {
     display: none;
+  }
+  .exec-tiles li {
+    opacity: 1;
+  }
+  .spark {
+    stroke-dashoffset: 0;
   }
   .xp-bar > span,
   .goal-bar > span {
@@ -1844,6 +2014,14 @@ button.ghost {
     width: 40px;
     height: 40px;
     margin-left: 4px;
+  }
+
+  .exec-tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .exec-chart svg {
+    width: 140px;
   }
 
   .kpi-grid:not(.compact) > :last-child:nth-child(even) {

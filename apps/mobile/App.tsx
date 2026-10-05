@@ -9,13 +9,12 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  useColorScheme,
   View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { cleanApiSettings } from '@audiorapy/web-lib/settings.ts';
 import type { ApiSettings } from '@audiorapy/web-lib/agenda.ts';
-import { dark, light, serif, type Theme } from './src/theme';
+import { light as t, serif, type Theme } from './src/theme';
 import { TodayScreen } from './src/TodayScreen';
 import { SessionScreen } from './src/SessionScreen';
 import { Card, Heading, Pill } from './src/ui';
@@ -31,15 +30,13 @@ const TABS: Array<{ id: Tab; label: string; glyph: string }> = [
 ];
 
 export default function App() {
-  const scheme = useColorScheme();
-  const t = scheme === 'dark' ? dark : light;
   const [tab, setTab] = useState<Tab>('today');
   const [settings, setSettings] = useState<ApiSettings>({ baseUrl: '', token: '' });
   const stable = useMemo(() => settings, [settings]);
 
   return (
     <SafeAreaView style={[st.root, { backgroundColor: t.bg }]}>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style="dark" />
       <View style={st.top}>
         <Text style={[st.brand, { color: t.text }]}>Audiorapy</Text>
         <Text style={[st.tag, { color: t.muted, borderColor: t.line }]}>vista previa</Text>

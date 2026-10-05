@@ -1,6 +1,6 @@
-// TodayView.tsx: the scheduling plane from the API — KPI cards, upcoming visits, confirmation state and
-// alerts the therapist can mark as handled. When the API is unreachable it says so and the rest works.
-import { useCallback, useEffect, useState } from 'react';
+// TodayView.tsx: "Hoy" — the executive summary first, then the start route, then the scheduling plane:
+// KPI cards, upcoming visits and alerts the therapist can mark as handled, with opt-in notifications. When the API is unreachable it says so and the rest works.
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { PortResult } from '@audiorapy/domain';
 import {
   agendaKpis,
@@ -16,9 +16,32 @@ import { Icon } from './Icon.tsx';
 import { Kpi } from './Kpi.tsx';
 import { Directions } from './Directions.tsx';
 import { loadBook, saveAddress } from '../lib/maps.ts';
+import { executiveSummary, newAlertIds, type Executive } from '../lib/summary.ts';
+import type { ClinicalRecord } from '../lib/records.ts';
+import {
+  notificationsOn,
+  notificationsSupported,
+  requestNotifications,
+  setNotificationsOn,
+  showNotification,
+} from '../lib/notify.ts';
+import { ExecutiveSummary } from './ExecutiveSummary.tsx';
 
-export function TodayView({ onConfigure }: { onConfigure: () => void }) {
+export function TodayView({
+  records,
+  onConfigure,
+  onNext,
+  children,
+}: {
+  records: ClinicalRecord[];
+  onConfigure: () => void;
+  onNext: (focus: Executive['focus']) => void;
+  children?: ReactNode;
+}) {
   const [result, setResult] = useState<PortResult<Agenda> | null>(null);
+  const [notify, setNotify] = useState(notificationsOn);
+  const [now] = useState(() => new Date());
+  const seen = useRef<Set<string> | null>(null);
 
   const refresh = useCallback(async () => {
     setResult(null);
@@ -33,18 +56,71 @@ export function TodayView({ onConfigure }: { onConfigure: () => void }) {
     };
   }, []);
 
+  // With notifications on, the agenda is re-read every minute; a new open alert raises one notification.
+  useEffect(() => {
+    if (!notify) return;
+    const id = setInterval(() => {
+      void fetchAgenda(loadApiSettings()).then((r) => r.available && setResult(r));
+    }, 60_000);
+    return () => clearInterval(id);
+  }, [notify]);
+
+  useEffect(() => {
+    if (!result?.available) return;
+    const fresh = newAlertIds(seen.current ?? new Set(), result.data);
+    if (seen.current && notify && fresh.length > 0) {
+      for (const alert of result.data.alerts.filter((x) => fresh.includes(x.id)))
+        showNotification(`${ALERT_ES[alert.reason] ?? 'Aviso'} · Familia ${alert.contact}`);
+    }
+    seen.current = new Set([...(seen.current ?? []), ...result.data.alerts.map((x) => x.id)]);
+    const open = result.data.alerts.filter((x) => !x.resolved).length;
+    document.title = open > 0 ? `(${open}) Audiorapy · Panel` : 'Audiorapy · Panel';
+  }, [result, notify]);
+
+  const summary = useMemo(
+    () => executiveSummary(result?.available ? result.data : null, records, now),
+    [result, records, now],
+  );
+
+  const toggleNotify = async () => {
+    if (notify) {
+      setNotificationsOn(false);
+      setNotify(false);
+      return;
+    }
+    if (await requestNotifications()) {
+      setNotificationsOn(true);
+      setNotify(true);
+    }
+  };
+
   return (
     <section className="today" aria-labelledby="today-title">
+      {result !== null && <ExecutiveSummary summary={summary} onNext={onNext} />}
+      {children}
       <div className="section-heading">
         <div>
           <p className="eyebrow">Panel diario</p>
           <h2 id="today-title">Tu agenda</h2>
           <p className="muted">Próximas visitas y asuntos que necesitan tu atención.</p>
         </div>
-        <button type="button" className="ghost" onClick={refresh} aria-label="Actualizar agenda">
-          <span aria-hidden="true">↻</span>
-          Actualizar
-        </button>
+        <div className="heading-actions">
+          {notificationsSupported() && (
+            <button
+              type="button"
+              className="ghost"
+              aria-pressed={notify}
+              onClick={() => void toggleNotify()}
+            >
+              <Icon name="bell" />
+              {notify ? 'Avisos activos' : 'Activar avisos'}
+            </button>
+          )}
+          <button type="button" className="ghost" onClick={refresh} aria-label="Actualizar agenda">
+            <span aria-hidden="true">↻</span>
+            Actualizar
+          </button>
+        </div>
       </div>
       {result === null && (
         <div className="card loading-card" aria-busy="true">
@@ -131,7 +207,7 @@ function AgendaList({ agenda, onChanged }: { agenda: Agenda; onChanged: () => vo
         </p>
       )}
       {open.length > 0 && (
-        <div className="alerts card" aria-label="Avisos">
+        <div className="alerts card" id="alerts" aria-label="Avisos">
           <div className="alert-heading">
             <span className="status-icon" aria-hidden="true">
               !

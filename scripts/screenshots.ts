@@ -44,8 +44,8 @@ for (const [name, opts] of [
   ['mobile', { ...devices['Pixel 7'], viewport: { width: 360, height: 800 } }],
   ['desktop', { viewport: { width: 1180, height: 900 } }],
 ] as const) {
-  for (const scheme of ['light', 'dark'] as const) {
-    tag = `${name}${scheme === 'dark' ? '-dark' : ''}`;
+  for (const scheme of ['light'] as const) {
+    tag = name;
     const browser = await chromium.launch();
     const ctx = await browser.newContext({ ...opts, colorScheme: scheme, reducedMotion: 'reduce' });
     const page = await ctx.newPage();

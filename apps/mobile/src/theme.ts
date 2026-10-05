@@ -1,5 +1,5 @@
-// theme.ts: the blue, beige, white and green palette shared with the web for light
-// and dark, plus the support-level colors. Text pairs are ≥ 4.5:1.
+// theme.ts: the blue, beige, white and green palette shared with the web and the landing (one light
+// theme everywhere), plus the support-level colors. Text pairs are ≥ 4.5:1.
 import type { CueLevel } from '@audiorapy/domain';
 
 export interface Theme {
@@ -36,24 +36,6 @@ export const light: Theme = {
   hero: '#1D5FD1',
   heroText: '#FFFFFF',
   cue: { independent: '#256B4C', min: '#0E7C86', mod: '#C98A2B', max: '#B5402F' },
-};
-
-export const dark: Theme = {
-  bg: '#0F1A2A',
-  surface: '#16243A',
-  text: '#EDE6D8',
-  muted: '#A9B6C6',
-  line: '#2A3A54',
-  accent: '#7FB0FF',
-  accentText: '#0F1A2A',
-  warnBg: '#3B3115',
-  warnText: '#F3D98A',
-  errorText: '#FFB4A8',
-  gold: '#FFD36B',
-  goldBg: '#3A2F10',
-  hero: '#174CA7',
-  heroText: '#FFFFFF',
-  cue: { independent: '#6FCF97', min: '#5FD0D8', mod: '#F0C049', max: '#EE7A69' },
 };
 
 export const serif = 'serif';

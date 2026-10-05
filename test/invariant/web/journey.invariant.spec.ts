@@ -23,6 +23,7 @@ import {
 } from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { qrPath, QUIET } from '../../../apps/web/src/lib/qr.ts';
+import { executiveSummary, newAlertIds } from '../../../apps/web/src/lib/summary.ts';
 import { iso } from '../../arbitraries.ts';
 
 const recordArb: fc.Arbitrary<ClinicalRecord> = fc.oneof(
@@ -283,6 +284,54 @@ describe('connection settings (invariant)', () => {
         expect(once.baseUrl.endsWith('/')).toBe(false);
       }),
       { numRuns: 1000 },
+    );
+  });
+});
+
+describe('executive summary (invariant)', () => {
+  const status = fc.constantFrom('scheduled', 'confirmed', 'attended', 'no_show');
+  const agendaArb: fc.Arbitrary<Agenda> = fc.record({
+    generatedAt: iso,
+    appointments: fc.array(
+      fc.record({ id: fc.uuid(), contact: fc.string(), startsAt: iso, label: fc.string(), status }),
+      { maxLength: 15 },
+    ),
+    alerts: fc.array(
+      fc.record({
+        id: fc.uuid(),
+        contact: fc.string(),
+        reason: fc.string(),
+        at: iso,
+        resolved: fc.boolean(),
+      }),
+      { maxLength: 8 },
+    ),
+  });
+
+  it('agrees with the agenda KPIs and never points past an urgent item', () => {
+    fc.assert(
+      fc.property(agendaArb, iso, (agenda, now) => {
+        const s = executiveSummary(agenda, [], new Date(now));
+        const k = agendaKpis(agenda, new Date(now));
+        expect(s.openAlerts).toBe(k.openAlerts);
+        expect(s.toConfirm).toBe(k.upcoming - k.confirmed);
+        if (s.openAlerts > 0) expect(s.focus).toBe('alerts');
+        else if (s.toConfirm > 0) expect(s.focus).toBe('confirm');
+        expect(s.headline.endsWith('.')).toBe(true);
+      }),
+      { numRuns: 500 },
+    );
+  });
+
+  it('an alert is "new" exactly once: after it is seen it never comes back', () => {
+    fc.assert(
+      fc.property(agendaArb, (agenda) => {
+        const first = newAlertIds(new Set(), agenda);
+        expect(newAlertIds(new Set(first), agenda)).toEqual([]);
+        for (const id of first)
+          expect(agenda.alerts.find((a) => a.id === id)?.resolved).toBe(false);
+      }),
+      { numRuns: 500 },
     );
   });
 });
