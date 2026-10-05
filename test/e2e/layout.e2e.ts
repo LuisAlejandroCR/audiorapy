@@ -31,6 +31,13 @@ test('every tab fits the screen with usable touch targets', async ({ page }) => 
     await page.getByRole('button', { name: tab, exact: true }).click();
     expect(await measure(page), tab).toEqual({ overflow: false, h1: 1, small: [] });
   }
+  // The smallest phones still common in Colombia: 360 px wide.
+  const size = page.viewportSize();
+  if (size && size.width < 640) {
+    await page.setViewportSize({ width: 360, height: size.height });
+    await page.getByRole('button', { name: 'Hoy', exact: true }).click();
+    expect((await measure(page)).overflow, '360 px').toBe(false);
+  }
   expect(errors.filter((e) => /Content Security Policy/i.test(e))).toEqual([]);
   expect(errors).toEqual([]);
 });

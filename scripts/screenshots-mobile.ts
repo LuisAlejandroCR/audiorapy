@@ -27,6 +27,13 @@ for (const scheme of ['light'] as const) {
   await page.getByRole('button', { name: 'Terminar sesión' }).click();
   await page.getByText(/apoyo predominante/).waitFor();
   await page.screenshot({ path: `${OUT}/mobile-app-summary${tag}.png` });
+  await page.getByRole('tab', { name: /^Avisos/ }).click();
+  await page.getByText('Pregunta de la familia').waitFor();
+  await page.screenshot({ path: `${OUT}/mobile-app-inbox${tag}.png` });
+  await page.getByRole('tab', { name: 'Perfil' }).click();
+  await page.getByLabel('Nombre').fill('Ana María Rojas');
+  await page.getByLabel('Ciudad').fill('Bogotá');
+  await page.screenshot({ path: `${OUT}/mobile-app-profile${tag}.png` });
   await browser.close();
 }
 if (errors.length) {

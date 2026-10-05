@@ -81,6 +81,10 @@ confirmations, pending notes, the next 7 days), the accuracy trend and the singl
 notifications for new family alerts are opt-in and carry logistics only; the phone app adds haptics on
 every tap and a local reminder one hour before each visit.
 
+A bell (web) and an Avisos tab (app) collect family alerts, visits within 24 hours and achievements with an
+unread count; a profile keeps her name, practice and progress. "Cómo llegar" is one button: the phone's own
+chooser (or a small menu on the web) opens the address in Google Maps, Apple Maps or Waze.
+
 The landing shows a QR code for the dashboard (built from its own origin, so it is right on any domain) and,
 when `VITE_EXPO_URL` is set at build time, one for the Expo preview.
 

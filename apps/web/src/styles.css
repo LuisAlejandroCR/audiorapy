@@ -2317,3 +2317,20 @@ main > .card,
     border: none;
   }
 }
+
+/* Small phones (≤ 420 px): the brand keeps its mark; the title stays the page's h1 for screen readers
+   but leaves room for points, notifications, profile and lock. */
+@media (max-width: 420px) {
+  .topbar .brand h1 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .topbar .xp-chip {
+    padding-inline: 8px;
+  }
+}
