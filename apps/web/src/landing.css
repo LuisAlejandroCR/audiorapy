@@ -656,6 +656,24 @@ h2 {
   }
 }
 
+.legal main {
+  max-width: 46em;
+  padding: 24px 0 0;
+}
+
+.legal h2 {
+  margin: 36px 0 10px;
+  font-size: 1.6rem;
+}
+
+.legal main p {
+  margin: 0;
+}
+
+.legal .nav {
+  display: flex;
+}
+
 @media (max-width: 900px) {
   .hero,
   .split,
