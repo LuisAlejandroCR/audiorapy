@@ -1,7 +1,7 @@
 // stats.ts: figures the dashboard shows as KPIs and session feedback — live streak and trial goal in
 // session mode, mastery runs per target, caseload KPIs and local-time dates. Code computes; no model.
 import { progressSeries } from './progress.ts';
-import type { Note, Patient, Session } from './records.ts';
+import { localDay, type Note, type Patient, type Session } from './records.ts';
 
 /** Trials per target that make a block worth reading against the criterion. */
 export const TRIAL_GOAL = 10;
@@ -97,10 +97,7 @@ export function caseloadKpis(
 }
 
 /** YYYY-MM-DD in the device's own time zone (a session at 8 p.m. in Bogotá is still today). */
-export function localDate(d: Date): string {
-  const p = (n: number) => n.toString().padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
+export const localDate = localDay;
 
 const DATE_ES = new Intl.DateTimeFormat('es-CO', {
   weekday: 'short',

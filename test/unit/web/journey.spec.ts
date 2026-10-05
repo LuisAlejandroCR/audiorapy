@@ -22,6 +22,7 @@ import { agendaKpis, resolveAlert, type Agenda } from '../../../apps/web/src/lib
 import { cleanAddress, mapLink, parseBook, saveAddress } from '../../../apps/web/src/lib/maps.ts';
 import {
   byKind,
+  sessionsNewestFirst,
   syntheticRecords,
   type ClinicalRecord,
   type Session,
@@ -156,6 +157,26 @@ describe('session feedback', () => {
     expect(k.latestAccuracy).not.toBeNull();
     expect(k.mastered).toBeGreaterThanOrEqual(0);
     expect(k.mastered).toBeLessThanOrEqual(3);
+  });
+});
+
+describe('session order', () => {
+  it('a session recorded today sorts above a demo session of the same day', () => {
+    const demo = { ...userSession, id: 'synthetic-session-8', date: '2026-10-04' };
+    const mine = { ...userSession, id: 'mine', date: '2026-10-04' };
+    const older = { ...userSession, id: 'old', date: '2026-10-01' };
+    expect(sessionsNewestFirst([older, demo, mine]).map((s) => s.id)).toEqual([
+      'mine',
+      'synthetic-session-8',
+      'old',
+    ]);
+  });
+
+  it('demo sessions end the day before today in local time, even late in the evening', () => {
+    const lateEvening = new Date(2026, 9, 4, 22, 50);
+    const days = byKind(syntheticRecords(lateEvening), 'session').map((s) => s.date);
+    expect(days.at(-1)).toBe('2026-10-03');
+    expect(days.every((d) => d < localDate(lateEvening))).toBe(true);
   });
 });
 

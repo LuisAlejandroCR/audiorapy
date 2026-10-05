@@ -61,6 +61,20 @@ export function appendRecord(
   return append(log, encryptRecord(dek, record.id, record.kind, record));
 }
 
+/** YYYY-MM-DD in the device's time zone. */
+export function localDay(d: Date): string {
+  const p = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** Newest first; on the same day the one recorded last wins, so a session just saved is on top. */
+export function sessionsNewestFirst(sessions: readonly Session[]): Session[] {
+  return sessions
+    .map((s, i) => [s, i] as const)
+    .sort(([a, i], [b, j]) => b.date.localeCompare(a.date) || j - i)
+    .map(([s]) => s);
+}
+
 export function byKind<K extends ClinicalRecord['kind']>(records: ClinicalRecord[], kind: K) {
   return records.filter((r): r is Extract<ClinicalRecord, { kind: K }> => r.kind === kind);
 }
@@ -102,9 +116,8 @@ export function syntheticRecords(today: Date, seed = 7): ClinicalRecord[] {
   };
   const sessions: Session[] = [];
   for (let i = 0; i < 8; i++) {
-    const date = new Date(today.getTime() - (7 * (7 - i) + 1) * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
+    // Local calendar day, like a recorded session: in UTC the last demo day can land on "today".
+    const date = localDay(new Date(today.getTime() - (7 * (7 - i) + 1) * 86_400_000));
     const targets = patient.targets.map((t, ti) => {
       const base = 0.35 + i * 0.07 - ti * 0.05;
       const trials = Array.from({ length: 10 }, () => ({

@@ -16,7 +16,11 @@ import {
 import { liveStats, localDate, masteryRun } from '../../../apps/web/src/lib/stats.ts';
 import { agendaKpis, type Agenda } from '../../../apps/web/src/lib/agenda.ts';
 import { cleanAddress, MAP_APPS, mapLink } from '../../../apps/web/src/lib/maps.ts';
-import type { ClinicalRecord } from '../../../apps/web/src/lib/records.ts';
+import {
+  sessionsNewestFirst,
+  type ClinicalRecord,
+  type Session,
+} from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { iso } from '../../arbitraries.ts';
 
@@ -230,6 +234,34 @@ describe('agenda and directions (invariant)', () => {
             const u = new URL(link!);
             expect(u.searchParams.get(app.id === 'google' ? 'query' : 'q')).toBe(clean);
           }
+        }
+      }),
+      { numRuns: 1000 },
+    );
+  });
+});
+
+describe('session order (invariant)', () => {
+  it('newest day first, and within a day the most recently recorded first; nothing lost', () => {
+    const day = fc.constantFrom('2026-10-01', '2026-10-02', '2026-10-03');
+    fc.assert(
+      fc.property(fc.array(day, { maxLength: 30 }), (days) => {
+        const sessions: Session[] = days.map((date, i) => ({
+          kind: 'session',
+          id: `s${i}`,
+          patientId: 'p',
+          date,
+          targets: [],
+          therapistNotes: '',
+        }));
+        const out = sessionsNewestFirst(sessions);
+        expect(out.map((s) => s.id).sort()).toEqual(sessions.map((s) => s.id).sort());
+        for (let k = 1; k < out.length; k++) {
+          const a = out[k - 1]!;
+          const b = out[k]!;
+          expect(a.date >= b.date).toBe(true);
+          if (a.date === b.date)
+            expect(Number(a.id.slice(1))).toBeGreaterThan(Number(b.id.slice(1)));
         }
       }),
       { numRuns: 1000 },
