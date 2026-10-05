@@ -47,6 +47,7 @@ export default defineConfig({
       input: {
         landing: fileURLToPath(new URL('index.html', import.meta.url)),
         app: fileURLToPath(new URL('app/index.html', import.meta.url)),
+        privacidad: fileURLToPath(new URL('privacidad/index.html', import.meta.url)),
       },
     },
   },

@@ -43,3 +43,19 @@ test('the landing page fits the screen, loads only its own assets and opens the 
   expect(foreign).toEqual([]);
   expect(errors).toEqual([]);
 });
+
+test('the data policy the bot links to exists, under the same CSP, and says nothing clinical goes by chat', async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.goto('/privacidad/');
+  expect(
+    await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),
+  ).toContain("default-src 'self'");
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Política de tratamiento de datos',
+  );
+  await expect(page.getByText('Ley 1581 de 2012')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Qué datos no pasan por el chat' })).toBeVisible();
+  expect(errors).toEqual([]);
+});

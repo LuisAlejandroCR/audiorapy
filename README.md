@@ -81,7 +81,8 @@ same button ids, so the conversation logic is untouched.
 curl -s "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" -d "url=https://audiorapy-api.onrender.com/telegram/webhook" -d "secret_token=$TELEGRAM_WEBHOOK_SECRET" -d 'allowed_updates=["message","callback_query"]'
 ```
 
-Then write "Hola" to the bot. The webhook answers 503 until the secret is set and 401 for a wrong secret.
+Also set `PRIVACY_URL=https://audiorapy.vercel.app/privacidad/` on the API so the consent message links to
+the real data policy (`apps/web/privacidad/`). Then write "Hola" to the bot. The webhook answers 503 until the secret is set and 401 for a wrong secret.
 
 ### Landing page, Vercel and the mobile preview
 
