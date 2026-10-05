@@ -32,7 +32,12 @@ test('the landing page fits the screen, loads only its own assets and opens the 
       .toBeGreaterThan(0);
   }
 
-  await page.getByRole('link', { name: 'Abrir el panel' }).click();
+  const qr = page.getByRole('img', { name: 'Código QR: abrir el panel web' });
+  await expect(qr).toBeVisible();
+  // On a phone the top bar is gone; the hero's own button leads to the panel.
+  const phone = (page.viewportSize()?.width ?? 1000) < 640;
+  await expect(page.getByRole('link', { name: 'Abrir el panel' })).toBeVisible({ visible: !phone });
+  await page.getByRole('link', { name: phone ? 'Probar el panel' : 'Abrir el panel' }).click();
   await expect(page).toHaveURL(/\/app\/$/);
   await expect(page.getByRole('heading', { name: 'Crea tu bóveda' })).toBeVisible();
   expect(foreign).toEqual([]);

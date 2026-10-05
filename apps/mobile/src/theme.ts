@@ -1,4 +1,4 @@
-// theme.ts: the "Terracota" palette shared with the web (olive, cream, terracotta, oxblood) for light
+// theme.ts: the blue, beige, white and green palette shared with the web for light
 // and dark, plus the support-level colors. Text pairs are ≥ 4.5:1.
 import type { CueLevel } from '@audiorapy/domain';
 
@@ -21,39 +21,39 @@ export interface Theme {
 }
 
 export const light: Theme = {
-  bg: '#FBF6EE',
+  bg: '#F5EFE4',
   surface: '#FFFFFF',
-  text: '#2B211B',
-  muted: '#6B5E52',
-  line: '#E6D8C3',
-  accent: '#4A5A42',
+  text: '#14243B',
+  muted: '#5A6472',
+  line: '#E3DACB',
+  accent: '#1D5FD1',
   accentText: '#FFFFFF',
-  warnBg: '#F7E7C9',
-  warnText: '#6E4A12',
-  errorText: '#7B2525',
+  warnBg: '#F7E9C8',
+  warnText: '#6B4C00',
+  errorText: '#8A1F11',
   gold: '#8A5A00',
-  goldBg: '#F7E7C9',
-  hero: '#4A5A42',
-  heroText: '#F4F1E8',
-  cue: { independent: '#607456', min: '#3F7F86', mod: '#C98A2B', max: '#A63A2A' },
+  goldBg: '#F7E9C8',
+  hero: '#1D5FD1',
+  heroText: '#FFFFFF',
+  cue: { independent: '#256B4C', min: '#0E7C86', mod: '#C98A2B', max: '#B5402F' },
 };
 
 export const dark: Theme = {
-  bg: '#1E1916',
-  surface: '#2A231F',
-  text: '#EEE0CC',
-  muted: '#C8B9A6',
-  line: '#43382F',
-  accent: '#A9BE97',
-  accentText: '#1E1916',
-  warnBg: '#3D3020',
-  warnText: '#F2D39B',
-  errorText: '#E8A6A0',
-  gold: '#F2C86B',
-  goldBg: '#3D3020',
-  hero: '#3D4B36',
-  heroText: '#F4F1E8',
-  cue: { independent: '#A9BE97', min: '#86C3C4', mod: '#E8B45E', max: '#E8907F' },
+  bg: '#0F1A2A',
+  surface: '#16243A',
+  text: '#EDE6D8',
+  muted: '#A9B6C6',
+  line: '#2A3A54',
+  accent: '#7FB0FF',
+  accentText: '#0F1A2A',
+  warnBg: '#3B3115',
+  warnText: '#F3D98A',
+  errorText: '#FFB4A8',
+  gold: '#FFD36B',
+  goldBg: '#3A2F10',
+  hero: '#174CA7',
+  heroText: '#FFFFFF',
+  cue: { independent: '#6FCF97', min: '#5FD0D8', mod: '#F0C049', max: '#EE7A69' },
 };
 
 export const serif = 'serif';

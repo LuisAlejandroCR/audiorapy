@@ -12,7 +12,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FBF6EE",
+        "backgroundColor": "#F5EFE4",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -25,6 +25,6 @@
       "name": "Audiorapy"
     },
     "scheme": "audiorapy",
-    "backgroundColor": "#FBF6EE"
+    "backgroundColor": "#F5EFE4"
   }
 }

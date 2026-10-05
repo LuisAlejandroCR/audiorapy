@@ -1,60 +1,60 @@
-/* styles.css: dashboard styles — "Terracota" tokens (olive, cream, terracotta, oxblood) for light and dark, mobile first, 44px touch targets. */
+/* styles.css: dashboard styles — blue, beige, white and green tokens for light and dark, mobile first, 44px touch targets. */
 :root {
-  --bg: #fbf6ee;
+  --bg: #f5efe4;
   --surface: #ffffff;
-  --text: #2b211b;
-  --muted: #6b5e52;
-  --line: #e6d8c3;
-  --accent: #4a5a42;
+  --text: #14243b;
+  --muted: #5a6472;
+  --line: #e3dacb;
+  --accent: #1d5fd1;
   --accent-text: #ffffff;
-  --warn-bg: #f7e7c9;
-  --warn-text: #6e4a12;
-  --error-bg: #f6dcd6;
-  --error-text: #7b2525;
-  --ok-bg: #e6ecdf;
-  --ok-text: #3d4b36;
-  --ai-bg: #efe6d8;
-  --ai-text: #4f3b2c;
-  --cue-independent: #607456;
-  --cue-min: #3f7f86;
+  --warn-bg: #f7e9c8;
+  --warn-text: #6b4c00;
+  --error-bg: #f8e1dc;
+  --error-text: #8a1f11;
+  --ok-bg: #e2f0e8;
+  --ok-text: #1d5c40;
+  --ai-bg: #e6eefb;
+  --ai-text: #1a3a7a;
+  --cue-independent: #256b4c;
+  --cue-min: #0e7c86;
   --cue-mod: #c98a2b;
-  --cue-max: #a63a2a;
-  --danger: #7b2525;
+  --cue-max: #b5402f;
+  --danger: #8a1f11;
   --danger-text: #ffffff;
   --gold: #8a5a00;
-  --gold-bg: #f7e7c9;
-  --brand: #7b2525;
-  --brand-2: #ba6a4c;
-  --shadow: rgba(75, 52, 36, 0.1);
+  --gold-bg: #f7e9c8;
+  --brand: #1d5fd1;
+  --brand-2: #3b82e6;
+  --shadow: rgba(20, 36, 59, 0.08);
   --radius: 12px;
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1e1916;
-    --surface: #2a231f;
-    --text: #eee0cc;
-    --muted: #c8b9a6;
-    --line: #43382f;
-    --accent: #a9be97;
-    --accent-text: #1e1916;
-    --warn-bg: #3d3020;
-    --warn-text: #f2d39b;
-    --error-bg: #4a2420;
-    --error-text: #e8a6a0;
-    --ok-bg: #2f3a2a;
-    --ok-text: #cddcbf;
-    --ai-bg: #3a2f27;
-    --ai-text: #ead7c0;
-    --cue-independent: #a9be97;
-    --cue-min: #86c3c4;
-    --cue-mod: #e8b45e;
-    --cue-max: #e8907f;
-    --danger: #e8a6a0;
-    --danger-text: #2a0f0c;
-    --gold: #f2c86b;
-    --gold-bg: #3d3020;
+    --bg: #0f1a2a;
+    --surface: #16243a;
+    --text: #ede6d8;
+    --muted: #a9b6c6;
+    --line: #2a3a54;
+    --accent: #7fb0ff;
+    --accent-text: #0f1a2a;
+    --warn-bg: #3b3115;
+    --warn-text: #f3d98a;
+    --error-bg: #46201b;
+    --error-text: #ffb4a8;
+    --ok-bg: #173a2b;
+    --ok-text: #bfe8cf;
+    --ai-bg: #1a2c52;
+    --ai-text: #c6d8ff;
+    --cue-independent: #6fcf97;
+    --cue-min: #5fd0d8;
+    --cue-mod: #f0c049;
+    --cue-max: #ee7a69;
+    --danger: #ffb4a8;
+    --danger-text: #3b0d08;
+    --gold: #ffd36b;
+    --gold-bg: #3a2f10;
   }
 }
 
@@ -707,7 +707,7 @@ button.ghost {
 .summary-card.primary {
   position: relative;
   color: #fff;
-  background: linear-gradient(135deg, #607456, #3d4b36);
+  background: linear-gradient(135deg, #1d5fd1, #174ca7);
   border-color: transparent;
 }
 
@@ -723,7 +723,7 @@ button.ghost {
 }
 
 .summary-card.primary .summary-label {
-  color: #eef3e6;
+  color: #dbe8ff;
 }
 
 .summary-card strong {
@@ -746,7 +746,7 @@ button.ghost {
 }
 
 .summary-card.primary > span:last-child {
-  color: #f4f7ee;
+  color: #e9f1ff;
 }
 
 .alerts.card {
@@ -1506,7 +1506,7 @@ button.ghost {
   border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
   border-radius: 18px;
   background: var(--surface);
-  box-shadow: 0 18px 50px rgba(43, 33, 27, 0.28);
+  box-shadow: 0 18px 50px rgba(20, 36, 59, 0.28);
   animation: rise 0.35s ease-out;
   /* The toast never blocks what is under it; only its close button takes clicks. */
   pointer-events: none;
@@ -1691,7 +1691,7 @@ button.ghost {
     left: 10px;
     padding: 5px;
     border-radius: 18px;
-    box-shadow: 0 12px 40px rgba(43, 33, 27, 0.22);
+    box-shadow: 0 12px 40px rgba(20, 36, 59, 0.22);
   }
 
   .tabs button {

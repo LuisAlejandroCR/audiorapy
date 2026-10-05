@@ -33,8 +33,8 @@
 | A17 | El modo sesión muestra racha, meta de ensayos por objetivo y si se alcanzó el criterio; el progreso marca dominio (≥ criterio en las 3 últimas sesiones) | B16 |
 | A18 | Fechas en hora local de Colombia (no UTC); avisos se pueden marcar como resueltos; ningún mensaje al cuidador tiene doble punto | B16 |
 | A19 | La ruta se dibuja como mapa de misiones (nodos hechos, actual y bloqueados); Hoy y Progreso abren con tarjetas KPI calculadas por código (visitas, confirmación, avisos; sesiones, acierto, objetivos dominados) | B16 |
-| A20 | Web y app usan la paleta "Terracota" (oliva, crema, terracota, vino) con todo par de texto ≥ 4,5:1 en claro y oscuro | B17 |
-| A21 | La landing pública (`/`) carga solo recursos propios bajo la misma CSP, no desborda a 390 px y lleva al panel (`/app/`) | B17 |
+| A20 | Web y app usan la paleta azul, beige, blanco y verde con todo par de texto ≥ 4,5:1 en claro y oscuro | B17 |
+| A21 | La landing pública (`/`) carga solo recursos propios bajo la misma CSP, no desborda a 390 px, oculta la barra superior en teléfonos, muestra QR del panel (y de Expo Go si se configura) y lleva al panel (`/app/`) | B17 |
 | A22 | La app Expo muestra agenda con KPIs y "Cómo llegar", y modo sesión con racha y meta, reutilizando el dominio sin copiarlo; no guarda contenido clínico en el teléfono | B17 |
 
 ## Bloques (del más fácil al más difícil)
@@ -55,7 +55,7 @@
 | B12 | Borrador del post de DEV en inglés | `docs/dev-post` (#15) | ✅ borrador + test; marcas `[[AUTHOR: …]]` ⏳ (cita, video, URL, cifras de Gemma y TabPFN) |
 | B13 | Auditoría completa contra AGENTS.md | `chore/audit` (#17) | ✅ 6 hallazgos corregidos, cada uno con test; informe en `docs/auditoria.md` |
 | B14 | Verificación reproducible en Windows con `core.autocrlf=true` | `fix/windows-verify` (#18) | ✅ `.gitattributes` fija LF en el working tree; el test del post normaliza LF/CRLF; `npm run verify` pasa completo en Windows |
-| B17 | Paleta "Terracota", landing pública en `/` + panel en `/app/` para Vercel, y app móvil Expo (vista previa) | `feat/landing-mobile` | ✅ A20–A22; 267 tests; e2e 34/34; job `mobile` en CI; deploy a Vercel ⏳ (requiere la cuenta del autor) |
+| B17 | Paleta azul/beige/blanco/verde, landing pública en `/` + panel en `/app/` para Vercel, y app móvil Expo (vista previa) | `feat/landing-mobile` | ✅ A20–A22; 267 tests; e2e 34/34; job `mobile` en CI; deploy a Vercel ⏳ (requiere la cuenta del autor) |
 | B16 | Auditoría UI/UX + ruta de inicio gamificada, corrección de bugs de pérdida de datos y fechas | `feat/guided-flow` (#20) | ✅ A14–A19; 261 tests (37 nuevos: unit, fuzz, invariante); e2e 30/30 móvil + escritorio; capturas claro/oscuro |
 | B15 | Pulido UI/UX del dashboard: jerarquía visual, navegación con iconos, agenda escaneable y estados accesibles; capturas móvil/escritorio | `feat/ui-ux-polish` (#19) | ✅ A11–A13; e2e 20/20 móvil + escritorio; capturas regeneradas con datos sintéticos |
 

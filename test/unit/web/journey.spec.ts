@@ -28,6 +28,7 @@ import {
   type Session,
 } from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
+import { qrPath } from '../../../apps/web/src/lib/qr.ts';
 import { fakeFetch } from '../../api-helpers.ts';
 
 function fakeStorage() {
@@ -303,6 +304,24 @@ describe('connection settings', () => {
     expect(
       cleanApiSettings({ baseUrl: ' https://api.example.org// \n', token: '\tabc123 \n' }),
     ).toEqual({ baseUrl: 'https://api.example.org', token: 'abc123' });
+  });
+});
+
+describe('QR codes', () => {
+  it('encodes the dashboard and Expo links, deterministically', () => {
+    const a = qrPath('https://audiorapy.example/app/');
+    expect(a).not.toBeNull();
+    expect(a!.size).toBeGreaterThanOrEqual(21);
+    expect(a!.dark).toBeGreaterThan(0);
+    expect(qrPath('https://audiorapy.example/app/')).toEqual(a);
+    expect(qrPath('exp://u.expo.dev/abc?channel-name=preview')).not.toBeNull();
+  });
+
+  it('refuses anything that is not a web or Expo link', () => {
+    expect(qrPath('javascript:alert(1)')).toBeNull();
+    expect(qrPath('data:text/html,hi')).toBeNull();
+    expect(qrPath('')).toBeNull();
+    expect(qrPath(`https://x/${'a'.repeat(600)}`)).toBeNull();
   });
 });
 

@@ -22,6 +22,7 @@ import {
   type Session,
 } from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
+import { qrPath, QUIET } from '../../../apps/web/src/lib/qr.ts';
 import { iso } from '../../arbitraries.ts';
 
 const recordArb: fc.Arbitrary<ClinicalRecord> = fc.oneof(
@@ -282,6 +283,29 @@ describe('connection settings (invariant)', () => {
         expect(once.baseUrl.endsWith('/')).toBe(false);
       }),
       { numRuns: 1000 },
+    );
+  });
+});
+
+describe('QR codes (invariant)', () => {
+  it('every web URL becomes a square symbol whose squares all lie inside it, one per dark module', () => {
+    fc.assert(
+      fc.property(fc.webUrl({ withQueryParameters: true }), (url) => {
+        const q = qrPath(url);
+        if (url.length > 512) return;
+        expect(q).not.toBeNull();
+        expect((q!.size - 17) % 4).toBe(0); // QR versions are 21, 25, … 177 modules per side
+        const squares = [...q!.d.matchAll(/M(\d+) (\d+)/g)].map((m) => [
+          Number(m[1]),
+          Number(m[2]),
+        ]);
+        expect(squares).toHaveLength(q!.dark);
+        for (const [x, y] of squares) {
+          expect(x! >= QUIET && x! < QUIET + q!.size).toBe(true);
+          expect(y! >= QUIET && y! < QUIET + q!.size).toBe(true);
+        }
+      }),
+      { numRuns: 200 },
     );
   });
 });

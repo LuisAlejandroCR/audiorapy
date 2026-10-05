@@ -76,6 +76,9 @@ strict CSP. `vercel.json` deploys them as static files:
 npx vercel --prod      # build: npm run build -w @audiorapy/web, output: apps/web/dist
 ```
 
+The landing shows a QR code for the dashboard (built from its own origin, so it is right on any domain) and,
+when `VITE_EXPO_URL` is set at build time, one for the Expo preview.
+
 `apps/mobile` is an Expo (SDK 57) preview of the phone app: today's agenda with KPIs and "Cómo llegar"
 links, and session mode with streak and trial goal. It reuses the domain code instead of copying it and
 stores nothing clinical on the phone. It installs on its own (outside the npm workspaces):
