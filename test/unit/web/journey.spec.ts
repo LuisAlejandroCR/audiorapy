@@ -295,6 +295,10 @@ describe('directions', () => {
 });
 
 describe('connection settings', () => {
+  it('trailing slashes and spaces mixed together are all removed (invariant counterexample)', () => {
+    expect(cleanApiSettings({ baseUrl: 'http://api/ / ', token: 't' }).baseUrl).toBe('http://api');
+  });
+
   it('a pasted token or address loses its spaces, newline and trailing slashes', () => {
     expect(
       cleanApiSettings({ baseUrl: ' https://api.example.org// \n', token: '\tabc123 \n' }),
