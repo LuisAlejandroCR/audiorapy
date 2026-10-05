@@ -67,6 +67,22 @@ the address stays in the browser until the therapist taps one.
 |---|---|---|
 | ![Start route](docs/screenshots/today-mobile.png) | ![Session mode](docs/screenshots/session-mobile.png) | ![Recovery quiz](docs/screenshots/quiz-mobile.png) |
 
+### Telegram instead of WhatsApp
+
+WhatsApp needs a verified Meta business; Telegram only needs a bot. The same catalogue (consent, slots,
+reminders, confirm / reschedule / cancel) goes out as inline-keyboard buttons, and taps come back as the
+same button ids, so the conversation logic is untouched.
+
+1. In Telegram, talk to **@BotFather** → `/newbot` → copy the token.
+2. On the Render API service set `TELEGRAM_BOT_TOKEN` and a long random `TELEGRAM_WEBHOOK_SECRET`.
+3. Point the bot at the API (replace the three values):
+
+```bash
+curl -s "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" -d "url=https://audiorapy-api.onrender.com/telegram/webhook" -d "secret_token=$TELEGRAM_WEBHOOK_SECRET" -d 'allowed_updates=["message","callback_query"]'
+```
+
+Then write "Hola" to the bot. The webhook answers 503 until the secret is set and 401 for a wrong secret.
+
 ### Landing page, Vercel and the mobile preview
 
 The web build has two pages: a public landing at `/` and the dashboard at `/app/`, both under the same
