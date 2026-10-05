@@ -29,6 +29,7 @@ import {
 } from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { qrPath } from '../../../apps/web/src/lib/qr.ts';
+import { buildInbox, initials, parseProfile, parseRead } from '../../../apps/web/src/lib/inbox.ts';
 import { executiveSummary, newAlertIds, sparkline } from '../../../apps/web/src/lib/summary.ts';
 import { fakeFetch } from '../../api-helpers.ts';
 
@@ -363,6 +364,58 @@ describe('executive summary', () => {
     expect(newAlertIds(new Set(), agenda)).toEqual(['a']);
     expect(sparkline([0, 50, 100], 100, 40)).toBe('0.0,40.0 50.0,20.0 100.0,0.0');
     expect(sparkline([], 100, 40)).toBe('');
+  });
+});
+
+describe('notification center and profile', () => {
+  const agenda: Agenda = {
+    generatedAt: TODAY.toISOString(),
+    appointments: [
+      {
+        id: 'v1',
+        contact: '••••1',
+        startsAt: '2026-10-05T13:00:00Z',
+        label: 'lun 5 oct',
+        status: 'scheduled',
+      },
+      {
+        id: 'v2',
+        contact: '••••2',
+        startsAt: '2026-10-09T13:00:00Z',
+        label: 'vie 9 oct',
+        status: 'scheduled',
+      },
+    ],
+    alerts: [
+      { id: 'a1', contact: '••••1', reason: 'question', at: TODAY.toISOString(), resolved: false },
+      { id: 'a2', contact: '••••2', reason: 'question', at: TODAY.toISOString(), resolved: true },
+    ],
+  };
+
+  it('lists open alerts first, then visits within 24 h, then achievements; read ids are not unread', () => {
+    const route = journey(syntheticRecords(TODAY), { recoveryVerified: true });
+    const items = buildInbox(agenda, route, new Set(['visit:v1']), TODAY);
+    expect(items.map((i) => i.id)).toEqual([
+      'alert:a1',
+      'visit:v1',
+      'step:recovery',
+      'step:patient',
+    ]);
+    expect(items.find((i) => i.id === 'visit:v1')!.unread).toBe(false);
+    expect(items.filter((i) => i.unread)).toHaveLength(3);
+  });
+
+  it('without agenda or route the inbox is empty, not broken', () => {
+    expect(buildInbox(null, null, new Set(), TODAY)).toEqual([]);
+  });
+
+  it('profile and read marks survive bad storage; initials come from first and last name', () => {
+    expect(parseProfile('{"name":1}').name).toBe('');
+    expect(parseProfile(null).profession).toBe('Fonoaudióloga');
+    expect([...parseRead('["a","b"]')]).toEqual(['a', 'b']);
+    expect([...parseRead('{"a":1}')]).toEqual([]);
+    expect(initials('Ana María Rojas')).toBe('AR');
+    expect(initials('  ')).toBe('A');
   });
 });
 

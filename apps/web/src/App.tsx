@@ -1,4 +1,4 @@
-// App.tsx: the dashboard shell. Clinical records, the session in progress and SOAP drafts exist in clear
+// App.tsx: the dashboard shell — tabs, notification center and profile. Clinical records, the session in progress and SOAP drafts exist in clear
 // only in this component's memory, after the vault is unlocked; locking drops them.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { verifyChain, type LogEntry, type SoapNote } from '@audiorapy/domain';
@@ -10,6 +10,24 @@ import { SettingsView } from './components/SettingsView.tsx';
 import { JourneyMap } from './components/JourneyMap.tsx';
 import { Celebration, type Cheer } from './components/Celebration.tsx';
 import { Icon } from './components/Icon.tsx';
+import { NotificationCenter } from './components/NotificationCenter.tsx';
+import { ProfileView } from './components/ProfileView.tsx';
+import { fetchAgenda, type Agenda } from './lib/agenda.ts';
+import { loadApiSettings } from './lib/settings.ts';
+import {
+  buildInbox,
+  initials,
+  loadProfile,
+  loadRead,
+  saveRead,
+  type InboxItem,
+} from './lib/inbox.ts';
+import {
+  notificationsOn,
+  notificationsSupported,
+  requestNotifications,
+  setNotificationsOn,
+} from './lib/notify.ts';
 import {
   appendRecord,
   byKind,
@@ -27,7 +45,7 @@ import {
   type StepId,
 } from './lib/journey.ts';
 
-export type Tab = 'today' | 'progress' | 'session' | 'settings';
+export type Tab = 'today' | 'progress' | 'session' | 'settings' | 'profile';
 
 const TABS: Array<{ id: Tab; label: string; icon: string }> = [
   { id: 'today', label: 'Hoy', icon: 'calendar' },
@@ -65,6 +83,22 @@ export function App() {
   /** True only when the open vault was created in this page: its first steps deserve a celebration. */
   const createdNow = useRef(false);
   const dismissCheer = useCallback(() => setCheer(null), []);
+  const [agenda, setAgenda] = useState<Agenda | null>(null);
+  const [inboxOpen, setInboxOpen] = useState(false);
+  const [read, setRead] = useState<Set<string>>(loadRead);
+  const [profile, setProfile] = useState(loadProfile);
+  const [notify, setNotify] = useState(notificationsOn);
+  const toggleInbox = useCallback(() => setInboxOpen((o) => !o), []);
+
+  const toggleNotify = useCallback(async () => {
+    if (notify) {
+      setNotificationsOn(false);
+      setNotify(false);
+    } else if (await requestNotifications()) {
+      setNotificationsOn(true);
+      setNotify(true);
+    }
+  }, [notify]);
 
   const open = useCallback((file: VaultFile, dek: Uint8Array, extra?: JourneyFlags) => {
     const { records, failed } = decryptLog(dek, file.log);
@@ -119,10 +153,42 @@ export function App() {
     setTab('today');
   }, [unlocked, sessionDraft, soapDrafts]);
 
+  // The bell needs the agenda on every tab, not only on "Hoy": read it once when the vault opens.
+  const isOpen = unlocked !== null;
+  useEffect(() => {
+    if (!isOpen) return;
+    let live = true;
+    void fetchAgenda(loadApiSettings()).then((r) => live && r.available && setAgenda(r.data));
+    return () => {
+      live = false;
+    };
+  }, [isOpen]);
+
   const chainBreak = useMemo(() => (unlocked ? verifyChain(unlocked.file.log) : -1), [unlocked]);
   const records = useMemo(() => unlocked?.records ?? [], [unlocked]);
   const route = useMemo(() => journey(records, flags), [records, flags]);
   const patients = byKind(records, 'patient');
+  const [now] = useState(() => new Date());
+  const inbox = useMemo(() => buildInbox(agenda, route, read, now), [agenda, route, read, now]);
+  const markRead = (ids: string[]) =>
+    setRead((r) => {
+      const next = new Set([...r, ...ids]);
+      saveRead(next);
+      return next;
+    });
+  const openItem = (item: InboxItem) => {
+    markRead([item.id]);
+    setInboxOpen(false);
+    setTab('today');
+    if (item.kind !== 'achievement')
+      setTimeout(
+        () =>
+          document
+            .getElementById(item.kind === 'alert' ? 'alerts' : 'upcoming-title')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+        50,
+      );
+  };
 
   // Celebrate a step the moment it becomes done — never the ones already done when the vault opened.
   const seen = useRef<Set<StepId> | null>(null);
@@ -175,6 +241,22 @@ export function App() {
               <Icon name="star" />
               <span>{route.xp}</span>
             </button>
+            <NotificationCenter
+              items={inbox}
+              open={inboxOpen}
+              onToggle={toggleInbox}
+              onReadAll={() => markRead(inbox.map((i) => i.id))}
+              onOpenItem={openItem}
+            />
+            <button
+              type="button"
+              className="avatar-button"
+              aria-current={tab === 'profile' ? 'page' : undefined}
+              aria-label={`Perfil${profile.name ? `: ${profile.name}` : ''}`}
+              onClick={() => setTab('profile')}
+            >
+              {initials(profile.name)}
+            </button>
             <button type="button" className="ghost" onClick={lock}>
               <Icon name="lock" />
               Bloquear
@@ -225,7 +307,7 @@ export function App() {
               {unlocked.failed} registros no se pudieron descifrar.
             </p>
           )}
-          {patients.length === 0 && tab !== 'today' && tab !== 'settings' ? (
+          {patients.length === 0 && (tab === 'progress' || tab === 'session') ? (
             <section className="card empty">
               <span className="empty-icon" aria-hidden="true">
                 ✦
@@ -244,6 +326,9 @@ export function App() {
               {tab === 'today' && (
                 <TodayView
                   records={records}
+                  notify={notify}
+                  onToggleNotify={() => void toggleNotify()}
+                  onAgenda={setAgenda}
                   onConfigure={() => setTab('settings')}
                   onNext={(focus) => {
                     if (focus === 'notes' || focus === 'session') setTab('session');
@@ -272,6 +357,17 @@ export function App() {
                       return next;
                     })
                   }
+                />
+              )}
+              {tab === 'profile' && (
+                <ProfileView
+                  profile={profile}
+                  onSave={setProfile}
+                  route={route}
+                  records={records}
+                  notify={notify}
+                  onToggleNotify={() => void toggleNotify()}
+                  notifySupported={notificationsSupported()}
                 />
               )}
               {tab === 'settings' && (

@@ -1,29 +1,41 @@
 // TodayScreen.tsx: the day at a glance — executive summary first, KPI tiles, open alerts, upcoming visits,
-// a one-hour reminder per visit and "Cómo llegar"
-// (Google Maps, Apple Maps, Waze). Addresses are typed per visit and kept in memory only in this preview.
+// a one-hour reminder per visit and one "Cómo llegar" button (the phone's own chooser picks the app).
+// Addresses are typed per visit and kept in memory only in this preview.
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ALERT_ES, STATUS_ES, type ApiSettings } from '@audiorapy/web-lib/agenda.ts';
-import { MAP_APPS, mapLink } from '@audiorapy/web-lib/maps.ts';
+import { ALERT_ES, STATUS_ES, type Agenda, type ApiSettings } from '@audiorapy/web-lib/agenda.ts';
+import { mapLink } from '@audiorapy/web-lib/maps.ts';
 import { executiveSummary } from '@audiorapy/web-lib/summary.ts';
 import { syntheticRecords } from '@audiorapy/web-lib/records.ts';
 import { loadAgenda, type Loaded } from './agenda';
+import { needsInlineChoice, openMaps, WEB_CHOICES } from './openMaps';
 import { remindBefore } from './feedback';
 import { SummaryCard } from './SummaryCard';
 import type { Theme } from './theme';
 import { Card, Heading, Pill } from './ui';
 
-export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }) {
+export function TodayScreen({
+  t,
+  settings,
+  onAgenda,
+}: {
+  t: Theme;
+  settings: ApiSettings;
+  onAgenda: (agenda: Agenda) => void;
+}) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [addresses, setAddresses] = useState<Record<string, string>>({
     '••••2233': 'Calle 45 # 12-30, Bogotá',
   });
 
   const [reminded, setReminded] = useState<Record<string, string>>({});
+  const [choosing, setChoosing] = useState<string | null>(null);
   const refresh = useCallback(async () => {
     setLoaded(null);
-    setLoaded(await loadAgenda(settings, new Date()));
-  }, [settings]);
+    const next = await loadAgenda(settings, new Date());
+    setLoaded(next);
+    onAgenda(next.agenda);
+  }, [settings, onAgenda]);
 
   useEffect(() => {
     void refresh();
@@ -120,20 +132,35 @@ export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }
                   )
                 }
               />
-              {MAP_APPS.map((m) => {
-                const url = mapLink(m.id, address);
-                return (
+              <Pill
+                t={t}
+                kind="outline"
+                label="Cómo llegar"
+                accessibilityLabel={`Cómo llegar a la visita de la familia ${a.contact}`}
+                onPress={() =>
+                  needsInlineChoice
+                    ? setChoosing((c) => (c === a.id ? null : a.id))
+                    : openMaps(address)
+                }
+              />
+            </View>
+            {choosing === a.id && (
+              <View style={st.maps} accessibilityLabel="Abrir en">
+                {WEB_CHOICES.map((m) => (
                   <Pill
                     key={m.id}
                     t={t}
                     kind="outline"
                     label={m.label}
-                    accessibilityLabel={`Cómo llegar con ${m.label}`}
-                    onPress={() => url && void Linking.openURL(url)}
+                    onPress={() => {
+                      const url = mapLink(m.id, address);
+                      if (url) void Linking.openURL(url);
+                      setChoosing(null);
+                    }}
                   />
-                );
-              })}
-            </View>
+                ))}
+              </View>
+            )}
           </Card>
         );
       })}
