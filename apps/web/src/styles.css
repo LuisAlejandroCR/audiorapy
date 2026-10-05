@@ -1,4 +1,4 @@
-/* styles.css: dashboard styles — blue, beige, white and green tokens for light and dark, mobile first, 44px touch targets. */
+/* styles.css: dashboard styles — blue, beige, white and green tokens (one light theme, same as the landing), mobile first, 44px touch targets. */
 :root {
   --bg: #f5efe4;
   --surface: #ffffff;
@@ -27,35 +27,7 @@
   --brand-2: #3b82e6;
   --shadow: rgba(20, 36, 59, 0.08);
   --radius: 12px;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1a2a;
-    --surface: #16243a;
-    --text: #ede6d8;
-    --muted: #a9b6c6;
-    --line: #2a3a54;
-    --accent: #7fb0ff;
-    --accent-text: #0f1a2a;
-    --warn-bg: #3b3115;
-    --warn-text: #f3d98a;
-    --error-bg: #46201b;
-    --error-text: #ffb4a8;
-    --ok-bg: #173a2b;
-    --ok-text: #bfe8cf;
-    --ai-bg: #1a2c52;
-    --ai-text: #c6d8ff;
-    --cue-independent: #6fcf97;
-    --cue-min: #5fd0d8;
-    --cue-mod: #f0c049;
-    --cue-max: #ee7a69;
-    --danger: #ffb4a8;
-    --danger-text: #3b0d08;
-    --gold: #ffd36b;
-    --gold-bg: #3a2f10;
-  }
+  color-scheme: light;
 }
 
 * {

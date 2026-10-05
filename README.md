@@ -89,7 +89,7 @@ cd apps/mobile && npm ci && npx expo start   # scan the QR with Expo Go, or pres
 
 | Landing | Mobile app (Expo preview) | Session mode on the phone |
 |---|---|---|
-| ![Landing](docs/screenshots/landing-mobile.png) | ![Mobile today](docs/screenshots/mobile-app-today.png) | ![Mobile session](docs/screenshots/mobile-app-session-dark.png) |
+| ![Landing](docs/screenshots/landing-mobile.png) | ![Mobile today](docs/screenshots/mobile-app-today.png) | ![Mobile session](docs/screenshots/mobile-app-session.png) |
 
 The screenshots use synthetic data only; no real patient appears anywhere in this repo.
 

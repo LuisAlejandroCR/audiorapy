@@ -7,7 +7,7 @@ const URL = process.env.URL ?? 'http://127.0.0.1:8095';
 const OUT = process.env.OUT ?? 'docs/screenshots';
 
 const errors: string[] = [];
-for (const scheme of ['light', 'dark'] as const) {
+for (const scheme of ['light'] as const) {
   const browser = await chromium.launch();
   const page = await browser.newPage({
     viewport: { width: 390, height: 844 },
@@ -16,7 +16,7 @@ for (const scheme of ['light', 'dark'] as const) {
   });
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-  const tag = scheme === 'dark' ? '-dark' : '';
+  const tag = '';
   await page.goto(URL);
   await page.getByText('Próxima visita'.toUpperCase()).waitFor();
   await page.screenshot({ path: `${OUT}/mobile-app-today${tag}.png` });
