@@ -1,20 +1,14 @@
 ---
 title: My sister drives to her patients. Her notes about them never leave her laptop.
-published: false
+published: true
 tags: devchallenge, weekendchallenge, hf26challenge
 ---
-
-<!--
-Draft of the DEV submission. Sections follow the official template. Every [[AUTHOR: …]] marker is
-something only the author can supply (a quote, a link, a measured number); `npm run test:unit`
-lists the ones still open. Delete this comment before publishing.
--->
 
 *This is a submission for the [Hacktoberfest Weekend Challenge: Build for a Friend](https://dev.to/challenges/hacktoberfest-weekend-2026-10-01).*
 
 ## What I Built
 
-My sister is a speech-language therapist (*fonoaudióloga*) in Colombia. She doesn't see patients in a
+My sister Andrea is a speech-language therapist (*fonoaudióloga*) in Colombia. She doesn't see patients in a
 clinic: she goes to their homes — children learning sounds, adults recovering speech after a stroke. Two parts of that job are what this project is about.
 
 **Scheduling.** Every visit is arranged in WhatsApp chats with parents and grandparents: moving a visit
@@ -26,8 +20,7 @@ try she records whether the patient got it and how much help it took: none, mini
 cueing. That *cue level* is the clinical signal: a patient who goes from "needed a lot of help" to "got it
 alone" is making progress even when the hit rate looks flat. Then each visit needs a SOAP note.
 
-[[AUTHOR: replace or extend the two paragraphs above with how she actually works (how many families,
-how she keeps the agenda today, what a bad week looks like). Only real details, with her permission.]]
+Today Andrea keeps her agenda in an Excel sheet: she reviews it, calls each family one by one, and then confirms every visit on WhatsApp. (Named with her permission.)
 
 **audiorapy** is a small assistant for exactly that slice:
 
@@ -51,12 +44,9 @@ how she keeps the agenda today, what a bad week looks like). Only real details, 
   a session mode for logging tries, and a SOAP draft written by Gemma on `localhost`. The objective
   figures in the note are computed by code; the model is not allowed to write numbers.
 
-[[AUTHOR: one or two sentences in your own words: how your sister reacted when you showed it to her,
-quoted with her permission. The challenge gives bonus points for handing it over and saying what they said.]]
-
 ## Demo
 
-[[AUTHOR: link to the 60-second video: book a visit with buttons, then unplug Ollama and book again.]]
+*Video coming as an edit; until then, the live bot below is the demo.*
 
 **Live:** [audiorapy.vercel.app](https://audiorapy.vercel.app) (landing) · [audiorapy.vercel.app/app/](https://audiorapy.vercel.app/app/)
 (dashboard, runs entirely in your browser with synthetic demo data). The scheduling API runs on Render;
@@ -213,8 +203,6 @@ I built this over the weekend with Claude Code, one pull request per block, each
 invariant tests and a CI run before merging. The repo's [`docs/memoria.md`](https://github.com/LuisAlejandroCR/audiorapy/blob/main/docs/memoria.md)
 logs every decision and why; [`docs/verificacion.md`](https://github.com/LuisAlejandroCR/audiorapy/blob/main/docs/verificacion.md)
 separates what was actually verified from what is still pending.
-
-[[AUTHOR: link to the saved agent session (DevRelay or Entire), or delete this line.]]
 
 ## Prize Categories
 
