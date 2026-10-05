@@ -66,3 +66,10 @@ function countUp(root: Element) {
     requestAnimationFrame(tick);
   }
 }
+
+// Card videos are decoration: with reduced motion they stay on their poster frame.
+if (still)
+  for (const v of document.querySelectorAll<HTMLVideoElement>('.card-video')) {
+    v.removeAttribute('autoplay');
+    v.pause();
+  }

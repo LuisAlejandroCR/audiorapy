@@ -23,8 +23,9 @@ simulado en modo consola."* (honestidad, como en la referencia).
 
 Dos capas, como en las referencias: **escenas de cine con personas** (`knowni-stellar-pitch`) y **grabaciones
 reales de pantalla** con titular de dos líneas y barra de capítulos (`knowni-demo`). Alterna siempre:
-promesa en la vida de alguien → la pantalla real que la cumple. Voz: ElevenLabs, voz *Ery* (español
-latino, cálida), una sola pista con exactamente estas líneas.
+promesa en la vida de alguien → la pantalla real que la cumple. Voz: **inglés**, ElevenLabs, voz *Julie* (cálida, americana); la columna
+"Subtítulo" queda como referencia y las líneas exactas en inglés están en `pitch-timeline.json` (`voice`).
+La versión en español (voz *Ery*) está en `submission/media/pitch-voice-es.mp3`.
 
 Barra de capítulos (abajo, en las pantallas): **Agenda · Panel · Sesión · Nota · Ruta · Sin IA**.
 Nota fija arriba a la izquierda en las pantallas: *Pantallas reales · datos sintéticos*.
