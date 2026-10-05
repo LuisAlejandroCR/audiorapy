@@ -16,3 +16,6 @@ __pycache__/
 .hypothesis/
 build/
 *.egg-info/
+
+# Design reference media (third-party inspiration, not ours to publish)
+media/

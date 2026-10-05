@@ -20,7 +20,7 @@ async function measure(page: Page) {
 
 test('every tab fits the screen with usable touch targets', async ({ page }) => {
   const errors = watchConsole(page);
-  await page.goto('/');
+  await page.goto('/app/');
   expect(
     await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'),
   ).toContain("script-src 'self'");

@@ -50,7 +50,7 @@ test('restore an encrypted backup in a clean browser with the recovery phrase', 
 
   const clean = await browser.newContext();
   const fresh = await clean.newPage();
-  await fresh.goto('/');
+  await fresh.goto('/app/');
   await fresh.getByLabel('Restaurar desde un respaldo').setInputFiles(backup);
   await fresh.getByRole('button', { name: 'Clave de recuperación' }).click();
   await fresh.getByLabel('Las 24 palabras').fill(words.join(' '));

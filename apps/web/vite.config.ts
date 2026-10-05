@@ -1,4 +1,4 @@
-// vite.config.ts: dashboard build. The production build ships a strict Content-Security-Policy: the page
+// vite.config.ts: landing (/) and dashboard (/app/) build. The production build ships a strict Content-Security-Policy: the page
 // loads nothing it does not own and only talks to itself, the local API and local Ollama.
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -39,5 +39,15 @@ export default defineConfig({
       ),
     },
   },
-  build: { target: 'es2022', sourcemap: false },
+  build: {
+    target: 'es2022',
+    sourcemap: false,
+    // Two pages, one build: the public landing at / and the therapist dashboard at /app/.
+    rollupOptions: {
+      input: {
+        landing: fileURLToPath(new URL('index.html', import.meta.url)),
+        app: fileURLToPath(new URL('app/index.html', import.meta.url)),
+      },
+    },
+  },
 });

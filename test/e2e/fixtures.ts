@@ -16,7 +16,7 @@ export function watchConsole(page: Page) {
 }
 
 export async function createVault(page: Page): Promise<string[]> {
-  await page.goto('/');
+  await page.goto('/app/');
   await page.getByLabel('Frase de paso', { exact: true }).fill(PASSPHRASE);
   await page.getByLabel('Repite la frase').fill(PASSPHRASE);
   await page.getByRole('button', { name: 'Crear bóveda' }).click();
