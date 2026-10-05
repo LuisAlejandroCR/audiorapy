@@ -14,7 +14,13 @@ import {
   type Trial,
 } from '@audiorapy/domain';
 import { draftSoap, type DraftOutcome } from '../lib/ai.ts';
-import { byKind, type ClinicalRecord, type Note, type Session } from '../lib/records.ts';
+import {
+  byKind,
+  sessionsNewestFirst,
+  type ClinicalRecord,
+  type Note,
+  type Session,
+} from '../lib/records.ts';
 import { loadAiSettings } from '../lib/settings.ts';
 import { formatDayEs, formatStampEs, liveStats, localDate, TRIAL_GOAL } from '../lib/stats.ts';
 import { Icon } from './Icon.tsx';
@@ -37,9 +43,9 @@ interface Props {
 
 export function SessionView({ records, onAppend, draft, onDraft, soapDrafts, onSoapDraft }: Props) {
   const patient = byKind(records, 'patient')[0]!;
-  const sessions = byKind(records, 'session')
-    .filter((s) => s.patientId === patient.id)
-    .sort((a, b) => b.date.localeCompare(a.date));
+  const sessions = sessionsNewestFirst(
+    byKind(records, 'session').filter((s) => s.patientId === patient.id),
+  );
   const notes = byKind(records, 'soap_note');
   const [selected, setSelected] = useState(sessions[0]?.id ?? '');
   const session = sessions.find((s) => s.id === selected) ?? sessions[0];

@@ -14,7 +14,7 @@ import {
 test('a wrong quiz word is refused; the right ones open the vault with 2 of 6 steps done', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/app/');
   await page.getByLabel('Frase de paso', { exact: true }).fill(PASSPHRASE);
   await page.getByLabel('Repite la frase').fill(PASSPHRASE);
   await page.getByRole('button', { name: 'Crear bóveda' }).click();

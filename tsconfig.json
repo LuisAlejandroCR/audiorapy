@@ -8,7 +8,8 @@
   },
   "include": [
     "packages/*/src",
-    "apps/*/src",
+    "apps/api/src",
+    "apps/web/src",
     "apps/web/vite.config.ts",
     "test",
     "scripts",

@@ -9,7 +9,7 @@ const OUT = process.env.OUT ?? 'docs/screenshots';
 const PASS = 'frase de captura local';
 
 async function enter(page: Page) {
-  await page.goto(WEB);
+  await page.goto(`${WEB}/app/`);
   await page.evaluate(
     ([api, token]) => {
       localStorage.setItem('audiorapy.api.url', api!);
@@ -67,4 +67,15 @@ for (const [name, opts] of [
     await browser.close();
   }
 }
+const browser = await chromium.launch();
+for (const [name, viewport] of [
+  ['landing-desktop', { width: 1280, height: 900 }],
+  ['landing-mobile', { width: 390, height: 844 }],
+] as const) {
+  const page = await browser.newPage({ viewport });
+  await page.goto(WEB);
+  await page.screenshot({ path: `${OUT}/${name}.png`, fullPage: true });
+  await page.close();
+}
+await browser.close();
 console.log('screenshots written to', OUT);

@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Audiorapy",
+    "slug": "audiorapy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.audiorapy.preview"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F5EFE4",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "org.audiorapy.preview"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "Audiorapy"
+    },
+    "scheme": "audiorapy",
+    "backgroundColor": "#F5EFE4"
+  }
+}

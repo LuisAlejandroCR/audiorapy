@@ -10,6 +10,8 @@ export default tseslint.config(
       '**/dist/**',
       '**/node_modules/**',
       '**/.venv/**',
+      '**/.expo/**',
+      'apps/mobile/metro.config.js',
       'playwright-report/**',
       'test-results/**',
       '.playwright-cli/**',

@@ -125,3 +125,30 @@ jobs:
         run: npm run smoke:risk
         env:
           RISK_PYTHON: python
+
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: verify
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+      # The app imports the shared domain code, whose dependencies live in the root install.
+      - run: npm ci
+      - name: Install the Expo app
+        working-directory: apps/mobile
+        run: npm ci
+      - name: Typecheck the Expo app
+        working-directory: apps/mobile
+        run: npx tsc --noEmit
+      - name: Bundle the Expo app (web preview)
+        working-directory: apps/mobile
+        run: npx expo export --platform web --output-dir dist
+        env:
+          CI: '1'

@@ -16,8 +16,13 @@ import {
 import { liveStats, localDate, masteryRun } from '../../../apps/web/src/lib/stats.ts';
 import { agendaKpis, type Agenda } from '../../../apps/web/src/lib/agenda.ts';
 import { cleanAddress, MAP_APPS, mapLink } from '../../../apps/web/src/lib/maps.ts';
-import type { ClinicalRecord } from '../../../apps/web/src/lib/records.ts';
+import {
+  sessionsNewestFirst,
+  type ClinicalRecord,
+  type Session,
+} from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
+import { qrPath, QUIET } from '../../../apps/web/src/lib/qr.ts';
 import { iso } from '../../arbitraries.ts';
 
 const recordArb: fc.Arbitrary<ClinicalRecord> = fc.oneof(
@@ -237,6 +242,34 @@ describe('agenda and directions (invariant)', () => {
   });
 });
 
+describe('session order (invariant)', () => {
+  it('newest day first, and within a day the most recently recorded first; nothing lost', () => {
+    const day = fc.constantFrom('2026-10-01', '2026-10-02', '2026-10-03');
+    fc.assert(
+      fc.property(fc.array(day, { maxLength: 30 }), (days) => {
+        const sessions: Session[] = days.map((date, i) => ({
+          kind: 'session',
+          id: `s${i}`,
+          patientId: 'p',
+          date,
+          targets: [],
+          therapistNotes: '',
+        }));
+        const out = sessionsNewestFirst(sessions);
+        expect(out.map((s) => s.id).sort()).toEqual(sessions.map((s) => s.id).sort());
+        for (let k = 1; k < out.length; k++) {
+          const a = out[k - 1]!;
+          const b = out[k]!;
+          expect(a.date >= b.date).toBe(true);
+          if (a.date === b.date)
+            expect(Number(a.id.slice(1))).toBeGreaterThan(Number(b.id.slice(1)));
+        }
+      }),
+      { numRuns: 1000 },
+    );
+  });
+});
+
 describe('connection settings (invariant)', () => {
   it('cleaning is idempotent, never leaves outer whitespace, and keeps the inner token intact', () => {
     const ws = fc.constantFrom(' ', '\n', '\t', '\r\n', '');
@@ -250,6 +283,29 @@ describe('connection settings (invariant)', () => {
         expect(once.baseUrl.endsWith('/')).toBe(false);
       }),
       { numRuns: 1000 },
+    );
+  });
+});
+
+describe('QR codes (invariant)', () => {
+  it('every web URL becomes a square symbol whose squares all lie inside it, one per dark module', () => {
+    fc.assert(
+      fc.property(fc.webUrl({ withQueryParameters: true }), (url) => {
+        const q = qrPath(url);
+        if (url.length > 512) return;
+        expect(q).not.toBeNull();
+        expect((q!.size - 17) % 4).toBe(0); // QR versions are 21, 25, … 177 modules per side
+        const squares = [...q!.d.matchAll(/M(\d+) (\d+)/g)].map((m) => [
+          Number(m[1]),
+          Number(m[2]),
+        ]);
+        expect(squares).toHaveLength(q!.dark);
+        for (const [x, y] of squares) {
+          expect(x! >= QUIET && x! < QUIET + q!.size).toBe(true);
+          expect(y! >= QUIET && y! < QUIET + q!.size).toBe(true);
+        }
+      }),
+      { numRuns: 200 },
     );
   });
 });

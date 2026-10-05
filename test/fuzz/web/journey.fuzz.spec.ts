@@ -12,6 +12,7 @@ import {
 } from '../../../apps/web/src/lib/maps.ts';
 import { formatDayEs, formatStampEs, liveStats } from '../../../apps/web/src/lib/stats.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
+import { qrPath } from '../../../apps/web/src/lib/qr.ts';
 
 const jsonish = fc.oneof(
   fc.string(),
@@ -93,6 +94,16 @@ describe('dashboard journey (fuzz)', () => {
         expect(typeof c.token).toBe('string');
       }),
       { numRuns: 2000 },
+    );
+  });
+
+  it('the QR helper never throws, whatever text it is given', () => {
+    fc.assert(
+      fc.property(fc.oneof(fc.string({ maxLength: 700 }), fc.webUrl()), (s) => {
+        const q = qrPath(s);
+        if (q) expect(q.d).toMatch(/^(M\d+ \d+h1v1h-1z)+$/);
+      }),
+      { numRuns: 300 },
     );
   });
 

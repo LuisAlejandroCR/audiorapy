@@ -1,15 +1,184 @@
 <!doctype html>
+<!-- index.html: public landing page for Audiorapy — what it does, how privacy works, and links to the
+     dashboard (/app/) and the mobile preview. Static, no third-party assets, same CSP as the dashboard. -->
 <html lang="es-CO">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- csp -->
     <meta name="referrer" content="no-referrer" />
-    <title>Audiorapy</title>
+    <meta
+      name="description"
+      content="Agenda por WhatsApp con botones y registro de sesiones cifrado en tu dispositivo, para fonoaudiología a domicilio en Colombia, con pacientes de cualquier edad."
+    />
+    <title>Audiorapy · Fonoaudiología a domicilio, sin papeles</title>
     <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/src/landing.css" />
+    <script type="module" src="/src/landing.ts"></script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div class="page">
+      <header class="nav">
+        <a class="logo" href="/">Audiorapy</a>
+        <nav aria-label="Principal">
+          <a href="#como">Cómo funciona</a>
+          <a href="#privacidad">Privacidad</a>
+          <a href="#app">App móvil</a>
+        </nav>
+        <a class="pill dark small" href="/app/">Abrir el panel</a>
+      </header>
+
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="kicker">
+            Para fonoaudiólogas que atienden a domicilio, a pacientes de cualquier edad
+          </p>
+          <h1 id="hero-title">
+            Visitas confirmadas por WhatsApp. <em>Notas clínicas que nunca salen</em> de tu equipo.
+          </h1>
+          <p class="lede">
+            Las familias agendan y confirman con botones. Tú registras cada ensayo con su nivel de
+            apoyo, y la nota SOAP se cifra en tu navegador antes de guardarse.
+          </p>
+          <div class="cta-row">
+            <a class="pill dark" href="/app/">
+              Probar el panel
+              <span class="pill-dot" aria-hidden="true">→</span>
+            </a>
+            <a class="pill light" href="#como">Cómo funciona</a>
+          </div>
+          <p class="fineprint">
+            Gratis y de código abierto · funciona sin IA · datos de demo sintéticos
+          </p>
+        </div>
+
+        <div class="hero-stage" aria-hidden="true">
+          <div class="hill hill-a"></div>
+          <div class="hill hill-b"></div>
+          <div class="sun"></div>
+          <div class="float-card c1">
+            <span class="fc-label">Próxima visita</span>
+            <strong>mar 6 oct · 8:00 a. m.</strong>
+            <span class="fc-sub">Familia ••••2233 · confirmada</span>
+          </div>
+          <div class="float-card c2">
+            <span class="fc-label">/s/ inicial</span>
+            <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i class="hot"></i></div>
+            <span class="fc-sub">90 % · apoyo independiente</span>
+          </div>
+          <div class="float-card c3">
+            <span class="fc-label">Racha</span>
+            <strong class="big">5 ✓</strong>
+            <span class="fc-sub">meta 10 ensayos</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="facts" aria-label="En cifras">
+        <div><strong>0</strong><span>notas clínicas en el servidor</span></div>
+        <div><strong>100&nbsp;%</strong><span>de la agenda funciona con la IA apagada</span></div>
+        <div><strong>24</strong><span>palabras para recuperar tu bóveda</span></div>
+        <div><strong>3</strong><span>apps de mapas para llegar a cada casa</span></div>
+      </section>
+
+      <section id="como" class="block" aria-labelledby="como-title">
+        <div class="block-head">
+          <h2 id="como-title">Pensado para cada visita</h2>
+          <a class="pill dark small" href="/app/">Ver el panel →</a>
+        </div>
+        <div class="cards">
+          <article class="card tone-blue">
+            <span class="card-tag">01 · Agenda</span>
+            <h3>El cuidador agenda con botones</h3>
+            <p>
+              Autorización de datos, cupos y recordatorio por WhatsApp. Si no responde, te avisamos;
+              nunca se cancela sola.
+            </p>
+          </article>
+          <article class="card tone-green">
+            <span class="card-tag">02 · Sesión</span>
+            <h3>✓ / ✗ con nivel de apoyo</h3>
+            <p>Racha, meta de ensayos y criterio en vivo. Deshacer siempre a un toque.</p>
+          </article>
+          <article class="card tone-beige">
+            <span class="card-tag">03 · Nota</span>
+            <h3>SOAP con IA local, aprobada por ti</h3>
+            <p>
+              La "O" la calcula el código desde los ensayos. La IA solo propone S, A y P en tu
+              propio equipo.
+            </p>
+          </article>
+          <article class="card tone-navy">
+            <span class="card-tag">04 · Ruta</span>
+            <h3>Cómo llegar en un toque</h3>
+            <p>Google Maps, Apple Maps o Waze. La dirección se queda en tu navegador.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="privacidad" class="block split" aria-labelledby="priv-title">
+        <div>
+          <h2 id="priv-title">Cero conocimiento del contenido clínico</h2>
+          <p class="lede">
+            El servidor ve la agenda —horas y estados— y nada más. Las notas viven cifradas con tu
+            frase de paso; ni nosotros podemos leerlas.
+          </p>
+          <ul class="checks">
+            <li>Cifrado en el navegador (XChaCha20 + Argon2id)</li>
+            <li>Clave de recuperación de 24 palabras en español</li>
+            <li>Respaldo descargable, solo texto cifrado</li>
+            <li>Por WhatsApp solo pasa logística, nunca datos clínicos</li>
+          </ul>
+        </div>
+        <figure class="shot">
+          <img
+            src="/shots/today-desktop.png"
+            alt="Panel de Audiorapy con la ruta de inicio, indicadores y próximas visitas (datos sintéticos)"
+            loading="lazy"
+          />
+        </figure>
+      </section>
+
+      <section id="app" class="block split reverse" aria-labelledby="app-title">
+        <figure class="shot phone">
+          <img
+            src="/shots/mobile-app.png"
+            alt="App móvil de Audiorapy: próxima visita, indicadores y cómo llegar (datos sintéticos)"
+            loading="lazy"
+          />
+        </figure>
+        <div>
+          <h2 id="app-title">También en tu teléfono</h2>
+          <p class="lede">
+            La app móvil (vista previa con Expo) lleva la agenda, el modo sesión y la ruta a cada
+            casa. Pensada para registrar con una mano mientras trabajas con tu paciente.
+          </p>
+          <div class="qr-row" aria-label="Códigos QR">
+            <figure class="qr-card">
+              <div class="qr" data-qr="web"></div>
+              <figcaption>
+                <strong>Panel web</strong>
+                <span>Abre el panel en tu teléfono</span>
+              </figcaption>
+            </figure>
+            <figure class="qr-card">
+              <div class="qr" data-qr="expo">
+                <span class="qr-hint" data-qr-hint="expo">Expo Go</span>
+              </div>
+              <figcaption>
+                <strong>App móvil (Expo Go)</strong>
+                <span>Instala Expo Go y escanea el QR de <code>npx expo start</code></span>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <span>Audiorapy · código abierto (MIT)</span>
+        <span>Todas las capturas usan datos sintéticos.</span>
+        <a href="https://github.com/LuisAlejandroCR/audiorapy">GitHub</a>
+      </footer>
+    </div>
   </body>
 </html>

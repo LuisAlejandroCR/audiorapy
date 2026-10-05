@@ -7,7 +7,8 @@
   },
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/api",
+    "apps/web"
   ],
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",

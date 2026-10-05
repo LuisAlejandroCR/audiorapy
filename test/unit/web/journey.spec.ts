@@ -22,11 +22,13 @@ import { agendaKpis, resolveAlert, type Agenda } from '../../../apps/web/src/lib
 import { cleanAddress, mapLink, parseBook, saveAddress } from '../../../apps/web/src/lib/maps.ts';
 import {
   byKind,
+  sessionsNewestFirst,
   syntheticRecords,
   type ClinicalRecord,
   type Session,
 } from '../../../apps/web/src/lib/records.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
+import { qrPath } from '../../../apps/web/src/lib/qr.ts';
 import { fakeFetch } from '../../api-helpers.ts';
 
 function fakeStorage() {
@@ -159,6 +161,26 @@ describe('session feedback', () => {
   });
 });
 
+describe('session order', () => {
+  it('a session recorded today sorts above a demo session of the same day', () => {
+    const demo = { ...userSession, id: 'synthetic-session-8', date: '2026-10-04' };
+    const mine = { ...userSession, id: 'mine', date: '2026-10-04' };
+    const older = { ...userSession, id: 'old', date: '2026-10-01' };
+    expect(sessionsNewestFirst([older, demo, mine]).map((s) => s.id)).toEqual([
+      'mine',
+      'synthetic-session-8',
+      'old',
+    ]);
+  });
+
+  it('demo sessions end the day before today in local time, even late in the evening', () => {
+    const lateEvening = new Date(2026, 9, 4, 22, 50);
+    const days = byKind(syntheticRecords(lateEvening), 'session').map((s) => s.date);
+    expect(days.at(-1)).toBe('2026-10-03');
+    expect(days.every((d) => d < localDate(lateEvening))).toBe(true);
+  });
+});
+
 describe('dates', () => {
   it('localDate uses the device time zone, not UTC', () => {
     const d = new Date(2026, 9, 4, 21, 30); // 9:30 p.m. local
@@ -274,10 +296,32 @@ describe('directions', () => {
 });
 
 describe('connection settings', () => {
+  it('trailing slashes and spaces mixed together are all removed (invariant counterexample)', () => {
+    expect(cleanApiSettings({ baseUrl: 'http://api/ / ', token: 't' }).baseUrl).toBe('http://api');
+  });
+
   it('a pasted token or address loses its spaces, newline and trailing slashes', () => {
     expect(
       cleanApiSettings({ baseUrl: ' https://api.example.org// \n', token: '\tabc123 \n' }),
     ).toEqual({ baseUrl: 'https://api.example.org', token: 'abc123' });
+  });
+});
+
+describe('QR codes', () => {
+  it('encodes the dashboard and Expo links, deterministically', () => {
+    const a = qrPath('https://audiorapy.example/app/');
+    expect(a).not.toBeNull();
+    expect(a!.size).toBeGreaterThanOrEqual(21);
+    expect(a!.dark).toBeGreaterThan(0);
+    expect(qrPath('https://audiorapy.example/app/')).toEqual(a);
+    expect(qrPath('exp://u.expo.dev/abc?channel-name=preview')).not.toBeNull();
+  });
+
+  it('refuses anything that is not a web or Expo link', () => {
+    expect(qrPath('javascript:alert(1)')).toBeNull();
+    expect(qrPath('data:text/html,hi')).toBeNull();
+    expect(qrPath('')).toBeNull();
+    expect(qrPath(`https://x/${'a'.repeat(600)}`)).toBeNull();
   });
 });
 
