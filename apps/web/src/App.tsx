@@ -62,6 +62,8 @@ export function App() {
   const [sessionDraft, setSessionDraft] = useState<SessionDraft | null>(null);
   const [soapDrafts, setSoapDrafts] = useState<Record<string, SoapNote>>({});
   const [cheer, setCheer] = useState<Cheer | null>(null);
+  /** True only when the open vault was created in this page: its first steps deserve a celebration. */
+  const createdNow = useRef(false);
   const dismissCheer = useCallback(() => setCheer(null), []);
 
   const open = useCallback((file: VaultFile, dek: Uint8Array, extra?: JourneyFlags) => {
@@ -74,6 +76,7 @@ export function App() {
     const merged = extra ? { ...base, ...extra } : base;
     if (extra) saveFlags(fp, merged);
     setFlags(merged);
+    createdNow.current = extra !== undefined;
   }, []);
 
   const fingerprint = unlocked?.file.header.fingerprint;
@@ -130,7 +133,7 @@ export function App() {
     }
     const done = new Set(route.steps.filter((s) => s.done).map((s) => s.id));
     // A brand-new vault celebrates its first steps; an existing one starts from what it has.
-    if (seen.current === null && unlocked.file.log.length > 0) {
+    if (seen.current === null && !createdNow.current) {
       seen.current = done;
       return;
     }

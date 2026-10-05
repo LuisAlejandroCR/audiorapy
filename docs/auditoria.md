@@ -25,7 +25,18 @@ No hay app nativa (B6 sigue en roadmap). Cada bug quedó cubierto por un test.
 | U10 | Baja | Varios | Fechas ISO crudas (`2026-10-03`) y sello de aprobación en UTC | `formatDayEs`, `formatStampEs` | unit |
 | U11 | Baja | `VaultGate` | Mínimo de 10 caracteres oculto hasta fallar; selector de archivo en inglés ("Choose File") | Pista con contador; botón propio en español | e2e `vault` |
 | U12 | Baja | Hoy | "Tu agenda de hoy" mostraba días futuros | "Tu agenda" | — |
+| U13 | Media | `App` | Desbloquear una bóveda vacía repetía la celebración de los pasos ya hechos en cada entrada | Solo celebra desde cero la bóveda creada en esta página | e2e `does not replay the celebrations` (con mutación) |
+| U14 | Media | `settings.ts` | Un token pegado con espacio o salto de línea se mostraba como "token rechazado" | `cleanApiSettings` recorta dirección y token, quita `/` final | unit + fuzz + invariante + e2e |
+| U15 | Baja | `SettingsView` | El archivo de respaldo se nombraba con la fecha UTC | `localDate` | — |
+| U16 | Baja | `SettingsView` | La clave derivada solo para comprobar la frase quedaba en memoria | Se pone en cero al comprobar | — |
+| U17 | Baja | `VaultGate` | Si `createVault` falla (sin WebCrypto o memoria para Argon2id) el botón quedaba en "Creando…" para siempre | `try/catch` con mensaje | — |
+| U18 | Baja | Modo sesión | Toques rápidos en ✓/✗ podían activar el zoom por doble toque en el teléfono | `touch-action: manipulation` | — |
+| U19 | Baja | `JourneyMap` | El botón "Ir" no decía a dónde para un lector de pantalla | `aria-label="Ir a: <paso>"` | e2e |
 | F1 | — | `quizPositions` | El fuzz encontró que una longitud enorme o no finita reservaba un arreglo de ese tamaño (proceso sin memoria) | Entradas acotadas a 48 palabras | fuzz `quiz … never throw` |
+
+Límite conocido: las direcciones se guardan por contacto enmascarado (`••••2233`); dos familias con los
+mismos 4 últimos dígitos compartirían dirección. Resolverlo pide que la API entregue un identificador
+opaco y estable por contacto.
 
 ### Mejoras de experiencia (A14–A19)
 

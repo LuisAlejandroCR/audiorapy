@@ -66,6 +66,10 @@ notas clínicas de niños no pueden salir de sus equipos, así que la IA tiene q
   memoria (no un test rojo: un proceso muerto). Toda función que reserve según su entrada debe acotarla,
   aunque hoy solo la llame código propio.
 
+- `2026-10-04` — Una aserción negativa que reintenta (`toHaveCount(0)`, `toBeHidden`) pasa sola si
+  lo que se quiere prohibir desaparece por su cuenta (un aviso que se cierra a los 4 s). Para "esto
+  no debe aparecer", leer una vez después de una espera corta, y probar el test con la mutación.
+
 ## 3. ¿Qué haría distinto?
 
 - `2026-10-02` — Al adaptar una plantilla, diffear contra el original antes de dar el contrato por

@@ -26,6 +26,7 @@ import {
   type ClinicalRecord,
   type Session,
 } from '../../../apps/web/src/lib/records.ts';
+import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { fakeFetch } from '../../api-helpers.ts';
 
 function fakeStorage() {
@@ -269,6 +270,14 @@ describe('directions', () => {
     expect(saveAddress({}, '__proto__', 'x')).toEqual({});
     expect(Object.getPrototypeOf(parseBook('{"__proto__":"x","a":"b"}'))).toBe(Object.prototype);
     expect(parseBook('{"__proto__":"x","a":"b"}')).toEqual({ a: 'b' });
+  });
+});
+
+describe('connection settings', () => {
+  it('a pasted token or address loses its spaces, newline and trailing slashes', () => {
+    expect(
+      cleanApiSettings({ baseUrl: ' https://api.example.org// \n', token: '\tabc123 \n' }),
+    ).toEqual({ baseUrl: 'https://api.example.org', token: 'abc123' });
   });
 });
 

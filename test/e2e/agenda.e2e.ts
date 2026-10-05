@@ -17,7 +17,9 @@ test('a booking made over the API appears in Hoy, phone masked', async ({ page, 
   await createVault(page);
   await page.getByRole('button', { name: 'Respaldo' }).click();
   await page.getByLabel('Dirección de la API de agenda').fill(API);
-  await page.getByLabel('Token del dashboard').fill(TOKEN);
+  // Pasted with a trailing slash, spaces and a newline: still accepted.
+  await page.getByLabel('Dirección de la API de agenda').fill(` ${API}/ `);
+  await page.getByLabel('Token del dashboard').fill(` ${TOKEN}\n`);
   await page.getByRole('button', { name: 'Guardar' }).click();
   await page.getByRole('button', { name: 'Hoy' }).click();
 

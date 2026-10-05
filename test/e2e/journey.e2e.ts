@@ -153,6 +153,23 @@ test('a visit opens in Google Maps, Apple Maps or Waze, and alerts can be resolv
   await expect(alerts.getByRole('listitem').filter({ hasText: masked })).toHaveCount(0);
 });
 
+test('unlocking an existing vault does not replay the celebrations of steps already done', async ({
+  page,
+}) => {
+  await createVault(page);
+  await expect(page.getByRole('status').filter({ hasText: 'pasos completados' })).toBeVisible();
+  await page.reload();
+  await page.getByLabel('Frase de paso').fill(PASSPHRASE);
+  await page.getByRole('button', { name: 'Desbloquear' }).click();
+  await expect(page.getByRole('region', { name: 'Tu primera consulta protegida' })).toContainText(
+    '2 de 6 pasos',
+  );
+  // A single read, not a retrying assertion: the toast closes itself after 4 s and would pass by waiting.
+  await page.waitForTimeout(500);
+  expect(await page.locator('.cheer').count()).toBe(0);
+  await expect(page.getByRole('button', { name: 'Ir a: Carga un caso' })).toBeVisible();
+});
+
 test('"Usar otra bóveda" asks before deleting the stored vault', async ({ page }) => {
   await createVault(page);
   await page.reload();

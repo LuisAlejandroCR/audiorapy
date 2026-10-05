@@ -11,6 +11,7 @@ import {
   parseBook,
 } from '../../../apps/web/src/lib/maps.ts';
 import { formatDayEs, formatStampEs, liveStats } from '../../../apps/web/src/lib/stats.ts';
+import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 
 const jsonish = fc.oneof(
   fc.string(),
@@ -80,6 +81,17 @@ describe('dashboard journey (fuzz)', () => {
           expect(Array.isArray(p)).toBe(true);
         },
       ),
+      { numRuns: 2000 },
+    );
+  });
+
+  it('connection settings clean any pasted text without throwing', () => {
+    fc.assert(
+      fc.property(fc.string(), fc.string(), (baseUrl, token) => {
+        const c = cleanApiSettings({ baseUrl, token });
+        expect(typeof c.baseUrl).toBe('string');
+        expect(typeof c.token).toBe('string');
+      }),
       { numRuns: 2000 },
     );
   });
