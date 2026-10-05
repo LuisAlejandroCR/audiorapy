@@ -28,6 +28,7 @@ simulado en modo consola."* (honestidad, como en la referencia).
 | 3 | 10–16 s | Producto | Simulación del chat: Hola → *Acepto* → lista de cupos → reservado | "El cuidador agenda\ncon botones." | "Ahora la familia agenda con botones. Sin llamadas." | "Families book with buttons." |
 | 4 | 16–21 s | Cine | **P3** — una abuela confirma desde su sala con un toque | "Si no responde,\nte avisamos." | "Y si nadie responde, la visita no se cancela sola: te avisa." | "Silence is flagged, never acted on." |
 | 5 | 21–27 s | Producto | Panel `/app/`: resumen ejecutivo, KPIs, ruta de inicio | "Lo importante\nprimero." | "Abre el panel y ve primero lo que importa." | "What matters, first." |
+| 5b | 21–27 s (alterna) | Cine | **P7** — revisa la app en el carro, sesión con un niño y con una adulta mayor | — | (misma voz del corte 5) | (same) |
 | 6 | 27–35 s | Cine | **P4** — sesión con un adulto mayor (afasia) en su comedor; ella toca ✓ con el pulgar | "Cada ensayo,\ncon su nivel de apoyo." | "En la sesión, cada ensayo con su nivel de apoyo. Con una mano." | "Every try, with its level of support." |
 | 7 | 35–42 s | Producto | App Expo: ✓/✗, racha, meta 10, vibración (icono de háptica) | "Racha, meta\ny criterio." | "La app cuenta la racha y avisa cuando se alcanza el criterio." | "Streak, goal and criterion, live." |
 | 8 | 42–50 s | Producto | Nota SOAP: "O" calculada, IA local propone S/A/P, lista ✓ antes de aprobar | "La IA propone.\nTú apruebas." | "Gemma, en su propio equipo, propone. El código calcula. Ella aprueba." | "The model drafts. Code computes. She approves." |
@@ -44,7 +45,8 @@ Pie del cierre: `COLOMBIA → LATAM` · *Código abierto (MIT) · audiorapy.verc
 Formato común para todos: **16:9 para el pitch, 4:5 recortable para la landing**, 5–8 s, cámara
 documental en mano suave, 35 mm, luz natural cálida de la tarde, gradación beige y blanca con acentos
 azul `#1d5fd1` y verde `#256b4c` presentes en ropa u objetos. Personas latinoamericanas, diversas en
-edad y tono de piel, con expresiones naturales. **Sin texto legible en pantallas** (se compone después),
+edad y tono de piel, con expresiones naturales. **Ningún video contiene texto**: ni subtítulos, ni letreros,
+ni texto legible en pantallas, papeles o ropa (titulares y subtítulos se componen después en edición),
 sin logotipos de marcas, sin uniforme médico de hospital. Manos y gestos creíbles.
 
 ### Pitch
@@ -92,6 +94,21 @@ sin logotipos de marcas, sin uniforme médico de hospital. Manos y gestos creíb
 > burst (no readable text). Alternate version with the same staging for an adult: a man in his 40s
 > who stutters reads a full sentence to his partner, who squeezes his shoulder. Joyful, natural,
 > handheld, warm.
+
+**P7 — "Revisa la app y empieza la terapia" (puente para el minuto 0:21–0:35, o versión larga de 15 s)**
+> Morning, the therapist sits in her parked car outside a patient's home, coffee in the cup holder, and
+> checks her phone: her thumb scrolls a calm agenda screen (blurred, no readable text), she nods, taps
+> once, and a soft vibration ripples through the phone in her hand. She gets out, takes her canvas bag
+> and walks to the door. Match cut on the opening door to two short sessions:
+> (1) a living room floor with a boy of about 6 in a green T-shirt; she kneels at his level with picture
+> cards and a small mirror, models a sound with exaggerated lips, he imitates, laughs, and she taps the
+> big green button on the phone resting on the rug;
+> (2) the same day, a different home: a woman in her late 70s with short white hair and a lilac blouse,
+> seated at a dining table by a window, practices naming objects from a photo album; the therapist
+> sits beside her, patient and warm, offers a gentle cue with her hand, the woman finds the word and
+> squeezes her arm, both smiling. End on the therapist's thumb tapping the green button again.
+> Handheld 35 mm, natural daylight, beige and white interiors with blue and green accents, intimate and
+> respectful, no readable text anywhere.
 
 ### Landing — "Pensado para cada visita" (un video por tarjeta)
 

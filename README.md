@@ -76,6 +76,11 @@ strict CSP. `vercel.json` deploys them as static files:
 npx vercel --prod      # build: npm run build -w @audiorapy/web, output: apps/web/dist
 ```
 
+"Hoy" opens with an executive summary built by code: one sentence, four KPIs in urgency order (alerts,
+confirmations, pending notes, the next 7 days), the accuracy trend and the single next step. Browser
+notifications for new family alerts are opt-in and carry logistics only; the phone app adds haptics on
+every tap and a local reminder one hour before each visit.
+
 The landing shows a QR code for the dashboard (built from its own origin, so it is right on any domain) and,
 when `VITE_EXPO_URL` is set at build time, one for the Expo preview.
 

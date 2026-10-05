@@ -1,12 +1,17 @@
-// TodayScreen.tsx: the day at a glance — KPI tiles, open alerts, upcoming visits and "Cómo llegar"
+// TodayScreen.tsx: the day at a glance — executive summary first, KPI tiles, open alerts, upcoming visits,
+// a one-hour reminder per visit and "Cómo llegar"
 // (Google Maps, Apple Maps, Waze). Addresses are typed per visit and kept in memory only in this preview.
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
-import { agendaKpis, ALERT_ES, STATUS_ES, type ApiSettings } from '@audiorapy/web-lib/agenda.ts';
+import { ALERT_ES, STATUS_ES, type ApiSettings } from '@audiorapy/web-lib/agenda.ts';
 import { MAP_APPS, mapLink } from '@audiorapy/web-lib/maps.ts';
+import { executiveSummary } from '@audiorapy/web-lib/summary.ts';
+import { syntheticRecords } from '@audiorapy/web-lib/records.ts';
 import { loadAgenda, type Loaded } from './agenda';
+import { remindBefore } from './feedback';
+import { SummaryCard } from './SummaryCard';
 import type { Theme } from './theme';
-import { Card, Heading, Kpi, Pill } from './ui';
+import { Card, Heading, Pill } from './ui';
 
 export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -14,6 +19,7 @@ export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }
     '••••2233': 'Calle 45 # 12-30, Bogotá',
   });
 
+  const [reminded, setReminded] = useState<Record<string, string>>({});
   const refresh = useCallback(async () => {
     setLoaded(null);
     setLoaded(await loadAgenda(settings, new Date()));
@@ -32,7 +38,6 @@ export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }
     );
 
   const now = new Date();
-  const kpi = agendaKpis(loaded.agenda, now);
   const upcoming = loaded.agenda.appointments
     .filter(
       (a) =>
@@ -42,9 +47,13 @@ export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const open = loaded.agenda.alerts.filter((a) => !a.resolved);
 
+  // The phone keeps no clinical records, so the accuracy trend comes from the synthetic demo case.
+  const summary = executiveSummary(loaded.agenda, syntheticRecords(now), now);
+
   return (
     <View>
       <Heading t={t} eyebrow="Panel diario" title="Tu agenda" />
+      <SummaryCard t={t} s={summary} demo />
       {loaded.source === 'demo' && (
         <Text style={[st.banner, { backgroundColor: t.warnBg, color: t.warnText }]}>
           {loaded.error
@@ -61,24 +70,6 @@ export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }
         <Text style={{ color: t.heroText }}>
           {upcoming[0] ? `Familia ${upcoming[0].contact}` : 'Tu agenda está libre'}
         </Text>
-      </View>
-
-      <View style={st.grid}>
-        <Kpi t={t} label="Próximos 7 días" value={String(kpi.next7Days)} unit="visitas" />
-        <Kpi
-          t={t}
-          label="Confirmadas"
-          value={kpi.confirmedPercent === null ? '—' : `${kpi.confirmedPercent} %`}
-          unit={`${kpi.upcoming - kpi.confirmed} por confirmar`}
-          tone="ok"
-        />
-        <Kpi
-          t={t}
-          label="Avisos"
-          value={String(kpi.openAlerts)}
-          unit={kpi.openAlerts ? 'requieren respuesta' : 'todo al día'}
-          tone={kpi.openAlerts ? 'warn' : 'ok'}
-        />
       </View>
 
       {open.map((a) => (
@@ -119,6 +110,16 @@ export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }
               style={[st.input, { color: t.text, borderColor: t.line, backgroundColor: t.bg }]}
             />
             <View style={st.maps}>
+              <Pill
+                t={t}
+                label={reminded[a.id] ?? 'Recordarme 1 h antes'}
+                accessibilityLabel={`Recordarme una hora antes de la visita ${a.label}`}
+                onPress={() =>
+                  void remindBefore(a.startsAt, a.label, a.contact).then((r) =>
+                    setReminded((m) => ({ ...m, [a.id]: REMINDER_ES[r] })),
+                  )
+                }
+              />
               {MAP_APPS.map((m) => {
                 const url = mapLink(m.id, address);
                 return (
@@ -141,13 +142,19 @@ export function TodayScreen({ t, settings }: { t: Theme; settings: ApiSettings }
   );
 }
 
+const REMINDER_ES = {
+  scheduled: 'Recordatorio listo ✓',
+  denied: 'Permiso de avisos denegado',
+  past: 'Ya es muy tarde para avisar',
+  unsupported: 'Avisos solo en el teléfono',
+} as const;
+
 const st = StyleSheet.create({
   center: { alignItems: 'center', padding: 40 },
   banner: { borderRadius: 14, padding: 12, marginBottom: 14, fontSize: 14 },
   hero: { borderRadius: 22, padding: 20, marginBottom: 12 },
   heroLabel: { fontSize: 12, fontWeight: '800', letterSpacing: 1.2 },
   heroValue: { fontFamily: 'serif', fontSize: 26, marginVertical: 4 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   when: { fontSize: 17, fontWeight: '700' },
   pill: {

@@ -13,6 +13,7 @@ import {
 import { formatDayEs, formatStampEs, liveStats } from '../../../apps/web/src/lib/stats.ts';
 import { cleanApiSettings } from '../../../apps/web/src/lib/settings.ts';
 import { qrPath } from '../../../apps/web/src/lib/qr.ts';
+import { sparkline } from '../../../apps/web/src/lib/summary.ts';
 
 const jsonish = fc.oneof(
   fc.string(),
@@ -104,6 +105,19 @@ describe('dashboard journey (fuzz)', () => {
         if (q) expect(q.d).toMatch(/^(M\d+ \d+h1v1h-1z)+$/);
       }),
       { numRuns: 300 },
+    );
+  });
+
+  it('the sparkline never throws and never leaves its box, whatever numbers it gets', () => {
+    fc.assert(
+      fc.property(fc.array(fc.double()), (values) => {
+        const pts = sparkline(values, 100, 40);
+        for (const p of pts ? pts.split(' ') : []) {
+          const [x, y] = p.split(',').map(Number);
+          expect(x! >= 0 && x! <= 100 && y! >= 0 && y! <= 40).toBe(true);
+        }
+      }),
+      { numRuns: 1000 },
     );
   });
 

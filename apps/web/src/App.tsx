@@ -225,7 +225,6 @@ export function App() {
               {unlocked.failed} registros no se pudieron descifrar.
             </p>
           )}
-          {tab === 'today' && <JourneyMap route={route} onGo={(step) => setTab(STEP_TAB[step])} />}
           {patients.length === 0 && tab !== 'today' && tab !== 'settings' ? (
             <section className="card empty">
               <span className="empty-icon" aria-hidden="true">
@@ -242,7 +241,21 @@ export function App() {
             </section>
           ) : (
             <main>
-              {tab === 'today' && <TodayView onConfigure={() => setTab('settings')} />}
+              {tab === 'today' && (
+                <TodayView
+                  records={records}
+                  onConfigure={() => setTab('settings')}
+                  onNext={(focus) => {
+                    if (focus === 'notes' || focus === 'session') setTab('session');
+                    else
+                      document
+                        .getElementById(focus === 'alerts' ? 'alerts' : 'upcoming-title')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  <JourneyMap route={route} onGo={(step) => setTab(STEP_TAB[step])} />
+                </TodayView>
+              )}
               {tab === 'progress' && <ProgressView records={records} />}
               {tab === 'session' && (
                 <SessionView

@@ -1,4 +1,4 @@
-// SessionScreen.tsx: session mode for one hand — target, support level, big ✓/✗, undo, live streak,
+// SessionScreen.tsx: session mode for one hand — target, support level, big ✓/✗ with haptics, undo, live streak,
 // 10-trial goal and criterion. "O" is computed by the domain code. In this preview nothing is stored:
 // the encrypted record is saved from the web dashboard.
 import { useState } from 'react';
@@ -13,6 +13,7 @@ import {
 import { liveStats, TRIAL_GOAL } from '@audiorapy/web-lib/stats.ts';
 import type { Theme } from './theme';
 import { Card, Heading, Pill } from './ui';
+import { haptic, MILESTONES } from './feedback';
 
 const TARGETS = [
   { id: 't-s-initial', label: '/s/ inicial en palabras', criterionPercent: 80 },
@@ -37,6 +38,20 @@ export function SessionScreen({ t }: { t: Theme }) {
     mine.map((x) => x.correct),
     target.criterionPercent,
   );
+
+  // A tap you can feel: ✓ light, ✗ warning; a streak milestone or the criterion reached buzzes success.
+  const add = (correct: boolean) => {
+    const next = [...trials, { targetId, correct, cue }];
+    const after = liveStats(
+      next.filter((x) => x.targetId === targetId).map((x) => x.correct),
+      target.criterionPercent,
+    );
+    if ((after.criterionMet && !stats.criterionMet) || (correct && MILESTONES.has(after.streak)))
+      haptic.milestone();
+    else if (correct) haptic.correct();
+    else haptic.wrong();
+    setTrials(next);
+  };
 
   if (finished) {
     const summaries = TARGETS.map((x) => ({
@@ -87,7 +102,7 @@ export function SessionScreen({ t }: { t: Theme }) {
               key={x.id}
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
-              onPress={() => setTargetId(x.id)}
+              onPress={() => (haptic.select(), setTargetId(x.id))}
               style={[
                 st.chip,
                 { borderColor: on ? t.accent : t.line, backgroundColor: on ? t.accent : t.surface },
@@ -109,7 +124,7 @@ export function SessionScreen({ t }: { t: Theme }) {
               key={c}
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
-              onPress={() => setCue(c)}
+              onPress={() => (haptic.select(), setCue(c))}
               style={[
                 st.cue,
                 { borderColor: on ? t.text : t.line, backgroundColor: on ? t.text : t.surface },
@@ -127,7 +142,7 @@ export function SessionScreen({ t }: { t: Theme }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Acierto"
-          onPress={() => setTrials((ts) => [...ts, { targetId, correct: true, cue }])}
+          onPress={() => add(true)}
           style={({ pressed }) => [
             st.big,
             { backgroundColor: t.cue.independent, opacity: pressed ? 0.8 : 1 },
@@ -138,7 +153,7 @@ export function SessionScreen({ t }: { t: Theme }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Error"
-          onPress={() => setTrials((ts) => [...ts, { targetId, correct: false, cue }])}
+          onPress={() => add(false)}
           style={({ pressed }) => [
             st.big,
             { backgroundColor: t.cue.max, opacity: pressed ? 0.8 : 1 },
@@ -194,7 +209,7 @@ export function SessionScreen({ t }: { t: Theme }) {
           t={t}
           kind="outline"
           label="Deshacer"
-          onPress={() => setTrials((ts) => ts.slice(0, -1))}
+          onPress={() => (haptic.select(), setTrials((ts) => ts.slice(0, -1)))}
         />
         <Pill
           t={t}

@@ -1,4 +1,4 @@
-// landing.ts: fills the landing's QR codes — the dashboard at this site's own /app/ (so it is right on
+// landing.ts: scroll motion and the landing's QR codes — the dashboard at this site's own /app/ (so it is right on
 // any domain) and, when VITE_EXPO_URL is set at build time, the Expo preview for Expo Go.
 /// <reference types="vite/client" />
 import { qrPath, QUIET } from './lib/qr.ts';
@@ -33,4 +33,36 @@ const expo = document.querySelector<HTMLElement>('[data-qr="expo"]');
 if (expo && expoUrl) {
   draw(expo, expoUrl, 'abrir la app en Expo Go');
   document.querySelector('[data-qr-hint="expo"]')?.remove();
+}
+
+// Motion: reveal sections as they scroll in and count the facts up once. The page is complete without JS.
+const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.documentElement.classList.add('js');
+const reveal = new IntersectionObserver(
+  (entries) => {
+    for (const e of entries)
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        reveal.unobserve(e.target);
+        if (!still) countUp(e.target);
+      }
+  },
+  { threshold: 0.15 },
+);
+for (const el of document.querySelectorAll('.reveal')) reveal.observe(el);
+
+function countUp(root: Element) {
+  for (const el of root.querySelectorAll<HTMLElement>('.facts strong')) {
+    const text = el.textContent ?? '';
+    const target = Number.parseInt(text, 10);
+    if (!Number.isFinite(target) || target === 0) continue;
+    const suffix = text.slice(String(target).length);
+    const start = performance.now();
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - start) / 900);
+      el.textContent = `${Math.round(target * (1 - (1 - k) ** 3))}${suffix}`;
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
 }

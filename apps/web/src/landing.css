@@ -503,6 +503,130 @@ h2 {
   font-size: 0.88rem;
 }
 
+/* Motion: sections rise in as they enter the viewport; hero cards float; all off with reduced motion. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+.js .reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+.cards .card:nth-child(2) {
+  transition-delay: 0.08s;
+}
+.cards .card:nth-child(3) {
+  transition-delay: 0.16s;
+}
+.cards .card:nth-child(4) {
+  transition-delay: 0.24s;
+}
+
+.card {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(20, 36, 59, 0.18);
+}
+
+.float-card {
+  animation: float 6s ease-in-out infinite;
+}
+
+.c2 {
+  animation-delay: -2s;
+}
+
+.c3 {
+  animation-delay: -4s;
+}
+
+.bars i {
+  transform-origin: bottom;
+  animation: grow 1.2s ease-out both;
+}
+
+.bars i:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.bars i:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.bars i:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.bars i:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.bars i:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.bars i.hot {
+  animation-delay: 0.6s;
+}
+
+.sun {
+  animation: glow 5s ease-in-out infinite;
+}
+
+.pill {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(20, 36, 59, 0.18);
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes glow {
+  50% {
+    opacity: 0.6;
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .float-card,
+  .bars i,
+  .sun {
+    animation: none;
+  }
+
+  .card,
+  .pill {
+    transition: none;
+  }
+}
+
 @media (max-width: 900px) {
   .hero,
   .split,
