@@ -197,27 +197,85 @@
         <div>
           <h2 id="app-title">También en tu teléfono</h2>
           <p class="lede">
-            La app móvil (vista previa con Expo) lleva la agenda, el modo sesión y la ruta a cada
+            La app móvil (beta en Android y iPhone) lleva la agenda, el modo sesión y la ruta a cada
             casa. Pensada para registrar con una mano mientras trabajas con tu paciente.
           </p>
           <div class="qr-row" aria-label="Códigos QR">
             <figure class="qr-card">
               <div class="qr" data-qr="web"></div>
               <figcaption>
+                <small>Web</small>
                 <strong>Panel web</strong>
                 <span>Abre el panel en tu teléfono</span>
               </figcaption>
+              <button
+                class="qr-expand"
+                type="button"
+                data-qr-open="web"
+                aria-label="Ver en grande el QR del panel web"
+                hidden
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" />
+                </svg>
+              </button>
             </figure>
             <figure class="qr-card">
-              <div class="qr" data-qr="expo">
-                <span class="qr-hint" data-qr-hint="expo">Expo Go</span>
-              </div>
+              <div class="qr" data-qr="android"></div>
               <figcaption>
-                <strong>App móvil (Expo Go)</strong>
-                <span>Instala Expo Go y escanea el QR de <code>npx expo start</code></span>
+                <small>Android · APK</small>
+                <strong>Instala la beta</strong>
+                <span>Descarga el APK desde Expo</span>
               </figcaption>
+              <button
+                class="qr-expand"
+                type="button"
+                data-qr-open="android"
+                aria-label="Ver en grande el QR de Android"
+                hidden
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" />
+                </svg>
+              </button>
+            </figure>
+            <figure class="qr-card">
+              <div class="qr" data-qr="ios"></div>
+              <figcaption>
+                <small>iOS · TestFlight</small>
+                <strong>Únete a la beta</strong>
+                <span>Necesitas la app gratuita TestFlight</span>
+              </figcaption>
+              <button
+                class="qr-expand"
+                type="button"
+                data-qr-open="ios"
+                aria-label="Ver en grande el QR de iPhone"
+                hidden
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" />
+                </svg>
+              </button>
             </figure>
           </div>
+          <p class="qr-links">
+            ¿Ya estás en el teléfono?
+            <a
+              href="https://expo.dev/accounts/alejoo_oo/projects/audiorapy/builds/25208c1c-513c-40ab-9e87-c8884f1f7a0a"
+              >APK para Android</a
+            >
+            ·
+            <a href="https://testflight.apple.com/join/BWFrPaur">TestFlight para iPhone</a>
+          </p>
+          <dialog class="qr-full" aria-labelledby="qr-full-caption">
+            <div class="qr-full-code" data-qr-full></div>
+            <p id="qr-full-caption" data-qr-full-caption></p>
+            <div class="qr-full-actions">
+              <a class="pill light small" data-qr-full-link href="/">Abrir página de instalación</a>
+              <button class="pill dark small" type="button" data-qr-close>Cerrar</button>
+            </div>
+          </dialog>
         </div>
       </section>
 
