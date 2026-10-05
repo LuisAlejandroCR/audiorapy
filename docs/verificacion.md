@@ -34,6 +34,7 @@
 | 2026-10-02 | `submission.spec.ts` (borrador del post) | PASS 5/5; mutaciones atrapadas: cifra de reglas distinta al README, `published: true` con marcas abiertas, sección de la plantilla renombrada | Linux, Node 22.22.0 |
 | 2026-10-03 | `npm ci` + `npm run verify` (B14, clon limpio con `core.autocrlf=true` y `.gitattributes` `eol=lf`; Prettier con `endOfLine` estricto) | PASS — 162 archivos de texto en LF en el working tree; typecheck, lint, formato, 224/224 tests y build web (385,53 kB JS; 124,12 kB gzip) | Windows, Node 22 |
 | 2026-10-03 | B15 pulido UI/UX: `npm run verify` + `npm run test:e2e` | PASS — 224/224 tests; e2e 20/20 (móvil y escritorio, incluido layout sin desbordamiento y objetivos táctiles); revisión visual de capturas a 360 px y escritorio | Windows, Node 22 |
+| 2026-10-05 | B17 paleta + landing + app Expo: `npm run verify`, `npm run test:e2e`, `tsc` y `expo export -p web` en `apps/mobile` | PASS — 268/268; e2e 34/34 (incluida la landing: CSP, sin desbordamiento, imágenes propias, enlace al panel); la app compila (339 módulos) y corre en el navegador a 390 px en claro y oscuro sin errores de página | Windows, Node 24, Expo SDK 57 |
 | 2026-10-04 | B16 ruta gamificada + auditoría UI/UX: `npm run verify` + `npm run test:e2e` | PASS — 264/264 tests (40 nuevos en `test/{unit,fuzz,invariant}/web/journey*`); e2e 32/32 (16 × móvil Pixel 7 y escritorio), incluido layout sin desbordamiento, objetivos de 44 px y sin violaciones de CSP; capturas a 360 px y 1180 px en claro y oscuro (`scripts/screenshots.ts`) | Windows, Node 22, Playwright 1.63 |
 
 ## Mutaciones (la suite se pone roja cuando la promesa se rompe)
@@ -69,6 +70,8 @@
 | Plantilla *utility* del recordatorio | ⏳ pendiente | Fuera de la ventana de 24 h un interactivo no basta; hay que registrar y aprobar la plantilla en Meta |
 | Post de DEV (`submission/dev-post.md`) | ⏳ pendiente | Borrador listo; faltan las marcas `[[AUTHOR: …]]`: cita de la terapeuta, video, URL desplegada, cifras de Gemma y TabPFN, sesión del agente. El repo debe ser público para el embed `{% github %}` |
 | Ollama + `gemma4:e4b` | ⏳ pendiente | No hay Ollama en la sesión en la nube. Probado contra un doble de `/api/chat` con `format` = JSON Schema. Falta: correr `npm run eval:intent -- --ollama` en la laptop de la terapeuta (precisión y latencia reales) |
+| Vercel (landing + panel) | ⏳ pendiente | `vercel.json` listo; el deploy requiere la cuenta del autor (`vercel login`, luego `vercel --prod`) |
+| App Expo en un teléfono real (Expo Go) | ⏳ pendiente | Probada solo como vista previa web (`expo export -p web`); falta `npx expo start` + escanear el QR con Expo Go |
 | Dashboard en navegador real | ✅ 2026-10-02 | Ver la sección `playwright-cli` abajo |
 
 ## Pendientes conocidos

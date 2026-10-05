@@ -67,6 +67,27 @@ the address stays in the browser until the therapist taps one.
 |---|---|---|
 | ![Start route](docs/screenshots/today-mobile.png) | ![Session mode](docs/screenshots/session-mobile.png) | ![Recovery quiz](docs/screenshots/quiz-mobile.png) |
 
+### Landing page, Vercel and the mobile preview
+
+The web build has two pages: a public landing at `/` and the dashboard at `/app/`, both under the same
+strict CSP. `vercel.json` deploys them as static files:
+
+```bash
+npx vercel --prod      # build: npm run build -w @audiorapy/web, output: apps/web/dist
+```
+
+`apps/mobile` is an Expo (SDK 57) preview of the phone app: today's agenda with KPIs and "Cómo llegar"
+links, and session mode with streak and trial goal. It reuses the domain code instead of copying it and
+stores nothing clinical on the phone. It installs on its own (outside the npm workspaces):
+
+```bash
+cd apps/mobile && npm ci && npx expo start   # scan the QR with Expo Go, or press w for the web preview
+```
+
+| Landing | Mobile app (Expo preview) | Session mode on the phone |
+|---|---|---|
+| ![Landing](docs/screenshots/landing-mobile.png) | ![Mobile today](docs/screenshots/mobile-app-today.png) | ![Mobile session](docs/screenshots/mobile-app-session-dark.png) |
+
 The screenshots use synthetic data only; no real patient appears anywhere in this repo.
 
 Persistence: without `DATABASE_URL` the API keeps the schedule in memory. Point it at Postgres (Render Postgres
