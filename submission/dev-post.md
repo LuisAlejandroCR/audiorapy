@@ -1,5 +1,5 @@
 ---
-title: My sister drives to her patients. Her notes about their kids stay on her laptop.
+title: My sister drives to her patients. Her notes about them never leave her laptop.
 published: false
 tags: devchallenge, weekendchallenge, hf26challenge
 ---
@@ -14,16 +14,16 @@ lists the ones still open. Delete this comment before publishing.
 
 ## What I Built
 
-My sister is a speech-language therapist (*fonoaudióloga*) in Colombia. She doesn't see children in a
-clinic: she goes to their homes. Two parts of that job are what this project is about.
+My sister is a speech-language therapist (*fonoaudióloga*) in Colombia. She doesn't see patients in a
+clinic: she goes to their homes — children learning sounds, adults recovering speech after a stroke. Two parts of that job are what this project is about.
 
 **Scheduling.** Every visit is arranged in WhatsApp chats with parents and grandparents: moving a visit
-to another day, a child who is sick this week, a reminder nobody answers. When a confirmation slips
+to another day, a patient who is sick this week, a reminder nobody answers. When a confirmation slips
 through, she finds out at the door.
 
 **Session notes.** In a session she runs drills (say /r/ at the start of a word, ten tries) and for each
-try she records whether the child got it and how much help it took: none, minimal, moderate or maximal
-cueing. That *cue level* is the clinical signal: a child who goes from "needed a lot of help" to "got it
+try she records whether the patient got it and how much help it took: none, minimal, moderate or maximal
+cueing. That *cue level* is the clinical signal: a patient who goes from "needed a lot of help" to "got it
 alone" is making progress even when the hit rate looks flat. Then each visit needs a SOAP note.
 
 [[AUTHOR: replace or extend the two paragraphs above with how she actually works (how many families,
@@ -41,6 +41,12 @@ how she keeps the agenda today, what a bad week looks like). Only real details, 
   classifies; the bot never sends text the model wrote.
 - **Silence is escalated, never acted on.** If nobody answers a reminder, the visit is *not* cancelled.
   It lands in her agenda as an alert, because she knows that family and the bot doesn't.
+- **A start route that feels like a game.** The first visit is a quest map: create the vault, prove the
+  recovery phrase with three random words, record a session, approve a note, download a backup. Each
+  step is earned from real records, with points and a short celebration; session mode shows a streak
+  and a 10-trial goal.
+- **A phone app (Expo preview)** with today's agenda, KPIs, session mode and "Cómo llegar" links to
+  Google Maps, Apple Maps or Waze. It stores nothing clinical on the phone.
 - **A dashboard that decrypts in her browser.** Today's visits, progress by cue level per target sound,
   a session mode for logging tries, and a SOAP draft written by Gemma on `localhost`. The objective
   figures in the note are computed by code; the model is not allowed to write numbers.
@@ -52,7 +58,13 @@ quoted with her permission. The challenge gives bonus points for handing it over
 
 [[AUTHOR: link to the 60-second video: book a visit with buttons, then unplug Ollama and book again.]]
 
-[[AUTHOR: deployed dashboard URL on Render, or remove this line if it is not deployed.]]
+**Live:** [audiorapy.vercel.app](https://audiorapy.vercel.app) (landing) · [audiorapy.vercel.app/app/](https://audiorapy.vercel.app/app/)
+(dashboard, runs entirely in your browser with synthetic demo data; the scheduling API is not deployed, so
+"Hoy" shows its degraded state until you run it locally).
+
+| Landing | Phone app (Expo preview) | Session mode on the phone |
+|---|---|---|
+| ![Landing](https://raw.githubusercontent.com/LuisAlejandroCR/audiorapy/main/docs/screenshots/landing-mobile.png) | ![Phone app](https://raw.githubusercontent.com/LuisAlejandroCR/audiorapy/main/docs/screenshots/mobile-app-today.png) | ![Session mode](https://raw.githubusercontent.com/LuisAlejandroCR/audiorapy/main/docs/screenshots/mobile-app-session.png) |
 
 | Today (phones masked) | SOAP draft (figures computed by code) | Progress by cue level |
 |---|---|---|
@@ -76,9 +88,9 @@ curl -s -X POST localhost:3000/dev/simulate -H 'content-type: application/json' 
 
 ## How I Built It
 
-### The rule that shaped everything: the server must not be able to read a child's notes
+### The rule that shaped everything: the server must not be able to read a patient's notes
 
-Clinical records in Colombia are kept for 15 years, and these are notes about children's speech. So I
+Clinical records in Colombia are kept for 15 years, and these are notes about people's speech. So I
 split the app into two planes:
 
 | Plane | What it holds | Who can read it |
@@ -95,7 +107,7 @@ legally required record. Backups are the same ciphertext.
 
 | Component | Runs on | Sees | Never sees | When it's off |
 |---|---|---|---|---|
-| Intent classifier — **Gemma 4 E4B on Ollama** | wherever the API can reach Ollama | the caregiver's free-text message (≤500 chars), which Meta already saw | child's name, any clinical data | deterministic Spanish rules |
+| Intent classifier — **Gemma 4 E4B on Ollama** | wherever the API can reach Ollama | the caregiver's free-text message (≤500 chars), which Meta already saw | patient's name, any clinical data | deterministic Spanish rules |
 | SOAP draft — **Gemma 4 E4B on Ollama**, called from the dashboard | her laptop, `localhost` | target labels, hit counts, dominant cue level, her own short notes | name, age, address, diagnosis | a template with `[completar]` blanks |
 | No-show risk — **TabPFN-2** sidecar (logistic baseline today) | a private service | eight numeric attendance features | names, phones, anything clinical | a fixed heuristic |
 
@@ -164,7 +176,7 @@ These numbers say nothing about real families yet; they say the pipeline works e
 
 The property tests earned their keep. One compares the in-memory store with Postgres over random
 operation sequences and found that reactivating a cancelled visit onto a taken slot behaved differently
-in each. Another, on the boundary between the API and the risk sidecar, found that a child's 501st
+in each. Another, on the boundary between the API and the risk sidecar, found that a patient's 501st
 session would have produced a request the sidecar rejects. Both were fixed before anyone hit them.
 
 ## Why Does Open Innovation Matter?
@@ -201,7 +213,7 @@ separates what was actually verified from what is still pending.
 
 - **Best Use of Gemma** — Gemma 4 E4B on local Ollama is the intent classifier and the SOAP drafter.
 - **Best Use of TabPFN** — the no-show risk sidecar. [[AUTHOR: keep only if the `tabpfn-eval` run produced a number.]]
-- **Best Use of Render** — the Blueprint runs the API, dashboard, Postgres and the private risk service. [[AUTHOR: keep only if it is deployed.]]
+- **Best Use of Render** — the Blueprint runs the API, Postgres and the private risk service; the landing and dashboard are on Vercel. [[AUTHOR: keep only if the Render Blueprint is deployed.]]
 
 ## Prior work
 
@@ -213,6 +225,6 @@ of NestJS). The repo's agent rules and learnings log are adapted from my
 
 ---
 
-*Resumen en español:* audiorapy ayuda a una fonoaudióloga que atiende niños a domicilio en Colombia: las
+*Resumen en español:* audiorapy ayuda a una fonoaudióloga que atiende pacientes de cualquier edad a domicilio en Colombia: las
 familias agendan y confirman por WhatsApp con botones, ella registra cada sesión con nivel de apoyo, y
 las notas clínicas se cifran y descifran solo en su computador, con Gemma 4 corriendo localmente.

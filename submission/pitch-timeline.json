@@ -1,0 +1,106 @@
+[
+  {
+    "start": 0.0,
+    "dur": 5.0,
+    "name": "puerta",
+    "title": "audiorapy",
+    "voice": "Atiende a domicilio. Su consultorio es el carro.",
+    "voice_file": true
+  },
+  {
+    "start": 5.0,
+    "dur": 5.0,
+    "name": "chats",
+    "title": "Cada visita,\nun chat distinto.",
+    "voice": "Cada visita se cuadra en un chat distinto.",
+    "voice_file": true
+  },
+  {
+    "start": 10.0,
+    "dur": 6.0,
+    "name": "botones",
+    "title": "El cuidador agenda\ncon botones.",
+    "voice": "Ahora la familia agenda con botones. Sin llamadas.",
+    "voice_file": true
+  },
+  {
+    "start": 16.0,
+    "dur": 5.0,
+    "name": "abuela",
+    "title": "Si no responde,\nte avisamos.",
+    "voice": "Y si nadie responde, la visita no se cancela sola: te avisa.",
+    "voice_file": true
+  },
+  {
+    "start": 21.0,
+    "dur": 6.0,
+    "name": "panel",
+    "title": "Lo importante\nprimero.",
+    "voice": "Abre el panel y ve primero lo que importa.",
+    "voice_file": true
+  },
+  {
+    "start": 27.0,
+    "dur": 8.0,
+    "name": "sesion-cine",
+    "title": "Cada ensayo,\ncon su nivel de apoyo.",
+    "voice": "En la sesión, cada ensayo con su nivel de apoyo. Con una mano.",
+    "voice_file": true
+  },
+  {
+    "start": 35.0,
+    "dur": 7.0,
+    "name": "sesion-app",
+    "title": "Racha, meta\ny criterio.",
+    "voice": "La app cuenta la racha y avisa cuando se alcanza el criterio.",
+    "voice_file": true
+  },
+  {
+    "start": 42.0,
+    "dur": 8.0,
+    "name": "nota",
+    "title": "La IA propone.\nTú apruebas.",
+    "voice": "Gemma, en su propio equipo, propone. El código calcula. Ella aprueba.",
+    "voice_file": true
+  },
+  {
+    "start": 50.0,
+    "dur": 7.0,
+    "name": "cifrado",
+    "title": "Ni el servidor\npuede leerla.",
+    "voice": "La nota se cifra antes de salir de su navegador.",
+    "voice_file": true
+  },
+  {
+    "start": 57.0,
+    "dur": 7.0,
+    "name": "ruta",
+    "title": "Cómo llegar,\nen un toque.",
+    "voice": "Y a la siguiente casa, en un toque.",
+    "voice_file": true
+  },
+  {
+    "start": 64.0,
+    "dur": 8.0,
+    "name": "logro",
+    "title": "Progreso que\nse ve.",
+    "voice": "El progreso se ve. Y se celebra.",
+    "voice_file": true
+  },
+  {
+    "start": 72.0,
+    "dur": 8.0,
+    "name": "sin-ia",
+    "title": "Sin IA,\nsigue funcionando.",
+    "voice": "Apagamos la IA. La agenda sigue funcionando.",
+    "voice_file": true
+  },
+  {
+    "start": 80.0,
+    "dur": 10.0,
+    "name": "cierre",
+    "title": "Visitas confirmadas.\nNotas que no salen de tu equipo.",
+    "voice": "Hecho para mi hermana. Abierto para todas.",
+    "voice_file": true
+  }
+]
