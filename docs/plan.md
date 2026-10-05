@@ -55,7 +55,7 @@
 | B12 | Borrador del post de DEV en inglés | `docs/dev-post` (#15) | ✅ borrador + test; marcas `[[AUTHOR: …]]` ⏳ (cita, video, URL, cifras de Gemma y TabPFN) |
 | B13 | Auditoría completa contra AGENTS.md | `chore/audit` (#17) | ✅ 6 hallazgos corregidos, cada uno con test; informe en `docs/auditoria.md` |
 | B14 | Verificación reproducible en Windows con `core.autocrlf=true` | `fix/windows-verify` (#18) | ✅ `.gitattributes` fija LF en el working tree; el test del post normaliza LF/CRLF; `npm run verify` pasa completo en Windows |
-| B17 | Paleta azul/beige/blanco/verde, landing pública en `/` + panel en `/app/` para Vercel, y app móvil Expo (vista previa) | `feat/landing-mobile` | ✅ A20–A22; 267 tests; e2e 34/34; job `mobile` en CI; deploy a Vercel ⏳ (requiere la cuenta del autor) |
+| B17 | Paleta azul/beige/blanco/verde, landing pública en `/` + panel en `/app/` para Vercel, y app móvil Expo (vista previa) | `feat/landing-mobile` (#22) | ✅ A20–A22; 272 tests; e2e 34/34; job `mobile` en CI; deploy a Vercel ⏳ (requiere la cuenta del autor) |
 | B16 | Auditoría UI/UX + ruta de inicio gamificada, corrección de bugs de pérdida de datos y fechas | `feat/guided-flow` (#20) | ✅ A14–A19; 261 tests (37 nuevos: unit, fuzz, invariante); e2e 30/30 móvil + escritorio; capturas claro/oscuro |
 | B15 | Pulido UI/UX del dashboard: jerarquía visual, navegación con iconos, agenda escaneable y estados accesibles; capturas móvil/escritorio | `feat/ui-ux-polish` (#19) | ✅ A11–A13; e2e 20/20 móvil + escritorio; capturas regeneradas con datos sintéticos |
 
