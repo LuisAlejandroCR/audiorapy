@@ -39,6 +39,10 @@ services:
         sync: false
       - key: META_VERIFY_TOKEN
         sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
       - key: AI_INTENT_PROVIDER
         value: rules # switch to `ollama` only with OLLAMA_BASE_URL behind an authenticated tunnel
       - key: OLLAMA_BASE_URL

@@ -12,6 +12,7 @@ import { buildRisk } from './providers.ts';
 import { verifySignature } from './meta/signature.ts';
 import { parseWebhook } from './meta/parse.ts';
 import { ConsoleChannel } from './channel/console-channel.ts';
+import { parseTelegramUpdate, TelegramChannel } from './channel/telegram.ts';
 import { Inbox } from './service/inbox.ts';
 import { singleFlight, tickReminders, type TickResult } from './service/reminders.ts';
 import type { SchedulingStore } from './store/store.ts';
@@ -98,7 +99,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   app.get('/health/providers', async () => {
     const primary = classifier.lastPrimary;
     return {
-      channel: { active: channel.name, configured: config.channel === 'meta' },
+      channel: { active: channel.name, configured: config.channel !== 'console' },
       intent: {
         configured: config.AI_INTENT_PROVIDER,
         active: classifier.primary ? classifier.primary.name : 'rules',
@@ -147,6 +148,23 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     }
     const messages = parseWebhook(req.body);
     for (const m of messages) inbox.enqueue(m);
+    return reply.code(200).send({ received: messages.length });
+  });
+
+  // Telegram: the secret token set with setWebhook comes back in a header; without it, fail closed.
+  app.post('/telegram/webhook', async (req, reply) => {
+    if (!config.TELEGRAM_WEBHOOK_SECRET || !(channel instanceof TelegramChannel))
+      return reply.code(503).send({ error: 'telegram not configured' });
+    const header = req.headers['x-telegram-bot-api-secret-token'];
+    if (typeof header !== 'string' || !safeEqual(header, config.TELEGRAM_WEBHOOK_SECRET)) {
+      log('telegram.rejected', {});
+      return reply.code(401).send({ error: 'bad secret token' });
+    }
+    const messages = parseTelegramUpdate(req.body);
+    for (const m of messages) {
+      if (m.callbackId) void channel.ack(m.callbackId);
+      inbox.enqueue(m);
+    }
     return reply.code(200).send({ received: messages.length });
   });
 

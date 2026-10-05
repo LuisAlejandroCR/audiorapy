@@ -5,6 +5,7 @@ import { OllamaIntentClassifier } from './ai/ollama-intent.ts';
 import { FallbackIntentClassifier } from './ai/rules-intent.ts';
 import { ConsoleChannel } from './channel/console-channel.ts';
 import { MetaChannel } from './channel/meta-channel.ts';
+import { TelegramChannel } from './channel/telegram.ts';
 import { FallbackRisk, SidecarRiskAdapter } from './ai/risk.ts';
 import { MemoryStore } from './store/memory-store.ts';
 import { PostgresStore } from './store/postgres-store.ts';
@@ -19,6 +20,8 @@ export function buildChannel(config: Config): ChannelPort {
       graphBaseUrl: config.META_GRAPH_BASE_URL,
     });
   }
+  if (config.channel === 'telegram')
+    return new TelegramChannel({ botToken: config.TELEGRAM_BOT_TOKEN! });
   return new ConsoleChannel();
 }
 

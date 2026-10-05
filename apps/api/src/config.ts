@@ -16,6 +16,8 @@ const EnvSchema = z.object({
   META_VERIFY_TOKEN: optional,
   META_GRAPH_VERSION: z.string().default('v25.0'),
   META_GRAPH_BASE_URL: z.string().url().default('https://graph.facebook.com'),
+  TELEGRAM_BOT_TOKEN: optional,
+  TELEGRAM_WEBHOOK_SECRET: optional,
   AI_INTENT_PROVIDER: z.enum(['ollama', 'rules']).default('rules'),
   OLLAMA_BASE_URL: z.string().url().default('http://127.0.0.1:11434'),
   OLLAMA_MODEL: z.string().default('gemma4:e4b'),
@@ -40,11 +42,16 @@ const EnvSchema = z.object({
 export const CONFIG_KEYS = Object.keys(EnvSchema.shape);
 
 export type Config = z.infer<typeof EnvSchema> & {
-  channel: 'meta' | 'console';
+  channel: 'meta' | 'telegram' | 'console';
 };
 
 export function loadConfig(env: Record<string, string | undefined> = process.env): Config {
   const parsed = EnvSchema.parse(env);
-  const channel = parsed.META_ACCESS_TOKEN && parsed.META_PHONE_NUMBER_ID ? 'meta' : 'console';
+  const channel =
+    parsed.META_ACCESS_TOKEN && parsed.META_PHONE_NUMBER_ID
+      ? 'meta'
+      : parsed.TELEGRAM_BOT_TOKEN
+        ? 'telegram'
+        : 'console';
   return { ...parsed, channel };
 }

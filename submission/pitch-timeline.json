@@ -1,106 +1,106 @@
 [
   {
     "start": 0.0,
-    "dur": 5.0,
-    "name": "puerta",
+    "dur": 4.0,
+    "name": "p1-puerta",
     "title": "audiorapy",
-    "voice": "Atiende a domicilio. Su consultorio es el carro.",
+    "voice": "Ella atiende a domicilio. Su consultorio es el carro.",
     "voice_file": true
   },
   {
-    "start": 5.0,
+    "start": 4.0,
     "dur": 5.0,
-    "name": "chats",
+    "name": "p2-chats",
     "title": "Cada visita,\nun chat distinto.",
-    "voice": "Cada visita se cuadra en un chat distinto.",
+    "voice": "Cada visita se cuadra en un chat distinto, y las notas viven en papel.",
     "voice_file": true
   },
   {
-    "start": 10.0,
-    "dur": 6.0,
-    "name": "botones",
+    "start": 9.0,
+    "dur": 8.0,
+    "name": "g1-agenda",
     "title": "El cuidador agenda\ncon botones.",
-    "voice": "Ahora la familia agenda con botones. Sin llamadas.",
+    "voice": "Con audiorapy, la familia agenda con botones: autoriza sus datos, elige un cupo y confirma.",
     "voice_file": true
   },
   {
-    "start": 16.0,
-    "dur": 5.0,
-    "name": "abuela",
-    "title": "Si no responde,\nte avisamos.",
-    "voice": "Y si nadie responde, la visita no se cancela sola: te avisa.",
-    "voice_file": true
-  },
-  {
-    "start": 21.0,
+    "start": 17.0,
     "dur": 6.0,
-    "name": "panel",
+    "name": "p3-abuela",
+    "title": "Si no responde,\nte avisamos.",
+    "voice": "Si nadie responde al recordatorio, la visita no se cancela sola. Ella recibe un aviso.",
+    "voice_file": true
+  },
+  {
+    "start": 23.0,
+    "dur": 7.0,
+    "name": "g2-panel",
     "title": "Lo importante\nprimero.",
-    "voice": "Abre el panel y ve primero lo que importa.",
+    "voice": "En el panel, lo importante va primero: avisos, visitas por confirmar y notas pendientes.",
     "voice_file": true
   },
   {
-    "start": 27.0,
-    "dur": 8.0,
-    "name": "sesion-cine",
-    "title": "Cada ensayo,\ncon su nivel de apoyo.",
-    "voice": "En la sesión, cada ensayo con su nivel de apoyo. Con una mano.",
-    "voice_file": true
-  },
-  {
-    "start": 35.0,
+    "start": 30.0,
     "dur": 7.0,
-    "name": "sesion-app",
+    "name": "g3-ruta",
+    "title": "Un comienzo\ncomo un juego.",
+    "voice": "La primera vez es como un juego: seis pasos con puntos, desde crear la bóveda hasta descargar un respaldo.",
+    "voice_file": true
+  },
+  {
+    "start": 37.0,
+    "dur": 7.0,
+    "name": "p7-sesiones",
+    "title": "audiorapy",
+    "voice": "En casa del paciente, un niño o una abuela, registra cada ensayo con una sola mano.",
+    "voice_file": true
+  },
+  {
+    "start": 44.0,
+    "dur": 8.0,
+    "name": "g4-sesion-movil",
     "title": "Racha, meta\ny criterio.",
-    "voice": "La app cuenta la racha y avisa cuando se alcanza el criterio.",
+    "voice": "Acierto o error, con su nivel de apoyo. El teléfono vibra con la racha, y avisa cuando se alcanza la meta.",
     "voice_file": true
   },
   {
-    "start": 42.0,
+    "start": 52.0,
     "dur": 8.0,
-    "name": "nota",
+    "name": "g5-nota",
     "title": "La IA propone.\nTú apruebas.",
-    "voice": "Gemma, en su propio equipo, propone. El código calcula. Ella aprueba.",
+    "voice": "Gemma, en su propio computador, propone la nota. El código calcula las cifras. Ella revisa y aprueba.",
     "voice_file": true
   },
   {
-    "start": 50.0,
-    "dur": 7.0,
-    "name": "cifrado",
+    "start": 60.0,
+    "dur": 6.0,
+    "name": "p5-cifrado",
     "title": "Ni el servidor\npuede leerla.",
-    "voice": "La nota se cifra antes de salir de su navegador.",
+    "voice": "La nota se cifra en su navegador. Ni el servidor puede leerla.",
     "voice_file": true
   },
   {
-    "start": 57.0,
-    "dur": 7.0,
-    "name": "ruta",
+    "start": 66.0,
+    "dur": 5.0,
+    "name": "g6-ruta",
     "title": "Cómo llegar,\nen un toque.",
-    "voice": "Y a la siguiente casa, en un toque.",
+    "voice": "Y a la siguiente casa, en un solo toque.",
     "voice_file": true
   },
   {
-    "start": 64.0,
+    "start": 71.0,
     "dur": 8.0,
-    "name": "logro",
-    "title": "Progreso que\nse ve.",
-    "voice": "El progreso se ve. Y se celebra.",
-    "voice_file": true
-  },
-  {
-    "start": 72.0,
-    "dur": 8.0,
-    "name": "sin-ia",
+    "name": "g7-sin-ia",
     "title": "Sin IA,\nsigue funcionando.",
-    "voice": "Apagamos la IA. La agenda sigue funcionando.",
+    "voice": "Apagamos la inteligencia artificial. La agenda sigue funcionando.",
     "voice_file": true
   },
   {
-    "start": 80.0,
-    "dur": 10.0,
+    "start": 79.0,
+    "dur": 11.0,
     "name": "cierre",
     "title": "Visitas confirmadas.\nNotas que no salen de tu equipo.",
-    "voice": "Hecho para mi hermana. Abierto para todas.",
+    "voice": "Visitas confirmadas. Notas que no salen de su equipo. Hecho para mi hermana; abierto para todas.",
     "voice_file": true
   }
 ]

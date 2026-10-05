@@ -19,26 +19,50 @@ cada promesa aparece primero en la vida de alguien y luego en el producto.
 Nota fija arriba a la izquierda durante las pantallas: *"Pantallas reales · datos sintéticos · WhatsApp
 simulado en modo consola."* (honestidad, como en la referencia).
 
-## Guion
+## Guion (mezcla técnico + pitch)
 
-| # | Tiempo | Tipo | Imagen | Titular en pantalla | Voz (es-CO) | Subtítulo (en) |
+Dos capas, como en las referencias: **escenas de cine con personas** (`knowni-stellar-pitch`) y **grabaciones
+reales de pantalla** con titular de dos líneas y barra de capítulos (`knowni-demo`). Alterna siempre:
+promesa en la vida de alguien → la pantalla real que la cumple. Voz: ElevenLabs, voz *Ery* (español
+latino, cálida), una sola pista con exactamente estas líneas.
+
+Barra de capítulos (abajo, en las pantallas): **Agenda · Panel · Sesión · Nota · Ruta · Sin IA**.
+Nota fija arriba a la izquierda en las pantallas: *Pantallas reales · datos sintéticos*.
+
+| # | Tiempo | Capa | Imagen | Titular | Voz (es) | Subtítulo (en) |
 |---|---|---|---|---|---|---|
-| 1 | 0–5 s | Cine | **P1** — la terapeuta en la puerta de una casa, maletín al hombro, mirando el teléfono | — | "Atiende a domicilio. Su consultorio es el carro." | "Her clinic is her car." |
-| 2 | 5–10 s | Cine | **P2** — de noche, mesa de cocina, 14 chats de WhatsApp abiertos | "Cada visita,\nun chat distinto." | "Cada visita se cuadra en un chat distinto." | "Every visit lives in a different chat." |
-| 3 | 10–16 s | Producto | Simulación del chat: Hola → *Acepto* → lista de cupos → reservado | "El cuidador agenda\ncon botones." | "Ahora la familia agenda con botones. Sin llamadas." | "Families book with buttons." |
-| 4 | 16–21 s | Cine | **P3** — una abuela confirma desde su sala con un toque | "Si no responde,\nte avisamos." | "Y si nadie responde, la visita no se cancela sola: te avisa." | "Silence is flagged, never acted on." |
-| 5 | 21–27 s | Producto | Panel `/app/`: resumen ejecutivo, KPIs, ruta de inicio | "Lo importante\nprimero." | "Abre el panel y ve primero lo que importa." | "What matters, first." |
-| 5b | 21–27 s (alterna) | Cine | **P7** — revisa la app en el carro, sesión con un niño y con una adulta mayor | — | (misma voz del corte 5) | (same) |
-| 6 | 27–35 s | Cine | **P4** — sesión con un adulto mayor (afasia) en su comedor; ella toca ✓ con el pulgar | "Cada ensayo,\ncon su nivel de apoyo." | "En la sesión, cada ensayo con su nivel de apoyo. Con una mano." | "Every try, with its level of support." |
-| 7 | 35–42 s | Producto | App Expo: ✓/✗, racha, meta 10, vibración (icono de háptica) | "Racha, meta\ny criterio." | "La app cuenta la racha y avisa cuando se alcanza el criterio." | "Streak, goal and criterion, live." |
-| 8 | 42–50 s | Producto | Nota SOAP: "O" calculada, IA local propone S/A/P, lista ✓ antes de aprobar | "La IA propone.\nTú apruebas." | "Gemma, en su propio equipo, propone. El código calcula. Ella aprueba." | "The model drafts. Code computes. She approves." |
-| 9 | 50–57 s | Cine | **P5** — laptop cerrándose; la nota se vuelve texto ilegible y se guarda | "Ni el servidor\npuede leerla." | "La nota se cifra antes de salir de su navegador." | "Not even the server can read it." |
-| 10 | 57–64 s | Producto | Tarjeta de visita → "Cómo llegar" → Waze | "Cómo llegar,\nen un toque." | "Y a la siguiente casa, en un toque." | "Directions in one tap." |
-| 11 | 64–72 s | Cine | **P6** — la terapeuta y un paciente (niño o adulto) celebran un logro; en su teléfono, un trofeo | "Progreso que\nse ve." | "El progreso se ve. Y se celebra." | "Progress you can see." |
-| 12 | 72–80 s | Producto | Prueba "matar al proveedor": IA apagada, la reserva sigue funcionando | "Sin IA,\nsigue funcionando." | "Apagamos la IA. La agenda sigue funcionando." | "AI off. Booking still works." |
-| 13 | 80–90 s | Cierre | Logo AUDIORAPY sobre beige, línea azul; QR al panel | "Visitas confirmadas.\nNotas que no salen de tu equipo." | "Hecho para mi hermana. Abierto para todas." | "Built for my sister. Open for everyone." |
+| 1 | 0–4 s | Cine | **P1** puerta de la casa | — | Ella atiende a domicilio. Su consultorio es el carro. | Her clinic is her car. |
+| 2 | 4–9 s | Cine | **P2** chats de noche | Cada visita,\nun chat distinto. | Cada visita se cuadra en un chat distinto, y las notas viven en papel. | Every visit, a different chat. Notes on paper. |
+| 3 | 9–17 s | **Pantalla** | **G1** chat: Hola → Acepto → cupos → reservado | El cuidador agenda\ncon botones. | Con audiorapy, la familia agenda con botones: autoriza sus datos, elige un cupo y confirma. | Families book with buttons. |
+| 4 | 17–23 s | Cine | **P3** abuela confirma | Si no responde,\nte avisamos. | Si nadie responde al recordatorio, la visita no se cancela sola. Ella recibe un aviso. | Silence is flagged, never acted on. |
+| 5 | 23–30 s | **Pantalla** | **G2** web `/app/` Hoy: resumen ejecutivo, campana | Lo importante\nprimero. | En el panel, lo importante va primero: avisos, visitas por confirmar y notas pendientes. | What matters, first. |
+| 6 | 30–37 s | **Pantalla** | **G3** web: ruta de inicio + celebración | Un comienzo\ncomo un juego. | La primera vez es como un juego: seis pasos con puntos, desde crear la bóveda hasta descargar un respaldo. | Onboarding as a quest. |
+| 7 | 37–44 s | Cine | **P7** revisa la app, sesión con niño y con adulta mayor | — | En casa del paciente, un niño o una abuela, registra cada ensayo con una sola mano. | Any patient, one hand. |
+| 8 | 44–52 s | **Pantalla** | **G4** móvil: modo sesión ✓/✗, racha, meta | Racha, meta\ny criterio. | Acierto o error, con su nivel de apoyo. El teléfono vibra con la racha, y avisa cuando se alcanza la meta. | Every try, with its support level. |
+| 9 | 52–60 s | **Pantalla** | **G5** web: nota SOAP, "O" calculada, lista S/A/P, aprobar | La IA propone.\nTú apruebas. | Gemma, en su propio computador, propone la nota. El código calcula las cifras. Ella revisa y aprueba. | The model drafts. Code computes. She approves. |
+| 10 | 60–66 s | Cine | **P5** laptop se cierra, sello azul | Ni el servidor\npuede leerla. | La nota se cifra en su navegador. Ni el servidor puede leerla. | Not even the server can read it. |
+| 11 | 66–71 s | **Pantalla** | **G6** móvil: "Cómo llegar" → selector → mapa | Cómo llegar,\nen un toque. | Y a la siguiente casa, en un solo toque. | Directions in one tap. |
+| 12 | 71–79 s | **Pantalla** | **G7** terminal `npm run demo:degraded` + chat que sigue reservando | Sin IA,\nsigue funcionando. | Apagamos la inteligencia artificial. La agenda sigue funcionando. | AI off. Booking still works. |
+| 13 | 79–90 s | Cierre | Logo sobre beige + QR al panel; **P6** de fondo | Visitas confirmadas.\nNotas que no salen de tu equipo. | Visitas confirmadas. Notas que no salen de su equipo. Hecho para mi hermana; abierto para todas. | Built for my sister. Open for everyone. |
 
-Pie del cierre: `COLOMBIA → LATAM` · *Código abierto (MIT) · audiorapy.vercel.app*
+### Lo que debes grabar (G1–G7)
+
+Graba a 60 fps, sin notificaciones del sistema, modo claro, datos sintéticos (botón "Cargar datos
+sintéticos"). Móvil: 1080×1920 (app Expo en el teléfono, o `expo start --web` a 390 px). Web: 1920×1080
+en <https://audiorapy.vercel.app/app/>. Cada clip 2 s más largo que su corte para tener margen.
+
+| Clip | Dónde | Qué hacer, en orden | Duración |
+|---|---|---|---|
+| **G1** | Terminal + chat (Telegram si ya está, o `POST /dev/simulate` mostrado como chat) | "Hola" → botón *Acepto* → lista de cupos → tocar un cupo → "Listo, la visita quedó agendada…" | 10 s |
+| **G2** | Web, pestaña **Hoy** | Desbloquear → el resumen ejecutivo entra (tarjetas en orden) → abrir la campana → "Marcar todo como leído" | 9 s |
+| **G3** | Web, bóveda nueva | Crear bóveda → 24 palabras → comprobar 3 palabras → aparece "2 pasos completados" y el mapa de la ruta | 9 s |
+| **G4** | Móvil, pestaña **Sesión** | Elegir "/s/ inicial" → nivel *mínimo* → ✓ ✓ ✓ (racha 3) ✗ ✓ … hasta "Meta alcanzada" → Terminar → resumen "O" | 10 s |
+| **G5** | Web, pestaña **Sesión** | Abrir la sesión recién guardada → "Borrador con IA local" → escribir S/A/P → la lista pasa a ✓ ✓ ✓ → Aprobar → "registro inmodificable" | 10 s |
+| **G6** | Móvil, pestaña **Hoy** | Escribir dirección → "Cómo llegar" → elegir Waze (o el selector de Android) | 7 s |
+| **G7** | Terminal | `npm run demo:degraded` (las comprobaciones en verde) cortado con G1 repitiéndose con Ollama apagado | 10 s |
+
+Montaje: titulares en serif sobre beige `#f5efe4`, texto azul `#14243b`, acento `#1d5fd1`; transición
+de 8 frames entre cine y pantalla; música baja (−22 dB) que no compite con la voz.
 
 ## Prompts de video con personas
 
